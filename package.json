@@ -1,0 +1,28 @@
+{
+  "name": "asaweb",
+  "version": "1.0.0",
+  "description": "ASA Website with Payload CMS and Next.js",
+  "private": true,
+  "scripts": {
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:clean": "docker-compose down -v --remove-orphans",
+    "docker:build": "node scripts/cleanup.js && docker-compose build --parallel",
+    "docker:logs": "docker-compose logs -f",
+    "docker:dev:up": "docker-compose -f docker-compose.dev.yml up -d",
+    "docker:dev:down": "docker-compose -f docker-compose.dev.yml down",
+    "docker:dev:clean": "docker-compose -f docker-compose.dev.yml down -v --remove-orphans",
+    "docker:dev:build": "node scripts/cleanup.js && docker-compose -f docker-compose.dev.yml build --parallel",
+    "docker:dev:logs": "docker-compose -f docker-compose.dev.yml logs -f",
+    "setup:env": "node scripts/setup-env.js",
+    "cleanup": "node scripts/cleanup.js"
+  },
+  "keywords": [
+    "docker",
+    "payload-cms",
+    "nextjs",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "MIT"
+} 

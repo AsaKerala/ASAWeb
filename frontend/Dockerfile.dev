@@ -1,0 +1,18 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Note: we don't copy the application code in development mode
+# because it will be mounted as a volume from the host
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Command to run the application in development mode
+CMD ["npm", "run", "dev"] 

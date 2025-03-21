@@ -1,0 +1,90 @@
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:5.0
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
+    networks:
+      - asaweb_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # MongoDB Express - Admin UI for MongoDB
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=admin123
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - asaweb_network
+    restart: unless-stopped
+
+  # Backend - Payload CMS
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://admin:admin123@mongodb:27017/organization?authSource=admin
+      - PAYLOAD_SECRET=your-payload-secret-here
+      - SERVER_URL=http://localhost:8000
+      - CORS_ORIGIN=http://localhost:3000
+    volumes:
+      - backend_uploads:/app/uploads
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - asaweb_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Frontend - Next.js
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=your-nextauth-secret-here
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - asaweb_network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  backend_uploads:
+
+networks:
+  asaweb_network:
+    driver: bridge 

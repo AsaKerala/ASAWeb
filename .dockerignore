@@ -1,0 +1,20 @@
+# Git related files
+.git
+.github
+.gitignore
+
+# Docker related files
+docker-compose.yml
+.dockerignore
+Dockerfile
+docker-volumes
+
+# Documentation
+*.md
+LICENSE
+
+# Editor configs
+.idea
+.vscode
+*.swp
+*.swo 
