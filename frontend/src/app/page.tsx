@@ -4,114 +4,200 @@ import Image from 'next/image';
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-32">
-        <div className="absolute inset-0 bg-black opacity-30"></div>
-        <div className="container mx-auto px-4 relative z-10">
+      {/* Hero Banner Section */}
+      <section id="banner" className="relative bg-gradient-to-r from-hinomaru-red to-sakura-700 text-white py-32">
+        <div className="absolute inset-0 bg-[url('/assets/sakura-pattern.png')] bg-repeat opacity-10"></div>
+        <div className="container-custom relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-              Welcome to Our Organization
+              Join ASA Kerala – Connect, Learn, and Grow
             </h1>
             <p className="text-xl mb-10">
-              Building stronger communities through collaboration, education, and service.
+              Explore training opportunities in Japan, business networking, and cultural exchange programs. Be part of an esteemed alumni association fostering Indo-Japanese relations.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/join-us"
-                className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition duration-300"
+                href="/membership/join"
+                className="btn-primary"
               >
-                Become a Member
+                Join Now
               </Link>
               <Link
-                href="/programs-events"
-                className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white/10 transition duration-300"
+                href="#welcome"
+                className="btn-outline"
               >
-                Explore Programs
+                Learn More
+              </Link>
+              <Link
+                href="/events"
+                className="btn-secondary"
+              >
+                Upcoming Events
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Programs Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Our Featured Programs</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Discover how our organization is making a positive impact through these key initiatives.
+      {/* Welcome Section */}
+      <section id="welcome" className="py-16 bg-white">
+        <div className="container-custom">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="section-title text-center">Welcome to ASA Kerala</h2>
+            <div className="flex justify-center mb-8">
+              <div className="w-20 h-1 bg-hinomaru-red"></div>
+            </div>
+            <p className="text-lg text-zen-700 leading-relaxed">
+Association of AOTS Kerala, dedicated to fostering Indo-Japanese relations by sharing knowledge, skills, and experiences gained through AOTS training programs. Our organization serves as a hub for professionals, entrepreneurs, and students interested in Japanese management practices, industrial expertise, cultural exchange and in general, the Japanese way of life!              ASA Kerala is the official alumni 
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Mission Statement Section */}
+      <section className="py-16 bg-zen-50">
+        <div className="container-custom">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="section-title text-center">Mission Statement</h2>
+            <div className="flex justify-center mb-8">
+              <div className="w-20 h-1 bg-hinomaru-red"></div>
+            </div>
+            <p className="text-lg text-zen-700 leading-relaxed mb-6">
+              Our mission is to:
+            </p>
+            <ul className="text-left text-lg text-zen-700 leading-relaxed space-y-4 max-w-2xl mx-auto">
+              <li className="flex items-start">
+                <span className="text-hinomaru-red mr-2">•</span>
+                <span>Promote Japanese industrial knowledge and management techniques in Kerala.</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-hinomaru-red mr-2">•</span>
+                <span>Facilitate training programs, internships, and business opportunities between Japan and India.</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-hinomaru-red mr-2">•</span>
+                <span>Strengthen Indo-Japanese relationships through cultural and business collaborations.</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-hinomaru-red mr-2">•</span>
+                <span>Transfer learnings and best practices from Japan and India to the rest of the world, particularly other developing countries.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Programs Section */}
+      <section className="py-20 bg-zen-50">
+        <div className="container-custom">
+          <div className="text-center mb-16">
+            <h2 className="section-title text-center">Featured Programs</h2>
+            <div className="flex justify-center mb-8">
+              <div className="w-20 h-1 bg-hinomaru-red"></div>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Program Card 1 */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
-              <div className="h-48 bg-blue-200 relative">
-                {/* Replace with actual image */}
-                <div className="absolute inset-0 flex items-center justify-center text-blue-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="mb-6 text-hinomaru-red">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2">Community Outreach</h3>
-                <p className="text-gray-600 mb-4">
-                  Supporting local communities through volunteer work, education, and resources.
-                </p>
-                <Link href="/programs-events/community-outreach" className="text-blue-600 font-medium hover:text-blue-800">
-                  Learn more →
-                </Link>
-              </div>
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Training Programs in Japan</h3>
+              <p className="text-zen-700 mb-4">
+                Learn about the latest industrial and management techniques from top Japanese experts.
+              </p>
+              <Link href="/programs/training-japan" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                Learn more 
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
             </div>
 
             {/* Program Card 2 */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
-              <div className="h-48 bg-green-200 relative">
-                {/* Replace with actual image */}
-                <div className="absolute inset-0 flex items-center justify-center text-green-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="mb-6 text-hinomaru-red">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2">Educational Programs</h3>
-                <p className="text-gray-600 mb-4">
-                  Providing lifelong learning opportunities for all ages through workshops and courses.
-                </p>
-                <Link href="/programs-events/educational-programs" className="text-blue-600 font-medium hover:text-blue-800">
-                  Learn more →
-                </Link>
-              </div>
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Internships & Job Opportunities</h3>
+              <p className="text-zen-700 mb-4">
+                Gain exposure to the Japanese work environment through structured internship programs.
+              </p>
+              <Link href="/programs/internships" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                Learn more 
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
             </div>
 
             {/* Program Card 3 */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
-              <div className="h-48 bg-purple-200 relative">
-                {/* Replace with actual image */}
-                <div className="absolute inset-0 flex items-center justify-center text-purple-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="mb-6 text-hinomaru-red">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                </svg>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2">Leadership Development</h3>
-                <p className="text-gray-600 mb-4">
-                  Building the next generation of community leaders through mentorship and training.
-                </p>
-                <Link href="/programs-events/leadership-development" className="text-blue-600 font-medium hover:text-blue-800">
-                  Learn more →
-                </Link>
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Language Training</h3>
+              <p className="text-zen-700 mb-4">
+                Enroll in Japanese language courses to enhance career prospects and communication.
+              </p>
+              <Link href="/programs/language-training" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                Learn more 
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+            </div>
+
+            {/* Program Card 4 */}
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="mb-6 text-hinomaru-red">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
               </div>
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Business Networking & Start-up Support</h3>
+              <p className="text-zen-700 mb-4">
+                Leverage our community to explore new business opportunities.
+              </p>
+              <Link href="/programs/business-networking" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                Learn more 
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+            </div>
+
+            {/* Program Card 5 */}
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="mb-6 text-hinomaru-red">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Training Programs in India</h3>
+              <p className="text-zen-700 mb-4">
+                Learn from a wide array of ASAK hosted programs for industries and professionals.
+              </p>
+              <Link href="/programs/training-india" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                Learn more 
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
             </div>
           </div>
 
           <div className="text-center mt-12">
             <Link 
-              href="/programs-events" 
-              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition duration-300"
+              href="/programs" 
+              className="btn-primary"
             >
               View All Programs
             </Link>
@@ -120,84 +206,105 @@ export default function Home() {
       </section>
 
       {/* Upcoming Events Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
+      <section className="py-20 bg-white">
+        <div className="container-custom">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Upcoming Events</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Join us at our upcoming events to connect with community members and participate in enriching activities.
+            <h2 className="section-title text-center">Upcoming Events</h2>
+            <div className="flex justify-center mb-8">
+              <div className="w-20 h-1 bg-hinomaru-red"></div>
+            </div>
+            <p className="text-lg text-zen-700 max-w-2xl mx-auto">
+              Stay updated with the latest activities, training programs, business delegations, and networking opportunities. Some of our upcoming events include:
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Event 1 */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">Workshop</span>
-                  <span className="text-gray-600 text-sm">June 15, 2025</span>
+            {/* Event Card 1 */}
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="flex justify-between items-start mb-4">
+                <div className="bg-hinomaru-red text-white px-4 py-2 rounded-washi text-center">
+                  <span className="block text-2xl font-bold">15</span>
+                  <span className="text-sm">June</span>
                 </div>
-                <h3 className="text-xl font-bold mb-2">Digital Skills Workshop</h3>
-                <p className="text-gray-600 mb-4">
-                  Learn essential digital skills for the modern workplace in this hands-on workshop.
-                </p>
-                <div className="flex items-center text-gray-500 text-sm mb-4">
+                <span className="text-zen-600 text-sm">2:00 PM - 4:00 PM</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Webinar on Lean Management</h3>
+              <p className="text-zen-700 mb-4">
+                A discussion on best practices in Japanese industry.
+              </p>
+              <div className="flex justify-between items-center">
+                <span className="text-zen-600 flex items-center text-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span>Community Center, Room 204</span>
-                </div>
-                <Link href="/programs-events/digital-skills-workshop" className="block text-center bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition duration-300">
-                  Register Now
+                  Online
+                </span>
+                <Link href="/events/lean-management-webinar" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                  Register
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
                 </Link>
               </div>
             </div>
 
-            {/* Event 2 */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">Networking</span>
-                  <span className="text-gray-600 text-sm">June 22, 2025</span>
+            {/* Event Card 2 */}
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="flex justify-between items-start mb-4">
+                <div className="bg-hinomaru-red text-white px-4 py-2 rounded-washi text-center">
+                  <span className="block text-2xl font-bold">22</span>
+                  <span className="text-sm">June</span>
                 </div>
-                <h3 className="text-xl font-bold mb-2">Professional Networking Mixer</h3>
-                <p className="text-gray-600 mb-4">
-                  Connect with professionals in your field at our monthly networking event.
-                </p>
-                <div className="flex items-center text-gray-500 text-sm mb-4">
+                <span className="text-zen-600 text-sm">6:00 PM - 8:00 PM</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Cultural Exchange Meetup</h3>
+              <p className="text-zen-700 mb-4">
+                An opportunity to connect with Japanese professionals and students.
+              </p>
+              <div className="flex justify-between items-center">
+                <span className="text-zen-600 flex items-center text-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span>Downtown Conference Center</span>
-                </div>
-                <Link href="/programs-events/networking-mixer" className="block text-center bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition duration-300">
-                  Register Now
+                  Kochi
+                </span>
+                <Link href="/events/cultural-exchange-meetup" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                  Register
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
                 </Link>
               </div>
             </div>
 
-            {/* Event 3 */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full">Family</span>
-                  <span className="text-gray-600 text-sm">July 5, 2025</span>
+            {/* Event Card 3 */}
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="flex justify-between items-start mb-4">
+                <div className="bg-hinomaru-red text-white px-4 py-2 rounded-washi text-center">
+                  <span className="block text-2xl font-bold">10</span>
+                  <span className="text-sm">July</span>
                 </div>
-                <h3 className="text-xl font-bold mb-2">Community Picnic & Fundraiser</h3>
-                <p className="text-gray-600 mb-4">
-                  Join us for a day of fun, food, and community-building at our annual picnic.
-                </p>
-                <div className="flex items-center text-gray-500 text-sm mb-4">
+                <span className="text-zen-600 text-sm">9:00 AM - 5:00 PM</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Business Delegation to Japan</h3>
+              <p className="text-zen-700 mb-4">
+                Facilitating partnerships between Indian and Japanese businesses.
+              </p>
+              <div className="flex justify-between items-center">
+                <span className="text-zen-600 flex items-center text-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span>Central Park, Main Pavilion</span>
-                </div>
-                <Link href="/programs-events/community-picnic" className="block text-center bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition duration-300">
-                  Register Now
+                  Tokyo, Japan
+                </span>
+                <Link href="/events/business-delegation-japan" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                  Register
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
                 </Link>
               </div>
             </div>
@@ -205,8 +312,8 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <Link 
-              href="/programs-events" 
-              className="inline-block border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-md font-medium hover:bg-blue-50 transition duration-300"
+              href="/events" 
+              className="btn-primary"
             >
               View All Events
             </Link>
@@ -214,85 +321,94 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-blue-50">
-        <div className="container mx-auto px-4">
+      {/* Quick Links Section */}
+      <section className="py-20 bg-zen-50">
+        <div className="container-custom">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">What Our Members Say</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Hear from our community members about how our organization has made a difference in their lives.
-            </p>
+            <h2 className="section-title text-center">Quick Links</h2>
+            <div className="flex justify-center mb-8">
+              <div className="w-20 h-1 bg-hinomaru-red"></div>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Testimonial 1 */}
-            <div className="bg-white p-8 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center text-blue-500 mr-4">
-                  <span className="font-bold text-xl">JD</span>
-                </div>
-                <div>
-                  <h4 className="font-bold">Jane Doe</h4>
-                  <p className="text-gray-500 text-sm">Member since 2022</p>
-                </div>
+            {/* Link Card 1 */}
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="mb-6 text-hinomaru-red">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
               </div>
-              <p className="text-gray-600 italic">
-                "Joining this organization has been one of the best decisions I've made. The professional development opportunities and connections I've gained are invaluable."
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Join ASA Kerala</h3>
+              <p className="text-zen-700 mb-4">
+                Become a member and access exclusive benefits, networking opportunities, and career resources.
               </p>
+              <Link href="/membership/join" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                Join Now
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
             </div>
 
-            {/* Testimonial 2 */}
-            <div className="bg-white p-8 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center text-green-500 mr-4">
-                  <span className="font-bold text-xl">JS</span>
-                </div>
-                <div>
-                  <h4 className="font-bold">John Smith</h4>
-                  <p className="text-gray-500 text-sm">Member since 2023</p>
-                </div>
+            {/* Link Card 2 */}
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="mb-6 text-hinomaru-red">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
               </div>
-              <p className="text-gray-600 italic">
-                "The workshops and educational programs have helped me advance my career. I've learned new skills and met amazing people who support and challenge me."
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Explore Training Programs</h3>
+              <p className="text-zen-700 mb-4">
+                Discover our comprehensive range of training opportunities both in Japan and India.
               </p>
+              <Link href="/programs" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                View Programs
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
             </div>
 
-            {/* Testimonial 3 */}
-            <div className="bg-white p-8 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center text-purple-500 mr-4">
-                  <span className="font-bold text-xl">AJ</span>
-                </div>
-                <div>
-                  <h4 className="font-bold">Amy Johnson</h4>
-                  <p className="text-gray-500 text-sm">Member since 2021</p>
-                </div>
+            {/* Link Card 3 */}
+            <div className="japan-card transition-transform duration-300 hover:-translate-y-2">
+              <div className="mb-6 text-hinomaru-red">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
               </div>
-              <p className="text-gray-600 italic">
-                "I've found a true community here. The volunteer opportunities have allowed me to give back while forming meaningful connections with others who share my passion."
+              <h3 className="text-xl font-bold mb-3 text-zen-900">Contact Us</h3>
+              <p className="text-zen-700 mb-4">
+                Have questions? Get in touch with our team for more information about ASA Kerala.
               </p>
+              <Link href="/contact" className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                Get in Touch
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="py-20 bg-blue-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Join Our Community?</h2>
-          <p className="max-w-2xl mx-auto mb-8 text-blue-100">
-            Become a member today to access exclusive resources, attend events, and connect with like-minded individuals.
+      {/* Call to Action Section */}
+      <section className="py-20 bg-gradient-to-r from-hinomaru-red to-sakura-700 text-white">
+        <div className="container-custom text-center">
+          <h2 className="text-3xl font-bold mb-4">Join Our Community</h2>
+          <p className="max-w-2xl mx-auto mb-8 text-white text-opacity-90 text-lg">
+            Become a member today to access exclusive resources, attend events, and connect with Japan enthusiasts across Kerala.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/join-us"
-              className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition duration-300"
+              href="/membership/join"
+              className="bg-white text-hinomaru-red px-8 py-3 rounded-washi font-medium hover:bg-gray-100 transition duration-300"
             >
               Become a Member
             </Link>
             <Link
               href="/contact"
-              className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white/10 transition duration-300"
+              className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-washi font-medium hover:bg-white/10 transition duration-300"
             >
               Contact Us
             </Link>

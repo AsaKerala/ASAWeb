@@ -2,6 +2,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Install necessary tools for development
+RUN apk add --no-cache bash
+
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
@@ -13,6 +16,11 @@ RUN npm install
 
 # Expose the port the app runs on
 EXPOSE 3000
+
+# Set environment variables for hot reloading
+ENV NODE_ENV=development
+ENV WATCHPACK_POLLING=true
+ENV CHOKIDAR_USEPOLLING=true
 
 # Command to run the application in development mode
 CMD ["npm", "run", "dev"] 

@@ -1,10 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111827;
+  --primary: #BC002D;
+  --primary-foreground: #ffffff;
+  --secondary: #F3F4F6;
+  --secondary-foreground: #111827;
+  --accent: #BC002D;
+  --accent-foreground: #ffffff;
+  --muted: #F3F4F6;
+  --muted-foreground: #6B7280;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --border: #E5E7EB;
+  --input: #E5E7EB;
+  --ring: #BC002D;
+  --dark-bg: #1F2937;
+  --dark-text: #F3F4F6;
 }
 
 @theme inline {
@@ -16,13 +33,111 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1F2937;
+    --foreground: #F9FAFB;
+    --primary: #FF3357;
+    --primary-foreground: #ffffff;
+    --secondary: #374151;
+    --secondary-foreground: #F9FAFB;
+    --accent: #FF3357;
+    --accent-foreground: #ffffff;
+    --muted: #374151;
+    --muted-foreground: #E5E7EB;
+    --card: #1F2937;
+    --card-foreground: #F9FAFB;
+    --border: #4B5563;
+    --input: #4B5563;
+    --ring: #FF3357;
+    --dark-bg: #1F2937;
+    --dark-text: #F3F4F6;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+  }
+  
+  .bg-zen-800, .bg-zen-900, .bg-slate-800, .bg-slate-900, 
+  .from-zen-800, .to-zen-800, .from-zen-900, .to-zen-900,
+  .from-slate-800, .to-slate-800, .from-slate-900, .to-slate-900 {
+    color: #F3F4F6;
+  }
+
+  .bg-zen-800 a, .bg-zen-900 a, .bg-slate-800 a, .bg-slate-900 a,
+  .from-zen-800 a, .to-zen-800 a, .from-zen-900 a, .to-zen-900 a,
+  .from-slate-800 a, .to-slate-800 a, .from-slate-900 a, .to-slate-900 a {
+    color: #FF9FB8;
+    /* text-decoration: underline; */
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-hinomaru-red text-white hover:bg-sakura-700 px-6 py-3 rounded-washi font-medium transition-all;
+  }
+  
+  .btn-secondary {
+    @apply bg-zen-100 text-zen-900 hover:bg-zen-200 px-6 py-3 rounded-washi font-medium transition-all;
+  }
+  
+  .btn-outline {
+    @apply bg-transparent border-2 border-hinomaru-red text-hinomaru-red hover:bg-sakura-50 px-6 py-3 rounded-washi font-medium transition-all;
+  }
+  
+  .btn-white {
+    @apply bg-white text-hinomaru-red hover:bg-gray-100 px-6 py-3 rounded-washi font-medium transition-all;
+  }
+  
+  .btn-outline-white {
+    @apply bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-3 rounded-washi font-medium transition-all;
+  }
+  
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold mb-6 text-zen-900 relative;
+  }
+  
+  .section-title::after {
+    @apply content-[''] absolute left-0 bottom-0 w-20 h-1 bg-hinomaru-red;
+  }
+  
+  .section-title-centered {
+    @apply text-3xl md:text-4xl font-bold mb-6 text-zen-900 relative text-center;
+  }
+  
+  .section-title-centered::after {
+    @apply content-[''] absolute left-1/2 -translate-x-1/2 bottom-0 w-20 h-1 bg-hinomaru-red;
+  }
+  
+  .japan-card {
+    @apply bg-white p-6 rounded-washi shadow-md border-t-4 border-hinomaru-red;
+  }
+  
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .dark-section {
+    @apply bg-zen-900 text-zen-50;
+  }
+  
+  .dark-text {
+    @apply text-zen-50;
+  }
+  
+  .text-high-contrast {
+    @apply text-zinc-50;
+  }
+  
+  .text-on-dark {
+    @apply text-zinc-50 font-medium;
+  }
 }

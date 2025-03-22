@@ -8,8 +8,8 @@ import Footer from "@/components/layout/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Organization Website",
-  description: "A comprehensive organization website with member management and event features",
+  title: "ASA Kerala - Alumni Association of Kerala, Japan",
+  description: "Japan Alumni Association of Kerala - A platform for individuals who have studied, trained, or worked in Japan and are now back in Kerala",
 };
 
 export default function RootLayout({
