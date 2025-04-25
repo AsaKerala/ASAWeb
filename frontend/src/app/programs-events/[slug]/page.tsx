@@ -183,7 +183,6 @@ interface Program {
   status: string;
   category: string;
   duration?: string;
-  location?: string;
   cost?: string;
   eligibility?: string;
   dates?: { start: string; end: string }[];
@@ -206,6 +205,35 @@ interface Program {
       };
     };
   };
+  keyFeatures?: {
+    duration?: string;
+    mode?: 'online' | 'offline' | 'hybrid';
+    customLocation?: string;
+    isVirtual?: boolean;
+    virtualLink?: string;
+    eventDate?: string;
+    startDate?: string;
+    endDate?: string;
+    certification?: 'yes' | 'no';
+    eligibility?: string;
+  };
+  eventDate?: string;
+  startDate?: string;
+  endDate?: string;
+  location?: {
+    name?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    isVirtual?: boolean;
+    virtualLink?: string;
+  } | string;
+  upcomingBatches?: Array<{
+    startDate: string;
+    mode?: 'online' | 'offline' | 'hybrid';
+    applicationDeadline?: string;
+  }>;
 }
 
 export default function DetailPage() {
@@ -441,16 +469,19 @@ export default function DetailPage() {
                   <div className="overflow-x-auto">
                     <table className="min-w-full bg-white">
                       <tbody>
-                        {item.keyFeatures.duration && (
+                        {item.keyFeatures?.duration && (
                           <tr className="border-b">
                             <td className="py-3 px-4 bg-zinc-50 text-black font-semibold">Duration:</td>
                             <td className="py-3 px-4 text-black">{item.keyFeatures.duration}</td>
                           </tr>
                         )}
-                        {item.keyFeatures.mode && (
+                        {item.keyFeatures?.mode && (
                           <tr className="border-b">
                             <td className="py-3 px-4 bg-zinc-50 text-black font-semibold">Mode:</td>
-                            <td className="py-3 px-4 text-black">{item.keyFeatures.mode === 'online' ? 'Online' : item.keyFeatures.mode === 'offline' ? 'Offline' : 'Hybrid'}</td>
+                            <td className="py-3 px-4 text-black">
+                              {item.keyFeatures.mode.includes('online') ? 'Online' : 
+                                item.keyFeatures.mode.includes('offline') ? 'Offline' : 'Hybrid'}
+                            </td>
                           </tr>
                         )}
                         {item.keyFeatures.customLocation && (
@@ -692,9 +723,11 @@ export default function DetailPage() {
                         <div>
                           <span className="block text-sm text-zinc-800">Location</span>
                           <span className="block text-zinc-900">
-                            {item.location.isVirtual 
-                              ? `Online ${item.location.virtualLink ? `- ${item.location.virtualLink}` : ''}` 
-                              : `${item.location.name || ''} ${item.location.city ? `, ${item.location.city}` : ''}`}
+                            {typeof item.location === 'object' && item.location?.isVirtual 
+                              ? `Online ${typeof item.location === 'object' && item.location?.virtualLink ? `- ${item.location.virtualLink}` : ''}` 
+                              : typeof item.location === 'object' 
+                                ? `${item.location?.name || ''} ${item.location?.city ? `, ${item.location.city}` : ''}`
+                                : item.location || 'To be announced'}
                           </span>
                         </div>
                       </li>
@@ -883,13 +916,13 @@ export default function DetailPage() {
                           <p className="text-zinc-700">Online</p>
                         ) : item.keyFeatures?.mode === 'offline' ? (
                           <p className="text-zinc-700">Offline</p>
-                        ) : item.location?.isVirtual ? (
+                        ) : typeof item.location === 'object' && item.location?.isVirtual ? (
                           <p className="text-zinc-700">Online</p>
-                        ) : item.location?.name || item.location?.address || item.location?.city ? (
+                        ) : typeof item.location === 'object' && item.location ? (
                           <div>
                             {item.location.name && <p className="text-zinc-700">{item.location.name}</p>}
                             {item.location.address && <p className="text-zinc-700">{item.location.address}</p>}
-                            {item.location.city && !item.location.address?.includes(item.location.city) && (
+                            {item.location.city && item.location.address && !item.location.address.includes(item.location.city) && (
                               <p className="text-zinc-700">
                                 {item.location.city}
                                 {item.location.state && `, ${item.location.state}`}
@@ -899,8 +932,8 @@ export default function DetailPage() {
                           </div>
                         ) : item.keyFeatures?.mode ? (
                           <p className="text-zinc-700">
-                            {item.keyFeatures.mode === 'online' ? 'Online' : 
-                              item.keyFeatures.mode === 'offline' ? 'Offline' : 'Hybrid'}
+                            {item.keyFeatures.mode.includes('online') ? 'Online' : 
+                             item.keyFeatures.mode.includes('offline') ? 'Offline' : 'Hybrid'}
                           </p>
                         ) : (
                           <p className="text-zinc-700">To be announced</p>

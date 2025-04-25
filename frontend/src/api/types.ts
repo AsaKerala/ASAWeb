@@ -7,4 +7,5 @@ export interface MediaCoverage {
   imageUrl: string;
   featured?: boolean;
   videoUrl?: string;
+  description?: string;
 } 

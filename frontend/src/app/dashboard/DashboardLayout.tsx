@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAuth } from '@/lib/auth/auth';
 import { DashboardSidebar } from '@/components/dashboard/Sidebar';
+import { useAuth } from '@/lib/auth/auth';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Link from 'next/link';
 

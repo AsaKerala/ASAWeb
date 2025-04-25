@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
-import { useErrorBoundary } from 'react-error-boundary';
 import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { getMediaCoverage } from '@/api/content';
-import { Media, MediaCoverage } from '@/types/content';
+import { MediaCoverage } from '@/api/types';
 import YouTubePlayer from '@/components/YouTubePlayer';
 
 // Utility function to extract YouTube ID from URL
@@ -21,7 +20,6 @@ export default function MediaCoveragePage() {
   const [mediaCoverage, setMediaCoverage] = useState<MediaCoverage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { showBoundary } = useErrorBoundary();
 
   useEffect(() => {
     const fetchMediaCoverage = async () => {
@@ -33,16 +31,13 @@ export default function MediaCoveragePage() {
       } catch (err) {
         console.error('Error fetching media coverage:', err);
         setError('Failed to load media coverage. Please try again later.');
-        if (err instanceof Error) {
-          showBoundary(err);
-        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchMediaCoverage();
-  }, [showBoundary]);
+  }, []);
 
   return (
     <div>
@@ -75,8 +70,7 @@ export default function MediaCoveragePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {mediaCoverage.map((media) => {
                 // Get YouTube ID from the appropriate field
-                const youtubeId = media.youtubeID || 
-                  (media.youtubeURL ? getYouTubeId(media.youtubeURL) : null);
+                const youtubeId = media.videoUrl ? getYouTubeId(media.videoUrl) : null;
                 
                 return (
                   <div key={media.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition">
@@ -92,19 +86,19 @@ export default function MediaCoveragePage() {
                     <div className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <span className="inline-block px-3 py-1 text-xs font-medium bg-hinomaru-red text-white rounded-full">
-                          {media.mediaType || 'Media'}
+                          {media.publication || 'Media'}
                         </span>
                         <span className="text-sm text-zinc-500">
-                          {media.publishedDate ? format(new Date(media.publishedDate), 'MMM d, yyyy') : 'No date'}
+                          {media.date ? format(new Date(media.date), 'MMM d, yyyy') : 'No date'}
                         </span>
                       </div>
                       <h3 className="font-bold text-lg mb-3 text-zinc-900">{media.title}</h3>
                       {media.description && (
                         <p className="text-zinc-700 text-sm mb-4">{media.description}</p>
                       )}
-                      {media.sourceURL && (
+                      {media.url && (
                         <a 
-                          href={media.sourceURL} 
+                          href={media.url} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="text-hinomaru-red font-medium hover:underline inline-flex items-center"

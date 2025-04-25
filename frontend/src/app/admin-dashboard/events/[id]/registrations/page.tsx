@@ -20,7 +20,8 @@ type JsPDFType = {
 // Dynamically import jsPDF and jspdf-autotable
 let jsPDF: JsPDFType | null = null;
 
-interface RegistrationWithUser extends EventRegistration {
+// Define a type for the user object instead of extending EventRegistration
+interface RegistrationWithUser extends Omit<EventRegistration, 'user'> {
   user: {
     id: string;
     name?: string;

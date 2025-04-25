@@ -6,6 +6,12 @@ import Image from 'next/image';
 import { useAuth } from '@/lib/auth/auth';
 import { events as eventsApi } from '@/lib/api';
 import { format } from 'date-fns';
+import { EventRegistration as BaseEventRegistration } from '@/lib/api/types';
+
+// Extend the EventRegistration type to include batchIndex
+interface EventRegistration extends BaseEventRegistration {
+  batchIndex?: number;
+}
 
 function EventStatusBadge({ status }: { status: string }) {
   let bgColor = '';
@@ -45,7 +51,7 @@ function EventStatusBadge({ status }: { status: string }) {
   );
 }
 
-function EventCard({ registration }) {
+function EventCard({ registration }: { registration: EventRegistration }) {
   const event = registration.event;
   if (!event || typeof event === 'string') {
     return (
@@ -65,7 +71,7 @@ function EventCard({ registration }) {
     ? 'Virtual Event' 
     : locationName || 'In-person Event';
   
-  const formatDate = (date) => {
+  const formatDate = (date: Date | null) => {
     if (!date) return 'TBD';
     return format(date, 'MMM d, yyyy');
   };
@@ -124,7 +130,9 @@ function EventCard({ registration }) {
             </svg>
             <span>
               {event.keyFeatures?.customLocation || 
-               (event.location ? (event.location.isVirtual ? 'Virtual Event' : event.location.name) : 'Location TBD')}
+               (typeof event.location === 'object' && event.location ? 
+                (event.location.isVirtual ? 'Virtual Event' : event.location.name) : 
+                typeof event.location === 'string' ? event.location : 'Location TBD')}
             </span>
           </div>
         </div>
@@ -163,9 +171,9 @@ function EventCard({ registration }) {
 
 export default function EventsPage() {
   const { user, refreshUser } = useAuth();
-  const [registrations, setRegistrations] = useState([]);
+  const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('upcoming');
   
   // Function to fetch registrations
@@ -204,8 +212,8 @@ export default function EventsPage() {
   
   // Separate registrations into upcoming and past events
   const now = new Date();
-  const upcomingRegistrations = [];
-  const pastRegistrations = [];
+  const upcomingRegistrations: EventRegistration[] = [];
+  const pastRegistrations: EventRegistration[] = [];
   
   registrations.forEach(registration => {
     if (!registration.event || typeof registration.event === 'string') {
@@ -213,7 +221,7 @@ export default function EventsPage() {
     }
     
     const event = registration.event;
-    let eventDate;
+    let eventDate: Date | null = null;
     
     // Check for batch date if it's a batch registration
     if (registration.batchIndex !== undefined && 
@@ -236,22 +244,24 @@ export default function EventsPage() {
   });
   
   // Sort registrations by date
-  const sortByDate = (a, b) => {
-    const getEventDate = (reg) => {
+  const sortByDate = (a: EventRegistration, b: EventRegistration) => {
+    const getEventDate = (reg: EventRegistration) => {
       if (!reg.event || typeof reg.event === 'string') return new Date(0);
       
       const event = reg.event;
       
+      // Check for batch date if it's a batch registration
       if (reg.batchIndex !== undefined && 
           event.upcomingBatches && 
           event.upcomingBatches[reg.batchIndex]) {
         return new Date(event.upcomingBatches[reg.batchIndex].startDate);
       }
       
-      return event.startDate ? new Date(event.startDate) : new Date(0);
+      // Otherwise use event start date or registration date as fallback
+      return event.startDate ? new Date(event.startDate) : new Date(reg.registrationDate);
     };
     
-    return getEventDate(a) - getEventDate(b);
+    return getEventDate(a).getTime() - getEventDate(b).getTime();
   };
   
   upcomingRegistrations.sort(sortByDate);

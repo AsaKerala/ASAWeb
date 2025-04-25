@@ -4,22 +4,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { bookingsApi, activityLogs } from '@/lib/api';
 import { format, parseISO } from 'date-fns';
+import { ActivityLog } from '@/lib/api/types';
 
-// Activity log interface
-interface ActivityLog {
+// Define booking interfaces to fix type errors
+interface Booking {
   id: string;
-  action: string;
-  entityType: string;
-  entityId?: string;
   status: string;
-  createdAt: string;
-  user?: {
-    id: string;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-  };
-  details?: any;
+  [key: string]: any;
 }
 
 export default function AdminDashboardPage() {
@@ -43,12 +34,12 @@ export default function AdminDashboardPage() {
         // Fetch room bookings
         const roomBookingsResponse = await bookingsApi.getRoomBookings();
         const roomBookings = roomBookingsResponse.data?.docs || [];
-        const pendingRoomBookings = roomBookings.filter(booking => booking.status === 'pending');
+        const pendingRoomBookings = roomBookings.filter((booking: Booking) => booking.status === 'pending');
 
         // Fetch event bookings
         const eventBookingsResponse = await bookingsApi.getEventBookings();
         const eventBookings = eventBookingsResponse.data?.docs || [];
-        const pendingEventBookings = eventBookings.filter(booking => booking.status === 'pending');
+        const pendingEventBookings = eventBookings.filter((booking: Booking) => booking.status === 'pending');
 
         setStats({
           roomBookings: {

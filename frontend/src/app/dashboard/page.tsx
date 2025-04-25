@@ -201,14 +201,16 @@ export default function Dashboard() {
                         ? event.keyFeatures.customLocation
                         : event.keyFeatures?.isVirtual || event.keyFeatures?.mode === 'online'
                         ? 'Online'
-                        : event.location?.isVirtual 
+                        : typeof event.location === 'object' && event.location?.isVirtual 
                         ? 'Online'
-                        : event.location?.name 
+                        : typeof event.location === 'object' && event.location?.name 
                         ? event.location.name
-                        : event.location?.address
+                        : typeof event.location === 'object' && event.location?.address
                         ? event.location.address
-                        : event.location?.city
+                        : typeof event.location === 'object' && event.location?.city
                         ? `${event.location.city}${event.location.state ? `, ${event.location.state}` : ''}`
+                        : typeof event.location === 'string'
+                        ? event.location
                         : 'Location TBD'}
                     </p>
                     <div className="mt-2">

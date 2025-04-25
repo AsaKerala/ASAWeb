@@ -281,9 +281,9 @@ export default function NotificationsPage() {
         </div>
       </div>
       
-      <Tabs defaultValue="all" onValueChange={setActiveTab} className="space-y-6">
+      <Tabs defaultValue="all" className="space-y-6">
         <TabsList className="grid grid-cols-7 sm:flex sm:flex-wrap sm:w-auto w-full mb-6">
-          <TabsTrigger value="all" className="relative">
+          <TabsTrigger value="all" className="relative" onClick={() => setActiveTab('all')}>
             All
             {unreadCount > 0 && (
               <Badge variant="secondary" className="ml-1 absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
@@ -291,12 +291,12 @@ export default function NotificationsPage() {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="unread">Unread</TabsTrigger>
-          <TabsTrigger value="event">Events</TabsTrigger>
-          <TabsTrigger value="resource">Resources</TabsTrigger>
-          <TabsTrigger value="certificate">Certificates</TabsTrigger>
-          <TabsTrigger value="connection">Connections</TabsTrigger>
-          <TabsTrigger value="membership">Membership</TabsTrigger>
+          <TabsTrigger value="unread" onClick={() => setActiveTab('unread')}>Unread</TabsTrigger>
+          <TabsTrigger value="event" onClick={() => setActiveTab('event')}>Events</TabsTrigger>
+          <TabsTrigger value="resource" onClick={() => setActiveTab('resource')}>Resources</TabsTrigger>
+          <TabsTrigger value="certificate" onClick={() => setActiveTab('certificate')}>Certificates</TabsTrigger>
+          <TabsTrigger value="connection" onClick={() => setActiveTab('connection')}>Connections</TabsTrigger>
+          <TabsTrigger value="membership" onClick={() => setActiveTab('membership')}>Membership</TabsTrigger>
         </TabsList>
         
         <TabsContent value={activeTab} className="space-y-4">

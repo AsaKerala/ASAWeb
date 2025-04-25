@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { bookingsApi, RoomBookingData } from '@/lib/api';
+import { bookingsApi } from '@/lib/api';
+import { RoomBookingData } from '@/lib/api/bookings';
 
 export default function BookRoomPage() {
   const [formData, setFormData] = useState<RoomBookingData>({

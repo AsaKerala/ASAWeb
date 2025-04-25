@@ -244,9 +244,9 @@ export default function Header() {
                   onClick={toggleUserMenu}
                 >
                   <div className="relative w-8 h-8 rounded-full overflow-hidden bg-hinomaru-red text-white flex items-center justify-center border border-gray-200">
-                    {user.profilePicture ? (
+                    {user.profile?.profileImage ? (
                       <Image
-                        src={user.profilePicture}
+                        src={user.profile.profileImage}
                         alt={user.name || 'User'}
                         fill
                         className="object-cover"
@@ -326,9 +326,9 @@ export default function Header() {
                 onClick={toggleUserMenu}
               >
                 <div className="relative w-8 h-8 rounded-full overflow-hidden bg-hinomaru-red text-white flex items-center justify-center border border-gray-200">
-                  {user.profilePicture ? (
+                  {user.profile?.profileImage ? (
                     <Image
-                      src={user.profilePicture}
+                      src={user.profile.profileImage}
                       alt={user.name || 'User'}
                       fill
                       className="object-cover"
@@ -442,9 +442,9 @@ export default function Header() {
           {isAuthenticated && user && (
             <div className="mb-6 flex items-center">
               <div className="relative w-12 h-12 rounded-full overflow-hidden bg-white text-hinomaru-red flex items-center justify-center mr-3">
-                {user.profilePicture ? (
+                {user.profile?.profileImage ? (
                   <Image
-                    src={user.profilePicture}
+                    src={user.profile.profileImage}
                     alt={user.name || 'User'}
                     fill
                     className="object-cover"

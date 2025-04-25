@@ -46,7 +46,7 @@ export default async function getUserEvents(token?: string): Promise<{
       const event = registration.event as Event;
       const endDate = event.endDate || event.startDate;
       
-      if (new Date(endDate) >= new Date()) {
+      if (endDate && new Date(endDate) >= new Date()) {
         upcoming.push(registration);
       } else {
         past.push(registration);
@@ -57,14 +57,18 @@ export default async function getUserEvents(token?: string): Promise<{
     upcoming.sort((a, b) => {
       const eventA = a.event as Event;
       const eventB = b.event as Event;
-      return new Date(eventA.startDate).getTime() - new Date(eventB.startDate).getTime();
+      const dateA = eventA.startDate || new Date(0).toISOString();
+      const dateB = eventB.startDate || new Date(0).toISOString();
+      return new Date(dateA).getTime() - new Date(dateB).getTime();
     });
     
     // Sort past events by start date (descending - most recent first)
     past.sort((a, b) => {
       const eventA = a.event as Event;
       const eventB = b.event as Event;
-      return new Date(eventB.startDate).getTime() - new Date(eventA.startDate).getTime();
+      const dateA = eventA.startDate || new Date(0).toISOString();
+      const dateB = eventB.startDate || new Date(0).toISOString(); 
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
     });
     
     return {

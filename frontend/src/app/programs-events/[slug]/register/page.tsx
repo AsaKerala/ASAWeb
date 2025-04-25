@@ -128,7 +128,9 @@ export default function EventRegistrationPage() {
         }
       } catch (error) {
         console.error('Error fetching event:', error);
-        console.error('Error details:', error.response?.status, error.response?.data);
+        // Use type assertion and optional chaining for safer error access
+        const err = error as any;
+        console.error('Error details:', err?.response?.status, err?.response?.data);
         
         // Try fetching all events as a fallback
         try {
@@ -189,14 +191,16 @@ export default function EventRegistrationPage() {
       if (response.data) {
         setRegistrationStatus('success');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Registration error:', error);
       setRegistrationStatus('error');
       
-      if (error.response?.status === 400 && error.response?.data?.message?.includes('already registered')) {
+      // Type assertion to safely access error properties
+      const err = error as any;
+      if (err?.response?.status === 400 && err?.response?.data?.message?.includes('already registered')) {
         setErrorMessage('You are already registered for this event.');
       } else {
-        setErrorMessage(error.message || 'There was an error processing your registration. Please try again later.');
+        setErrorMessage(err?.message || 'There was an error processing your registration. Please try again later.');
       }
     }
   };

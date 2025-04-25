@@ -1,4 +1,4 @@
-import { backendApi } from "./base";
+import { api } from "./index";
 
 export interface YouTubeVideo {
   id: string;
@@ -20,7 +20,7 @@ export const youtubeApi = {
    */
   getAllVideos: async (): Promise<YouTubeVideo[]> => {
     try {
-      const response = await backendApi.get('/api/youtube-videos', {
+      const response = await api.get('/api/youtube-videos', {
         params: {
           limit: 100,
           depth: 0,
@@ -38,7 +38,7 @@ export const youtubeApi = {
    */
   getFeaturedVideos: async (): Promise<YouTubeVideo[]> => {
     try {
-      const response = await backendApi.get('/api/youtube-videos', {
+      const response = await api.get('/api/youtube-videos', {
         params: {
           where: {
             featured: {
@@ -62,7 +62,7 @@ export const youtubeApi = {
    */
   getVideosByCategory: async (category: string): Promise<YouTubeVideo[]> => {
     try {
-      const response = await backendApi.get('/api/youtube-videos', {
+      const response = await api.get('/api/youtube-videos', {
         params: {
           where: {
             category: {
@@ -86,7 +86,7 @@ export const youtubeApi = {
    */
   getMediaCoverageVideos: async (): Promise<YouTubeVideo[]> => {
     try {
-      const response = await backendApi.get('/api/youtube-videos', {
+      const response = await api.get('/api/youtube-videos', {
         params: {
           where: {
             category: {

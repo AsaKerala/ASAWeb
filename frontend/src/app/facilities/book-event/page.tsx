@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { bookingsApi, EventBookingData } from '@/lib/api';
+import { bookingsApi } from '@/lib/api';
+import { EventBookingData } from '@/lib/api/bookings';
 
 export default function BookEventPage() {
   const [formData, setFormData] = useState<EventBookingData>({

@@ -199,6 +199,7 @@ export interface News {
   publishedDate?: string;
   author?: string | User;
   categories?: string[];
+  attachments?: any[]; // Added for newsletter attachments
   createdAt: string;
   updatedAt: string;
 }

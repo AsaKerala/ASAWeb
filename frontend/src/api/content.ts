@@ -1,3 +1,6 @@
+import { MediaCoverage } from './types';
+import { api } from '../lib/api';
+
 export async function getMediaCoverage(): Promise<MediaCoverage[]> {
   try {
     const { data } = await api.get('/media-coverage');

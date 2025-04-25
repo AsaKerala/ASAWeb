@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/dashboard/Sidebar';
 import { useAuth } from '@/lib/auth/auth';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import Link from 'next/link';
 
 export default function DashboardLayout({
   children,
