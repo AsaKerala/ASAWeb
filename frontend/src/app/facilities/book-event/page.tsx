@@ -2,16 +2,18 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { bookingsApi, EventBookingData } from '@/lib/api';
 
 export default function BookEventPage() {
-  const [formData, setFormData] = useState({
-    organizationName: '',
-    contactPerson: '',
+  const [formData, setFormData] = useState<EventBookingData>({
+    eventName: '',
+    organizerName: '',
+    organization: '',
     email: '',
     phone: '',
     eventType: 'conference',
     attendees: '10-50',
-    venue: 'auditorium',
+    venueSpace: 'auditorium',
     startDate: '',
     endDate: '',
     requirements: '',
@@ -42,17 +44,12 @@ export default function BookEventPage() {
     setFormStatus('submitting');
     
     try {
-      // This would be an API call in a real implementation
-      // await api.bookEvent(formData);
-      
-      // Simulate API call with a delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await bookingsApi.submitEventBooking(formData);
       setFormStatus('success');
     } catch (error) {
       console.error('Error submitting form:', error);
       setFormStatus('error');
-      setErrorMessage('There was a problem submitting your event booking request. Please try again or contact us directly.');
+      setErrorMessage('There was a problem submitting your booking request. Please try again or contact us directly.');
     }
   };
   
@@ -147,33 +144,33 @@ export default function BookEventPage() {
                     <h3 className="text-lg font-semibold text-zinc-900 mb-2">Organization Information</h3>
                     
                     <div>
-                      <label htmlFor="organizationName" className="block text-sm font-medium text-zinc-700 mb-1">
-                        Organization Name *
+                      <label htmlFor="organization" className="block text-sm font-medium text-zinc-700 mb-1">
+                        Organization *
                       </label>
                       <input
                         type="text"
-                        id="organizationName"
-                        name="organizationName"
-                        value={formData.organizationName}
+                        id="organization"
+                        name="organization"
+                        value={formData.organization}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                       />
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="contactPerson" className="block text-sm font-medium text-zinc-700 mb-1">
-                          Contact Person *
+                        <label htmlFor="organizerName" className="block text-sm font-medium text-zinc-700 mb-1">
+                          Organizer Name *
                         </label>
                         <input
                           type="text"
-                          id="contactPerson"
-                          name="contactPerson"
-                          value={formData.contactPerson}
+                          id="organizerName"
+                          name="organizerName"
+                          value={formData.organizerName}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         />
                       </div>
                       
@@ -188,7 +185,7 @@ export default function BookEventPage() {
                           value={formData.email}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         />
                       </div>
                     </div>
@@ -204,7 +201,7 @@ export default function BookEventPage() {
                         value={formData.phone}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                       />
                     </div>
                   </div>
@@ -212,6 +209,21 @@ export default function BookEventPage() {
                   {/* Event Details */}
                   <div className="space-y-4 pt-4 border-t border-zinc-200">
                     <h3 className="text-lg font-semibold text-zinc-900 mb-2">Event Details</h3>
+                    
+                    <div>
+                      <label htmlFor="eventName" className="block text-sm font-medium text-zinc-700 mb-1">
+                        Event Name *
+                      </label>
+                      <input
+                        type="text"
+                        id="eventName"
+                        name="eventName"
+                        value={formData.eventName}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
+                      />
+                    </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -224,7 +236,7 @@ export default function BookEventPage() {
                           value={formData.eventType}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         >
                           <option value="conference">Conference</option>
                           <option value="training">Training Program</option>
@@ -245,7 +257,7 @@ export default function BookEventPage() {
                           value={formData.attendees}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         >
                           <option value="10-50">10-50 people</option>
                           <option value="51-100">51-100 people</option>
@@ -256,16 +268,16 @@ export default function BookEventPage() {
                     </div>
                     
                     <div>
-                      <label htmlFor="venue" className="block text-sm font-medium text-zinc-700 mb-1">
+                      <label htmlFor="venueSpace" className="block text-sm font-medium text-zinc-700 mb-1">
                         Preferred Venue *
                       </label>
                       <select
-                        id="venue"
-                        name="venue"
-                        value={formData.venue}
+                        id="venueSpace"
+                        name="venueSpace"
+                        value={formData.venueSpace}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                       >
                         <option value="auditorium">Golden Jubilee Hall (Auditorium - capacity 200)</option>
                         <option value="nishimura">Nishimura Hall (Seminar Hall - capacity 80)</option>
@@ -289,7 +301,7 @@ export default function BookEventPage() {
                           onChange={handleChange}
                           min={today}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         />
                       </div>
                       
@@ -305,14 +317,14 @@ export default function BookEventPage() {
                           onChange={handleChange}
                           min={minEndDate}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         />
                       </div>
                     </div>
                     
                     <div>
                       <label htmlFor="requirements" className="block text-sm font-medium text-zinc-700 mb-1">
-                        Additional Requirements and Services
+                        Specific Requirements
                       </label>
                       <textarea
                         id="requirements"
@@ -321,7 +333,7 @@ export default function BookEventPage() {
                         value={formData.requirements}
                         onChange={handleChange}
                         placeholder="Please describe any specific requirements, AV needs, catering preferences, setup arrangements, etc."
-                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                       ></textarea>
                     </div>
                   </div>
@@ -338,7 +350,7 @@ export default function BookEventPage() {
                             checked={formData.agreeToTerms}
                             onChange={handleChange}
                             required
-                            className="h-4 w-4 text-hinomaru-red focus:ring-hinomaru-red border-zinc-300 rounded"
+                            className="h-4 w-4 text-hinomaru-red focus:ring-hinomaru-red border-zinc-300 rounded text-zinc-900"
                           />
                         </div>
                         <div className="ml-3 text-sm">

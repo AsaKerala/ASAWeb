@@ -8,10 +8,12 @@ import Image from 'next/image';
 const quickLinks = [
   { label: 'Home', href: '/' },
   { label: 'About Us', href: '/about' },
+  { label: 'Programs & Events', href: '/programs-events' },
+  { label: 'Join ASA Kerala', href: '/membership/join' },
   { label: 'Membership', href: '/membership' },
-  { label: 'Gallery', href: '/gallery' },
-  { label: 'Events', href: '/events' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Facilities', href: '/facilities' },
+  { label: 'News', href: '/news' },
+  { label: 'Contact Us', href: '/contact' },
 ];
 
 // Resources links
@@ -111,6 +113,7 @@ export default function Footer() {
           <div className="col-span-1">
             <div className="mb-4 md:mb-6">
               <Link href="/" className="flex items-center no-underline">
+                <Image src="/assets/ASA-logo.png" alt="ASA Logo" width={40} height={40} className="object-contain mr-2" />
                 <span className="text-2xl md:text-3xl font-bold text-white">ASA</span>
                 <span className="text-2xl md:text-3xl font-bold text-sakura-200 ml-1">Kerala</span>
               </Link>
@@ -231,7 +234,7 @@ export default function Footer() {
               </svg>
               <div>
                 <h4 className="text-white text-sm md:text-base font-medium mb-1">Address</h4>
-                <p className="text-gray-400 text-xs md:text-sm">123 ASA Building, Trivandrum, Kerala, India - 695001</p>
+                <p className="text-gray-400 text-xs md:text-sm">ASA Kerala, Nippon Kerala Centre, Kalamassery, Kochi, Kerala, India</p>
               </div>
             </div>
             <div className="flex items-start mt-4 sm:mt-0">
@@ -262,10 +265,10 @@ export default function Footer() {
               © {new Date().getFullYear()} ASA Kerala. All rights reserved.
             </p>
             <div className="flex flex-wrap justify-center md:justify-end space-x-3 md:space-x-4 text-xs md:text-sm">
-              <Link href="/terms" className="text-gray-400 hover:text-sakura-200 transition-colors no-underline mb-1 md:mb-0">Terms of Service</Link>
+              <Link href="/terms" className="text-gray-400 hover:text-sakura-200 transition-colors no-underline mb-1 md:mb-0">Terms & Conditions</Link>
               <Link href="/privacy" className="text-gray-400 hover:text-sakura-200 transition-colors no-underline mb-1 md:mb-0">Privacy Policy</Link>
-              <Link href="/sitemap" className="text-gray-400 hover:text-sakura-200 transition-colors no-underline mb-1 md:mb-0">Sitemap</Link>
-            </div>
+              <Link href="/data-protection" className="text-gray-400 hover:text-sakura-200 transition-colors no-underline mb-1 md:mb-0">Data Protection</Link>
+              <Link href="/cookie-policy" className="text-gray-400 hover:text-sakura-200 transition-colors no-underline mb-1 md:mb-0">Cookie Policy</Link>            </div>
           </div>
         </div>
       </div>

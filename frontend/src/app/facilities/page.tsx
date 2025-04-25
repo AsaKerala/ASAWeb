@@ -1,11 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { galleryApi } from '@/lib/api';
+
+interface GalleryImage {
+  id: string;
+  title: string;
+  image: {
+    url: string;
+    alt?: string;
+  };
+  caption?: string;
+  category: string;
+  featured: boolean;
+}
 
 export default function FacilitiesPage() {
   const [activeGalleryTab, setActiveGalleryTab] = useState('all');
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [carouselImages, setCarouselImages] = useState<GalleryImage[]>([]);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [filteredImages, setFilteredImages] = useState<GalleryImage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Categories for filtering
   const categories = [
@@ -18,140 +36,134 @@ export default function FacilitiesPage() {
     { id: 'sustainability', name: 'Sustainability' },
   ];
   
-  // Sample gallery images (in a real implementation, these would come from an API)
-  const galleryImages = [
+  // Fetch gallery images on component mount
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch featured images for the carousel
+        const featuredResponse = await galleryApi.getFeatured(4);
+        const featured = featuredResponse.data?.docs || [];
+        
+        // Fetch all gallery images
+        const allImagesResponse = await galleryApi.getAll();
+        const allImages = allImagesResponse.data?.docs || [];
+        
+        setCarouselImages(featured);
+        setGalleryImages(allImages);
+        setFilteredImages(allImages);
+      } catch (error) {
+        console.error('Error fetching gallery images:', error);
+        
+        // Fallback to sample images if API fails
+        setCarouselImages(sampleCarouselImages);
+        setGalleryImages(sampleGalleryImages);
+        setFilteredImages(sampleGalleryImages);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchGalleryImages();
+  }, []);
+  
+  // Filter gallery images when tab changes
+  useEffect(() => {
+    if (activeGalleryTab === 'all') {
+      setFilteredImages(galleryImages);
+    } else {
+      setFilteredImages(galleryImages.filter(img => img.category === activeGalleryTab));
+    }
+  }, [activeGalleryTab, galleryImages]);
+  
+  // Auto-rotate carousel
+  useEffect(() => {
+    if (carouselImages.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev === carouselImages.length - 1 ? 0 : prev + 1));
+    }, 3000); // Change slide every 3 seconds
+    
+    return () => clearInterval(interval);
+  }, [carouselImages.length]);
+  
+  // Sample carousel images as fallback
+  const sampleCarouselImages = [
     {
-      id: 1,
-      src: '/assets/facilities/nkc-exterior-1.jpg',
-      alt: 'NKC Main Building',
+      id: '1',
+      title: 'Nippon Kerala Centre',
+      image: {
+        url: '/assets/facilities/nkc-exterior-1.jpg',
+        alt: 'NKC Main Building Exterior',
+      },
+      caption: 'A Japanese architectural marvel in Kerala',
       category: 'exterior',
-      caption: 'Nippon Kerala Centre - Main Building',
+      featured: true,
     },
     {
-      id: 2,
-      src: '/assets/facilities/nkc-exterior-2.jpg',
-      alt: 'NKC Entrance',
-      category: 'exterior',
-      caption: 'Main Entrance with Torii Gate',
-    },
-    {
-      id: 3,
-      src: '/assets/facilities/torii-gate.jpg',
-      alt: 'Traditional Red Torii Gate',
-      category: 'japanese',
-      caption: 'Traditional Japanese Torii Gate',
-    },
-    {
-      id: 4,
-      src: '/assets/facilities/zen-garden-1.jpg',
-      alt: 'Japanese Zen Garden',
-      category: 'japanese',
-      caption: 'Japanese Zen Garden with Stone Arrangement',
-    },
-    {
-      id: 5,
-      src: '/assets/facilities/zen-garden-2.jpg',
-      alt: 'Zen Garden Path',
-      category: 'japanese',
-      caption: 'Peaceful Walking Path in Zen Garden',
-    },
-    {
-      id: 6,
-      src: '/assets/facilities/auditorium-1.jpg',
-      alt: 'Golden Jubilee Hall',
+      id: '2',
+      title: 'Golden Jubilee Hall',
+      image: {
+        url: '/assets/facilities/golden-jubilee-hall.jpg',
+        alt: 'Golden Jubilee Hall',
+      },
+      caption: 'Soon to be renamed Hozumi Goichi Sensei Memorial Hall',
       category: 'training',
-      caption: 'Golden Jubilee Hall (Auditorium) - Theatre Setup',
+      featured: true,
     },
     {
-      id: 7,
-      src: '/assets/facilities/auditorium-2.jpg',
-      alt: 'Golden Jubilee Hall Stage',
-      category: 'training',
-      caption: 'Golden Jubilee Hall - Stage and Podium',
-    },
-    {
-      id: 8,
-      src: '/assets/facilities/nishimura-hall.jpg',
-      alt: 'Nishimura Hall',
-      category: 'training',
-      caption: 'Nishimura Hall - Seminar Setup',
-    },
-    {
-      id: 9,
-      src: '/assets/facilities/yamamoto-hall.jpg',
-      alt: 'Yamamoto Hall',
-      category: 'training',
-      caption: 'Yamamoto Hall - Classroom Setup',
-    },
-    {
-      id: 10,
-      src: '/assets/facilities/classroom.jpg',
-      alt: 'Classroom',
-      category: 'training',
-      caption: 'Modern Classroom with A/V Equipment',
-    },
-    {
-      id: 11,
-      src: '/assets/facilities/boardroom.jpg',
-      alt: 'Boardroom',
-      category: 'training',
-      caption: 'Executive Boardroom for Meetings',
-    },
-    {
-      id: 12,
-      src: '/assets/facilities/twin-room.jpg',
-      alt: 'Twin Room',
+      id: '3',
+      title: 'Comfortable Accommodations',
+      image: {
+        url: '/assets/facilities/twin-room-suite.jpg',
+        alt: 'Twin Room Suite',
+      },
+      caption: '20 fully equipped twin rooms with modern amenities',
       category: 'rooms',
-      caption: 'Comfortable Twin Room Accommodation',
+      featured: true,
     },
     {
-      id: 13,
-      src: '/assets/facilities/suite-room.jpg',
-      alt: 'Suite Room',
-      category: 'rooms',
-      caption: 'Premium Suite Room with Japanese Decor',
-    },
-    {
-      id: 14,
-      src: '/assets/facilities/bathroom.jpg',
-      alt: 'Modern Bathroom',
-      category: 'rooms',
-      caption: 'Modern Bathroom Facilities',
-    },
-    {
-      id: 15,
-      src: '/assets/facilities/dining-hall.jpg',
-      alt: 'Dining Hall',
-      category: 'facilities',
-      caption: 'Spacious Dining Hall',
-    },
-    {
-      id: 16,
-      src: '/assets/facilities/library.jpg',
-      alt: 'Library',
-      category: 'facilities',
-      caption: 'Japanese and Management Literature Library',
-    },
-    {
-      id: 17,
-      src: '/assets/facilities/startup-space.jpg',
-      alt: 'Startup Space',
-      category: 'facilities',
-      caption: 'Modern Co-working and Startup Space',
-    },
-    {
-      id: 18,
-      src: '/assets/facilities/solar-panels.jpg',
-      alt: 'Solar Panels',
-      category: 'sustainability',
-      caption: '100% Solar Powered Facility',
+      id: '4',
+      title: 'Japanese Zen Garden',
+      image: {
+        url: '/assets/facilities/zen-garden.jpg',
+        alt: 'Japanese Zen Garden',
+      },
+      caption: 'Experience tranquility in our authentic Japanese garden',
+      category: 'japanese',
+      featured: true,
     },
   ];
   
-  // Filter images based on active tab
-  const filteredImages = activeGalleryTab === 'all' 
-    ? galleryImages 
-    : galleryImages.filter(img => img.category === activeGalleryTab);
+  // Sample gallery images as fallback
+  const sampleGalleryImages = [
+    // ... existing sample gallery images but converted to match our interface
+    // This is just the first few as examples
+    {
+      id: '1',
+      title: 'NKC Main Building',
+      image: {
+        url: '/assets/facilities/nkc-exterior-1.jpg',
+        alt: 'NKC Main Building',
+      },
+      caption: 'Nippon Kerala Centre - Main Building',
+      category: 'exterior',
+      featured: false,
+    },
+    {
+      id: '2',
+      title: 'NKC Entrance',
+      image: {
+        url: '/assets/facilities/nkc-exterior-2.jpg',
+        alt: 'NKC Entrance',
+      },
+      caption: 'Main Entrance with Torii Gate',
+      category: 'exterior',
+      featured: false,
+    },
+    // ... add more sample images as needed
+  ];
   
   // Amenity groups for better organization
   const amenityGroups = [
@@ -242,6 +254,69 @@ export default function FacilitiesPage() {
         </div>
       </section>
 
+      {/* Hero Image Carousel */}
+      <section className="relative bg-black h-[500px] md:h-[600px] overflow-hidden">
+        {carouselImages.map((image, index) => (
+          <div 
+            key={image.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+          >
+            {/* In a real implementation, display actual carousel images */}
+            <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
+              <span className="text-zinc-300 text-xl">{image.image?.alt || image.title}</span>
+            </div>
+            {/* Use when actual images are available from API */}
+            {image.image?.url && (
+              <Image
+                src={image.image.url}
+                alt={image.image?.alt || image.title}
+                fill
+                className="object-cover"
+                priority={index === 0}
+                unoptimized={true}
+              />
+            )}
+            <div className="absolute inset-0 bg-black/40"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 bg-gradient-to-t from-black/80 to-transparent">
+              <div className="container-custom">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">{image.title}</h2>
+                <p className="text-lg md:text-xl text-zinc-100">{image.caption}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        {/* Book Now Button - Moved to bottom center */}
+        <div className="absolute bottom-24 md:bottom-32 left-1/2 transform -translate-x-1/2 z-20">
+          <a 
+            href="#booking-section" 
+            className="btn-primary text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            <span>Book Now</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </a>
+        </div>
+        
+        {/* Carousel Indicators */}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
+          {carouselImages.map((_, index) => (
+            <button
+              key={index}
+              className={`w-3 h-3 rounded-full transition-colors ${
+                index === currentSlide ? 'bg-white' : 'bg-white/40'
+              }`}
+              onClick={() => setCurrentSlide(index)}
+            />
+          ))}
+        </div>
+      </section>
+
       {/* NKC Overview Section */}
       <section className="py-16 bg-white">
         <div className="container-custom">
@@ -284,6 +359,140 @@ export default function FacilitiesPage() {
         </div>
       </section>
 
+      {/* Booking & Reservations Section - Moved up as requested */}
+      <section id="booking-section" className="py-16 bg-zinc-100">
+        <div className="container-custom">
+          <h2 className="section-title-centered text-3xl font-bold text-zinc-900 mb-8">Room & Event Booking</h2>
+          <p className="text-center text-zinc-700 max-w-3xl mx-auto mb-12">
+            Experience our world-class facilities for your stay or event. Our modern accommodations and 
+            versatile training spaces provide the perfect environment for both individual visits and corporate functions.
+          </p>
+          
+          {/* Booking Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+            {/* Accommodation Details */}
+            <div className="japan-card p-8">
+              <div className="flex items-center mb-6">
+                <div className="bg-sakura-100 w-16 h-16 rounded-full flex items-center justify-center mr-4">
+                  <span className="text-3xl">🏨</span>
+                </div>
+                <h3 className="text-2xl font-bold text-zinc-900">Accommodation</h3>
+              </div>
+              <div className="space-y-4 text-zinc-700">
+                <p>
+                  <strong>20 fully equipped twin rooms</strong>, including 2 luxury suite rooms with 
+                  Japanese-inspired decor and modern amenities.
+                </p>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>Comfortable beds with premium linens</li>
+                  <li>En-suite bathrooms with shower facilities</li>
+                  <li>Air conditioning in all rooms</li>
+                  <li>Daily housekeeping service</li>
+                  <li>High-speed Wi-Fi access</li>
+                  <li>In-room tea/coffee facilities</li>
+                </ul>
+                <div className="pt-4">
+                  <Link href="/facilities/book-room" className="btn-primary inline-block">
+                    Book a Room
+                  </Link>
+                </div>
+              </div>
+            </div>
+            
+            {/* Conference & Training Details */}
+            <div className="japan-card p-8">
+              <div className="flex items-center mb-6">
+                <div className="bg-sakura-100 w-16 h-16 rounded-full flex items-center justify-center mr-4">
+                  <span className="text-3xl">🎓</span>
+                </div>
+                <h3 className="text-2xl font-bold text-zinc-900">Conference & Training</h3>
+              </div>
+              <div className="space-y-4 text-zinc-700">
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>
+                    <strong>Golden Jubilee Hall</strong> - Large auditorium 
+                    (soon to be renamed Hozumi Goichi Sensei Memorial Hall)
+                  </li>
+                  <li>
+                    <strong>Two seminar halls</strong> - Nishimura Hall and Yamamoto Hall, 
+                    perfect for workshops and meetings
+                  </li>
+                  <li>
+                    <strong>8 modern classrooms</strong> with advanced audio-visual equipment
+                  </li>
+                  <li>Executive boardroom for smaller meetings</li>
+                  <li>Breakout spaces for group discussions</li>
+                  <li>Technical support available</li>
+                </ul>
+                <div className="pt-4">
+                  <Link href="/facilities/book-event" className="btn-primary inline-block">
+                    Book for an Event
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Booking Card Highlights */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            <div className="japan-card-simple p-6 text-center">
+              <div className="text-3xl mb-2">🏢</div>
+              <h4 className="font-semibold text-zinc-900 mb-1">All-in-One Facility</h4>
+              <p className="text-sm text-zinc-600">Accommodation, training, and dining in one location</p>
+            </div>
+            
+            <div className="japan-card-simple p-6 text-center">
+              <div className="text-3xl mb-2">💼</div>
+              <h4 className="font-semibold text-zinc-900 mb-1">Professional Setup</h4>
+              <p className="text-sm text-zinc-600">Modern equipment for productive sessions</p>
+            </div>
+            
+            <div className="japan-card-simple p-6 text-center">
+              <div className="text-3xl mb-2">🍃</div>
+              <h4 className="font-semibold text-zinc-900 mb-1">Japanese Ambiance</h4>
+              <p className="text-sm text-zinc-600">Authentic Japanese-inspired environment</p>
+            </div>
+            
+            <div className="japan-card-simple p-6 text-center">
+              <div className="text-3xl mb-2">👥</div>
+              <h4 className="font-semibold text-zinc-900 mb-1">Support Staff</h4>
+              <p className="text-sm text-zinc-600">Dedicated team to assist with your needs</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Amenities Section */}
+      <section className="py-16 bg-white">
+        <div className="container-custom">
+          <h2 className="section-title-centered text-3xl font-bold text-zinc-900 mb-8">Amenities</h2>
+          <p className="text-center text-zinc-700 max-w-3xl mx-auto mb-12">
+            NKC boasts state-of-the-art amenities designed to provide a comfortable, 
+            productive, and authentically Japanese experience.
+          </p>
+          
+          {/* Amenities Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {amenityGroups.map((group, index) => (
+              <div key={index} className="japan-card p-6">
+                <div className="flex items-center mb-4">
+                  <span className="text-3xl mr-3">{group.icon}</span>
+                  <h3 className="text-xl font-bold text-zinc-900">{group.title}</h3>
+                </div>
+                <ul className="space-y-2">
+                  {group.items.map((item, i) => (
+                    <li key={i} className="flex items-start">
+                      <span className="text-hinomaru-red mr-2">•</span>
+                      <span className="text-zinc-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Photo Gallery Section */}
       <section className="py-16 bg-zinc-100">
         <div className="container-custom">
@@ -311,101 +520,37 @@ export default function FacilitiesPage() {
           </div>
           
           {/* Gallery Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredImages.map((image) => (
-              <div key={image.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                <div className="h-48 relative">
-                  {/* In a real implementation, display actual gallery images */}
-                  <div className="absolute inset-0 bg-zinc-200 flex items-center justify-center">
-                    <span className="text-zinc-500">{image.alt}</span>
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="inline-block w-12 h-12 border-4 border-hinomaru-red/20 border-t-hinomaru-red rounded-full animate-spin"></div>
+              <p className="mt-4 text-zinc-600">Loading gallery images...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredImages.map((image) => (
+                <div key={image.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                  <div className="h-48 relative">
+                    {image.image?.url ? (
+                      <Image
+                        src={image.image.url}
+                        alt={image.image?.alt || image.title}
+                        fill
+                        className="object-cover"
+                        unoptimized={true}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-zinc-200 flex items-center justify-center">
+                        <span className="text-zinc-500">{image.title}</span>
+                      </div>
+                    )}
                   </div>
-                  {/* Uncomment when actual images are available */}
-                  {/* <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    className="object-cover"
-                  /> */}
+                  <div className="p-4">
+                    <p className="text-zinc-700 text-sm">{image.caption || image.title}</p>
+                  </div>
                 </div>
-                <div className="p-4">
-                  <p className="text-zinc-700 text-sm">{image.caption}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Booking & Reservations Section */}
-      <section className="py-16 bg-white">
-        <div className="container-custom">
-          <h2 className="section-title-centered text-3xl font-bold text-zinc-900 mb-8">Booking & Reservations</h2>
-          <p className="text-center text-zinc-700 max-w-3xl mx-auto mb-12">
-            Organizations and individuals can book rooms at NKC for training programs, conferences, 
-            and corporate events. Our facility offers a seamless reservation process for all guests.
-          </p>
-          
-          {/* Booking Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Individual Room Booking */}
-            <div className="japan-card p-8 text-center">
-              <div className="bg-sakura-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">🏨</span>
-              </div>
-              <h3 className="text-xl font-bold text-zinc-900 mb-2">Room Booking</h3>
-              <p className="text-zinc-700 mb-6">
-                Book accommodation for individuals or small groups with our comfortable twin rooms and suites.
-              </p>
-              <Link href="/facilities/book-room" className="btn-primary inline-block">
-                Book a Room
-              </Link>
+              ))}
             </div>
-            
-            {/* Event Booking */}
-            <div className="japan-card p-8 text-center">
-              <div className="bg-sakura-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">🎓</span>
-              </div>
-              <h3 className="text-xl font-bold text-zinc-900 mb-2">Event Booking</h3>
-              <p className="text-zinc-700 mb-6">
-                Reserve our training halls, conference rooms, and auditorium for corporate events and programs.
-              </p>
-              <Link href="/facilities/book-event" className="btn-primary inline-block">
-                Book for an Event
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Amenities Section */}
-      <section className="py-16 bg-zinc-100">
-        <div className="container-custom">
-          <h2 className="section-title-centered text-3xl font-bold text-zinc-900 mb-8">Amenities</h2>
-          <p className="text-center text-zinc-700 max-w-3xl mx-auto mb-12">
-            Currently, NKC boasts state-of-the-art amenities designed to provide a comfortable, 
-            productive, and authentically Japanese experience.
-          </p>
-          
-          {/* Amenities Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {amenityGroups.map((group, index) => (
-              <div key={index} className="japan-card p-6">
-                <div className="flex items-center mb-4">
-                  <span className="text-3xl mr-3">{group.icon}</span>
-                  <h3 className="text-xl font-bold text-zinc-900">{group.title}</h3>
-                </div>
-                <ul className="space-y-2">
-                  {group.items.map((item, i) => (
-                    <li key={i} className="flex items-start">
-                      <span className="text-hinomaru-red mr-2">•</span>
-                      <span className="text-zinc-700">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
       </section>
 

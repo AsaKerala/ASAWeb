@@ -148,6 +148,15 @@ const News: CollectionConfig = {
       },
     },
     {
+      name: 'isAnnouncement',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'If checked, this news item will appear in the Announcements section',
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'relatedEvents',
       type: 'relationship',
       relationTo: 'events',

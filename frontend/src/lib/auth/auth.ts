@@ -2,43 +2,89 @@
 
 import { auth as authApi } from '../api';
 import { createContext, useContext } from 'react';
+import axios from 'axios';
 
 export type User = {
   id: string;
   email: string;
   name: string;
   role: 'admin' | 'member';
-  profileImage?: string;
-  phone?: string;
-  address?: {
-    street?: string;
-    city?: string;
-    state?: string;
-    zipCode?: string;
-    country?: string;
+  profile?: {
+    profileImage?: string;
+    phone?: string;
+    japanExperience?: string;
+    japaneseLanguage?: string;
+    currentOrganization?: string;
+    position?: string;
+    address?: {
+      street?: string;
+      city?: string;
+      state?: string;
+      zipCode?: string;
+      country?: string;
+    };
+    bio?: string;
+    socialLinks?: Array<{
+      platform: string;
+      url: string;
+    }>;
   };
-  membershipDetails?: {
-    memberSince: string;
-    membershipType: string;
-    renewalDate: string;
-    isActive: boolean;
+  membership?: {
+    membershipType?: string;
+    membershipStatus?: string;
+    joinDate?: string;
+    renewalDate?: string;
+    memberID?: string;
   };
-  eventsAttended?: any[];
+  preferences?: {
+    emailNotifications?: boolean;
+    newsletterSubscription?: boolean;
+    eventReminders?: boolean;
+    showProfileInDirectory?: boolean;
+    directMessagePermission?: string;
+  };
+  connections?: string[];
+  attendedEvents?: string[];
 };
 
 export type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  isAdmin: boolean;
+  login: (email: string, password: string) => Promise<User>;
   register: (userData: any) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  checkAdminAccess: () => Promise<boolean>;
 };
 
 export async function loginUser(email: string, password: string): Promise<User> {
   try {
+    console.log('Sending login request to API...');
     const response = await authApi.login(email, password);
+    console.log('Login response received:', { 
+      hasToken: !!response.data.token,
+      hasUser: !!response.data.user,
+      userData: response.data.user ? { 
+        id: response.data.user.id,
+        email: response.data.user.email,
+        role: response.data.user.role
+      } : null 
+    });
+    
+    // Check if the token was returned and store it
+    if (response.data.token && typeof window !== 'undefined') {
+      localStorage.setItem('payload-token', response.data.token);
+      console.log('Token stored in localStorage with length:', response.data.token.length);
+      
+      // Double-check the token was stored successfully
+      const storedToken = localStorage.getItem('payload-token');
+      console.log('Token verification after storing:', !!storedToken);
+    } else {
+      console.warn('No token received in login response!');
+    }
+    
     return response.data.user;
   } catch (error) {
     console.error('Login error:', error);
@@ -51,7 +97,7 @@ export async function registerUser(userData: any): Promise<User> {
     const response = await authApi.register(userData);
     return response.data.user;
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Register error:', error);
     throw error;
   }
 }
@@ -59,18 +105,49 @@ export async function registerUser(userData: any): Promise<User> {
 export async function logoutUser(): Promise<void> {
   try {
     await authApi.logout();
+    
+    // Always clear token from localStorage on logout
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('payload-token');
+      console.log('Token removed from localStorage');
+    }
   } catch (error) {
     console.error('Logout error:', error);
+    
+    // Clear token even on error
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('payload-token');
+    }
+    
     throw error;
   }
 }
 
 export async function getCurrentUser(): Promise<User | null> {
   try {
+    console.log('Fetching current user data from /api/users/me endpoint');
     const response = await authApi.me();
+    
+    console.log('Current user response:', {
+      status: response.status,
+      hasUser: !!response.data.user,
+      userData: response.data.user ? {
+        id: response.data.user.id,
+        email: response.data.user.email,
+        role: response.data.user.role 
+      } : null
+    });
+    
     return response.data.user;
   } catch (error) {
     console.error('Get current user error:', error);
+    
+    // Log additional information about the error
+    if (axios.isAxiosError(error)) {
+      console.error('  Status:', error.response?.status);
+      console.error('  Message:', error.response?.data?.message || error.message);
+    }
+    
     return null;
   }
 }
@@ -85,7 +162,36 @@ export function isMember(user: User | null): boolean {
 
 export function hasActiveMembership(user: User | null): boolean {
   if (!user) return false;
-  return user.membershipDetails?.isActive ?? false;
+  return user.membership?.membershipStatus === 'active';
+}
+
+export async function checkAdminAccess(): Promise<boolean> {
+  try {
+    // First check if the user has admin role in their profile
+    const user = await getCurrentUser();
+    if (!user || user.role !== 'admin') {
+      return false;
+    }
+    
+    // Then try the admin endpoint, but handle 404 gracefully
+    try {
+      const response = await authApi.checkAdmin();
+      return response.data.isAdmin === true;
+    } catch (error: any) {
+      console.error('Check admin error:', error);
+      
+      // If endpoint is not found (404), but user has admin role, still return true
+      if (error.response && error.response.status === 404) {
+        console.log('Admin check endpoint not found, falling back to role-based check');
+        return user.role === 'admin';
+      }
+      
+      return false;
+    }
+  } catch (error) {
+    console.error('Check admin access error:', error);
+    return false;
+  }
 }
 
 // Create an auth context for React components
@@ -93,10 +199,15 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: false,
   isAuthenticated: false,
-  login: async () => {},
+  isAdmin: false,
+  login: async () => { 
+    throw new Error('Not implemented');
+    return {} as User; // unreachable but helps with typing
+  },
   register: async () => {},
   logout: async () => {},
   refreshUser: async () => {},
+  checkAdminAccess: async () => false,
 });
 
 // Hook to use the auth context

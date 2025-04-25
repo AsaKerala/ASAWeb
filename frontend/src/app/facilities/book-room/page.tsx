@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { bookingsApi, RoomBookingData } from '@/lib/api';
 
 export default function BookRoomPage() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RoomBookingData>({
     name: '',
     email: '',
     phone: '',
@@ -41,12 +42,7 @@ export default function BookRoomPage() {
     setFormStatus('submitting');
     
     try {
-      // This would be an API call in a real implementation
-      // await api.bookRoom(formData);
-      
-      // Simulate API call with a delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await bookingsApi.submitRoomBooking(formData);
       setFormStatus('success');
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -156,7 +152,7 @@ export default function BookRoomPage() {
                           value={formData.name}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         />
                       </div>
                       
@@ -171,7 +167,7 @@ export default function BookRoomPage() {
                           value={formData.email}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         />
                       </div>
                     </div>
@@ -188,7 +184,7 @@ export default function BookRoomPage() {
                           value={formData.phone}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         />
                       </div>
                       
@@ -202,7 +198,7 @@ export default function BookRoomPage() {
                           name="organization"
                           value={formData.organization}
                           onChange={handleChange}
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         />
                       </div>
                     </div>
@@ -223,7 +219,7 @@ export default function BookRoomPage() {
                           value={formData.roomType}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         >
                           <option value="twin">Twin Room (2 single beds)</option>
                           <option value="suite">Suite Room (premium)</option>
@@ -240,7 +236,7 @@ export default function BookRoomPage() {
                           value={formData.guests}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         >
                           <option value="1">1 Guest</option>
                           <option value="2">2 Guests</option>
@@ -261,7 +257,7 @@ export default function BookRoomPage() {
                           onChange={handleChange}
                           min={today}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         />
                       </div>
                       
@@ -277,7 +273,7 @@ export default function BookRoomPage() {
                           onChange={handleChange}
                           min={minCheckout}
                           required
-                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                          className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                         />
                       </div>
                     </div>
@@ -292,7 +288,7 @@ export default function BookRoomPage() {
                         rows={4}
                         value={formData.specialRequirements}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red"
+                        className="w-full px-4 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-hinomaru-red focus:border-hinomaru-red text-zinc-900"
                       ></textarea>
                     </div>
                   </div>
@@ -309,7 +305,7 @@ export default function BookRoomPage() {
                             checked={formData.agreeToTerms}
                             onChange={handleChange}
                             required
-                            className="h-4 w-4 text-hinomaru-red focus:ring-hinomaru-red border-zinc-300 rounded"
+                            className="h-4 w-4 text-hinomaru-red focus:ring-hinomaru-red border-zinc-300 rounded text-zinc-900"
                           />
                         </div>
                         <div className="ml-3 text-sm">

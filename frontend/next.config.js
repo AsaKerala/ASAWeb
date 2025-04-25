@@ -19,6 +19,19 @@ const nextConfig = {
   },
   // Optimize for Docker environment
   output: 'standalone',
+  
+  // Configure allowed image domains
+  images: {
+    domains: ['localhost', '127.0.0.1'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/assets/**',
+      },
+    ],
+  },
 };
 
 module.exports = nextConfig; 

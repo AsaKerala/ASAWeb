@@ -81,6 +81,21 @@ Access the application at:
 - Backend Admin: http://localhost:8000/admin
 - MongoDB Admin: http://localhost:8081
 
+### Seeding Database with Sample Data
+To populate the database with sample data for testing and development:
+
+```bash
+# In production mode
+docker-compose exec backend npm run seed
+
+# In development mode
+docker-compose -f docker-compose.dev.yml exec backend npm run seed
+```
+
+This will create sample users, events, programs, news articles, and other content in the database. Default admin user:
+- Email: admin@asakerala.org
+- Password: Admin@123
+
 For detailed Docker setup instructions, see [DOCKER_README.md](DOCKER_README.md)
 
 ### Method 2: Traditional Setup
@@ -97,6 +112,12 @@ npm run dev
 cd backend
 npm install
 npm run dev
+```
+
+#### Seeding Database (Traditional Setup)
+```bash
+cd backend
+npm run seed
 ```
 
 ## Project Structure

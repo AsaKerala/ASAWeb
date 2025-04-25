@@ -76,7 +76,7 @@ export default function TermsPage() {
             </p>
             
             <div className="mt-10 pt-6 border-t border-zinc-200">
-              <p className="text-zinc-700 mb-4">Last updated: June 15, 2024</p>
+              <p className="text-zinc-700 mb-4">Last updated: March 22, 2025</p>
               <p className="text-zinc-700">
                 If you have any questions about these Terms and Conditions, please contact us at{' '}
                 <a href="mailto:info@asakeralaindia.org" className="text-hinomaru-red hover:text-sakura-700">
@@ -84,15 +84,6 @@ export default function TermsPage() {
                 </a>
               </p>
             </div>
-          </div>
-          
-          <div className="max-w-3xl mx-auto mt-8 text-center">
-            <Link href="/programs-events" className="btn-outline mx-2">
-              Back to Programs
-            </Link>
-            <Link href="/" className="btn-primary mx-2">
-              Return to Homepage
-            </Link>
           </div>
         </div>
       </section>

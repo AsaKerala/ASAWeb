@@ -1,40 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import axios from 'axios';
 
-// Mock testimonial data
-const testimonials = [
-  {
-    id: 1,
-    name: 'Ramesh Nair',
-    title: 'Senior Engineer',
-    image: '/images/testimonials/ramesh.jpg',
-    quote: 'Joining ASA Kerala was one of the best decisions of my career. The training I received in Japan completely changed my perspective on quality and efficiency. I have been able to implement Kaizen techniques at my workplace, and it has had a significant impact.'
-  },
-  {
-    id: 2,
-    name: 'Anju Menon',
-    title: 'Entrepreneur',
-    image: '/images/testimonials/anju.jpg',
-    quote: 'ASA Kerala opened up opportunities for me to connect with like-minded professionals. The business networking sessions have been invaluable, and I even found my first business partner through an ASAK event!'
-  },
-  {
-    id: 3,
-    name: 'Vishnu Das',
-    title: 'IT Consultant',
-    image: '/images/testimonials/vishnu.jpg',
-    quote: 'Learning Japanese through ASA Kerala\'s language training program helped me secure a job with a Japanese firm. The practical approach to language learning and the cultural insights made all the difference.'
-  },
-  {
-    id: 4,
-    name: 'Dr. Rajeev Mohan',
-    title: 'Academic Researcher',
-    image: '/images/testimonials/rajeev.jpg',
-    quote: 'The exposure to Japanese technology and management techniques has greatly influenced my research in industrial automation. ASA Kerala truly bridges the gap between India and Japan in a meaningful way.'
-  }
-];
+// Define testimonials interface
+interface Testimonial {
+  id: string;
+  name: string;
+  title: string;
+  quote: string;
+  image?: {
+    url: string;
+  };
+}
 
 // Membership categories
 const membershipCategories = [
@@ -127,11 +107,62 @@ const applicationSteps = [
 ];
 
 export default function JoinUsPage() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        // Fetch testimonials that are published or featured
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/testimonials`, {
+          params: {
+            where: {
+              status: {
+                in: ['published', 'featured']
+              }
+            },
+            sort: 'order',
+            limit: 4
+          }
+        });
+        
+        setTestimonials(response.data.docs);
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Error fetching testimonials:', err);
+        setError('Failed to load testimonials');
+        setIsLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+
+  // Fallback testimonials in case of API failure
+  const fallbackTestimonials: Testimonial[] = [
+    {
+      id: '1',
+      name: 'Ramesh Nair',
+      title: 'Senior Engineer',
+      quote: 'Joining ASA Kerala was one of the best decisions of my career. The training I received in Japan completely changed my perspective on quality and efficiency. I have been able to implement Kaizen techniques at my workplace, and it has had a significant impact.'
+    },
+    {
+      id: '2',
+      name: 'Anju Menon',
+      title: 'Entrepreneur',
+      quote: 'ASA Kerala opened up opportunities for me to connect with like-minded professionals. The business networking sessions have been invaluable, and I even found my first business partner through an ASAK event!'
+    }
+  ];
+
+  // Use fallback testimonials if API fails or returns empty results
+  const displayTestimonials = testimonials.length > 0 ? testimonials : fallbackTestimonials;
+
   return (
     <div className="min-h-screen bg-zinc-50">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-hinomaru-red to-sakura-700 text-white py-20">
-        <div className="absolute inset-0 bg-[url('/images/join-us/pattern-bg.png')] bg-repeat opacity-10"></div>
+        <div className="absolute inset-0 bg-[url('/assets/sakura-pattern.png')] bg-repeat opacity-10"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-5xl font-bold mb-6">Join ASA Kerala</h1>
@@ -197,7 +228,7 @@ export default function JoinUsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Exclusive Access to Training Programs</h3>
+              <h3 className="text-xl text-black font-bold mb-3">Exclusive Access to Training Programs</h3>
               <p className="text-zinc-700">
                 Participate in AOTS-sponsored training programs in Japan and local skill enhancement workshops.
               </p>
@@ -210,7 +241,7 @@ export default function JoinUsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Networking Opportunities</h3>
+              <h3 className="text-xl text-black font-bold mb-3">Networking Opportunities</h3>
               <p className="text-zinc-700">
                 Connect with industry experts, business leaders, and professionals who have undergone training in Japan.
               </p>
@@ -223,7 +254,7 @@ export default function JoinUsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Business & Start-up Support</h3>
+              <h3 className="text-xl text-black font-bold mb-3">Business & Start-up Support</h3>
               <p className="text-zinc-700">
                 Access dedicated startup spaces, mentorship programs, and collaborative projects.
               </p>
@@ -236,7 +267,7 @@ export default function JoinUsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Participation in Cultural & Professional Events</h3>
+              <h3 className="text-xl text-black font-bold mb-3">Participation in Cultural & Professional Events</h3>
               <p className="text-zinc-700">
                 Attend Indo-Japan cultural events, networking meetups, and business summits.
               </p>
@@ -249,7 +280,7 @@ export default function JoinUsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Member-only Content & Resources</h3>
+              <h3 className="text-xl text-black font-bold mb-3">Member-only Content & Resources</h3>
               <p className="text-zinc-700">
                 Gain access to industry reports, recorded sessions, and training materials through our members' portal.
               </p>
@@ -262,7 +293,7 @@ export default function JoinUsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Discounted Event & Facility Access</h3>
+              <h3 className="text-xl text-black font-bold mb-3">Discounted Event & Facility Access</h3>
               <p className="text-zinc-700">
                 Avail discounts on event participation and facility bookings at Nippon Kerala Centre.
               </p>
@@ -294,7 +325,7 @@ export default function JoinUsPage() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold mb-1">{category.title}</h3>
+                      <h3 className="text-xl text-black font-bold mb-1">{category.title}</h3>
                       <p className="text-sm text-zinc-500 mb-2">{category.description}</p>
                       <div className="inline-block px-3 py-1 bg-hinomaru-red text-white text-sm font-medium rounded-full">
                         {category.fee}
@@ -371,38 +402,49 @@ export default function JoinUsPage() {
             Hear from our members about how ASA Kerala has helped them grow professionally and culturally.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="bg-zinc-50 rounded-lg shadow-md p-6 hover:shadow-lg transition">
-                <div className="flex items-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-zinc-200 relative overflow-hidden mr-4 flex-shrink-0">
-                    {/* In a real implementation, use actual images */}
-                    <div className="flex items-center justify-center h-full w-full text-zinc-400 text-xs">
-                      Photo
+          {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-hinomaru-red"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center text-zinc-600 py-8">
+              {error}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {displayTestimonials.map((testimonial) => (
+                <div key={testimonial.id} className="bg-zinc-50 rounded-lg shadow-md p-6 hover:shadow-lg transition">
+                  <div className="flex items-center mb-6">
+                    <div className="w-16 h-16 rounded-full bg-zinc-200 relative overflow-hidden mr-4 flex-shrink-0">
+                      {testimonial.image ? (
+                        <Image
+                          src={testimonial.image.url}
+                          alt={testimonial.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full w-full text-zinc-400 text-xs">
+                          Photo
+                        </div>
+                      )}
                     </div>
-                    {/* Uncomment when image is available */}
-                    {/* <Image
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      fill
-                      className="object-cover"
-                    /> */}
+                    <div>
+                      <h3 className="font-bold text-lg">{testimonial.name}</h3>
+                      <p className="text-zinc-500">{testimonial.title}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg">{testimonial.name}</h3>
-                    <p className="text-zinc-500">{testimonial.title}</p>
+                  <div className="relative">
+                    <svg className="absolute -top-4 -left-2 w-10 h-10 text-zinc-200 transform -scale-x-100" 
+                      fill="currentColor" viewBox="0 0 32 32">
+                      <path d="M10 8c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10S15.5 8 10 8zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm12-18c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10S27.5 8 22 8zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"></path>
+                    </svg>
+                    <p className="text-zinc-700 italic pl-6">{testimonial.quote}</p>
                   </div>
                 </div>
-                <div className="relative">
-                  <svg className="absolute -top-4 -left-2 w-10 h-10 text-zinc-200 transform -scale-x-100" 
-                    fill="currentColor" viewBox="0 0 32 32">
-                    <path d="M10 8c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10S15.5 8 10 8zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm12-18c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10S27.5 8 22 8zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"></path>
-                  </svg>
-                  <p className="text-zinc-700 italic pl-6">{testimonial.quote}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

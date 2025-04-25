@@ -1,7 +1,13 @@
 import { CollectionConfig } from 'payload/types';
 
+// Create a separate collection for YouTube videos
 const Media: CollectionConfig = {
   slug: 'media',
+  admin: {
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'category', 'mediaType'],
+    group: 'Media',
+  },
   access: {
     read: () => true, // Anyone can read media
     update: ({ req }) => {
@@ -48,13 +54,41 @@ const Media: CollectionConfig = {
   },
   fields: [
     {
+      name: 'title',
+      type: 'text',
+      label: 'Media Title',
+      required: true,
+      admin: {
+        description: 'Enter a descriptive title for this media'
+      }
+    },
+    {
+      name: 'mediaType',
+      type: 'radio',
+      options: [
+        {
+          label: 'Uploaded File',
+          value: 'file',
+        },
+        {
+          label: 'YouTube Video',
+          value: 'youtube',
+        },
+      ],
+      defaultValue: 'file',
+      admin: {
+        layout: 'horizontal',
+        description: 'Select media type before proceeding'
+      },
+    },
+    {
       name: 'alt',
       type: 'text',
       label: 'Alt Text',
       admin: {
         condition: (data) => {
           const mimeType = data?.mimeType || '';
-          return mimeType.includes('image');
+          return data.mediaType === 'file' && mimeType.includes('image');
         },
       },
     },
@@ -96,10 +130,57 @@ const Media: CollectionConfig = {
           value: 'certificate',
         },
         {
+          label: 'Media Coverage',
+          value: 'media-coverage',
+        },
+        {
           label: 'Other',
           value: 'other',
         },
       ],
+    },
+    {
+      name: 'youtubeID',
+      type: 'text',
+      label: 'YouTube Video ID',
+      admin: {
+        description: 'Enter just the video ID (e.g., "dQw4w9WgXcQ" from https://www.youtube.com/watch?v=dQw4w9WgXcQ)',
+        condition: (data) => data?.mediaType === 'youtube',
+      },
+      validate: (value, { data }) => {
+        if (data.mediaType === 'youtube' && !value && !data.youtubeURL) {
+          return 'Either YouTube ID or URL is required for YouTube videos';
+        }
+        return true;
+      },
+    },
+    {
+      name: 'youtubeURL',
+      type: 'text',
+      label: 'YouTube Video URL',
+      admin: {
+        description: 'Full YouTube URL (https://www.youtube.com/watch?v=VIDEO_ID)',
+        condition: (data) => data?.mediaType === 'youtube',
+      },
+      hooks: {
+        beforeValidate: [
+          ({ value, data }) => {
+            if (data?.mediaType !== 'youtube' || !value) return value;
+            
+            // Extract YouTube ID from URL if provided
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = value.match(regExp);
+            const videoId = (match && match[2].length === 11) ? match[2] : null;
+            
+            if (videoId && !data.youtubeID) {
+              // Also update the youtubeID field
+              data.youtubeID = videoId;
+            }
+            
+            return value;
+          },
+        ],
+      },
     },
     {
       name: 'description',
@@ -124,7 +205,41 @@ const Media: CollectionConfig = {
         ],
       },
     },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      label: 'Featured Media',
+      defaultValue: false,
+    },
+    {
+      name: 'displayOrder',
+      type: 'number',
+      label: 'Display Order',
+      admin: {
+        description: 'Lower numbers will be displayed first',
+      },
+      defaultValue: 999,
+    },
   ],
+  hooks: {
+    beforeValidate: [
+      ({ data, req }) => {
+        // For YouTube videos, handle upload requirements differently
+        if (data.mediaType === 'youtube') {
+          // Set a special flag to handle the file upload requirement
+          req.payloadUpload = {
+            skipValidation: true
+          };
+        }
+        
+        // Set category to media-coverage for YouTube videos if not already set
+        if (data.mediaType === 'youtube' && (!data.category || data.category === 'other')) {
+          data.category = 'media-coverage';
+        }
+        return data;
+      },
+    ]
+  }
 };
 
 export default Media; 

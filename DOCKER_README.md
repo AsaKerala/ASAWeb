@@ -86,7 +86,30 @@ docker-compose -f docker-compose.dev.yml logs -f backend
 - MongoDB: mongodb://localhost:27017
 - Mongo Express (DB Admin): http://localhost:8081
 
-### 5. Stop the services
+### 5. Seeding the Database
+
+To populate the database with sample data for development and testing:
+
+```bash
+# For production environment
+docker-compose exec backend npm run seed
+
+# For development environment
+docker-compose -f docker-compose.dev.yml exec backend npm run seed
+```
+
+This will create:
+- Sample users (including an admin user for CMS access)
+- Events with various dates and locations
+- Programs in different categories
+- News articles
+- Facilities and resources
+
+Default admin credentials:
+- Email: admin@asakerala.org
+- Password: Admin@123
+
+### 6. Stop the services
 
 ```bash
 npm run docker:down
@@ -113,9 +136,14 @@ When developing with Docker:
    docker-compose -f docker-compose.dev.yml up -d
    ```
 
-2. Make changes to your code locally - the changes will be reflected in real-time thanks to volume mounting and hot-reloading.
+2. Seed the database (if needed):
+   ```bash
+   docker-compose -f docker-compose.dev.yml exec backend npm run seed
+   ```
 
-3. To install new npm packages:
+3. Make changes to your code locally - the changes will be reflected in real-time thanks to volume mounting and hot-reloading.
+
+4. To install new npm packages:
    ```bash
    # For backend
    docker-compose -f docker-compose.dev.yml exec backend npm install <package_name>
@@ -124,7 +152,7 @@ When developing with Docker:
    docker-compose -f docker-compose.dev.yml exec frontend npm install <package_name>
    ```
 
-4. If you need to rebuild containers (e.g., after changing package.json):
+5. If you need to rebuild containers (e.g., after changing package.json):
    ```bash
    npm run docker:dev:build
    ```

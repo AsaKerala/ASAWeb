@@ -28,7 +28,7 @@ export default function ProfilePage() {
     city: '',
     state: '',
     zipCode: '',
-    country: 'United States',
+    country: 'India',
     currentPassword: '',
     newPassword: '',
     confirmNewPassword: '',
@@ -51,12 +51,12 @@ export default function ProfilePage() {
       setFormData({
         name: user.name || '',
         email: user.email || '',
-        phone: user.phone || '',
-        street: user.address?.street || '',
-        city: user.address?.city || '',
-        state: user.address?.state || '',
-        zipCode: user.address?.zipCode || '',
-        country: user.address?.country || 'United States',
+        phone: user.profile?.phone || '',
+        street: user.profile?.address?.street || '',
+        city: user.profile?.address?.city || '',
+        state: user.profile?.address?.state || '',
+        zipCode: user.profile?.address?.zipCode || '',
+        country: user.profile?.address?.country || 'India',
         currentPassword: '',
         newPassword: '',
         confirmNewPassword: '',
@@ -81,14 +81,16 @@ export default function ProfilePage() {
       // Transform form data
       const profileData = {
         name: formData.name,
-        phone: formData.phone,
-        address: {
-          street: formData.street,
-          city: formData.city,
-          state: formData.state,
-          zipCode: formData.zipCode,
-          country: formData.country,
-        },
+        profile: {
+          phone: formData.phone,
+          address: {
+            street: formData.street,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode,
+            country: formData.country,
+          }
+        }
       };
 
       // Call API to update profile
@@ -245,7 +247,7 @@ export default function ProfilePage() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                     required
                   />
                 </div>
@@ -275,7 +277,7 @@ export default function ProfilePage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                   />
                 </div>
 
@@ -292,7 +294,7 @@ export default function ProfilePage() {
                         name="street"
                         value={formData.street}
                         onChange={handleChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                       />
                     </div>
 
@@ -306,7 +308,7 @@ export default function ProfilePage() {
                         name="city"
                         value={formData.city}
                         onChange={handleChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                       />
                     </div>
 
@@ -320,7 +322,7 @@ export default function ProfilePage() {
                         name="state"
                         value={formData.state}
                         onChange={handleChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                       />
                     </div>
 
@@ -334,7 +336,7 @@ export default function ProfilePage() {
                         name="zipCode"
                         value={formData.zipCode}
                         onChange={handleChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                       />
                     </div>
 
@@ -348,7 +350,7 @@ export default function ProfilePage() {
                         name="country"
                         value={formData.country}
                         onChange={handleChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                       />
                     </div>
                   </div>
@@ -381,7 +383,7 @@ export default function ProfilePage() {
                     name="currentPassword"
                     value={formData.currentPassword}
                     onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                     required
                   />
                 </div>
@@ -396,7 +398,7 @@ export default function ProfilePage() {
                     name="newPassword"
                     value={formData.newPassword}
                     onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                     required
                     minLength={8}
                   />
@@ -413,7 +415,7 @@ export default function ProfilePage() {
                     name="confirmNewPassword"
                     value={formData.confirmNewPassword}
                     onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                     required
                   />
                 </div>

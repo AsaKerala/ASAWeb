@@ -12,11 +12,29 @@ import News from './collections/News';
 import Programs from './collections/Programs';
 import Facilities from './collections/Facilities';
 import EventCategories from './collections/EventCategories';
+import EventRegistrations from './collections/EventRegistrations';
+import CommitteeMembers from './collections/CommitteeMembers';
+import Gallery from './collections/Gallery';
+import RoomBookings from './collections/RoomBookings';
+import EventBookings from './collections/EventBookings';
+import { ActivityLogs } from './collections/ActivityLogs';
+import ContactForm from './collections/ContactForm';
+import Testimonials from './collections/Testimonials';
+import MembershipApplication from './collections/MembershipApplication';
+import YouTubeVideos from './collections/YouTubeVideos';
 
 // Import globals
 import SiteSettings from './globals/SiteSettings';
 import MainMenu from './globals/MainMenu';
 import Footer from './globals/Footer';
+
+// Import custom endpoints
+import { registerForEvent, cancelEventRegistration, getUserRegistrations, getEventRegistrations } from './endpoints/eventRegistration';
+import checkAdminEndpoint from './endpoints/checkAdmin';
+import { getActivityLogs } from './endpoints/activityLogs';
+import { contactFormEndpoint } from './endpoints/contactForm';
+import { membershipApplicationEndpoint } from './endpoints/membershipApplication';
+import { getMembersEndpoint } from './endpoints/members/getMembers';
 
 export default buildConfig({
   serverURL: process.env.SERVER_URL || 'http://localhost:8000',
@@ -36,6 +54,16 @@ export default buildConfig({
     Programs,
     Facilities,
     EventCategories,
+    EventRegistrations,
+    CommitteeMembers,
+    Gallery,
+    RoomBookings,
+    EventBookings,
+    ActivityLogs,
+    ContactForm,
+    Testimonials,
+    MembershipApplication,
+    YouTubeVideos,
   ],
   globals: [
     SiteSettings,
@@ -56,4 +84,15 @@ export default buildConfig({
       fileSize: 10000000, // 10MB, in bytes
     },
   },
+  endpoints: [
+    registerForEvent,
+    cancelEventRegistration,
+    getUserRegistrations,
+    getEventRegistrations,
+    checkAdminEndpoint,
+    getActivityLogs,
+    contactFormEndpoint,
+    membershipApplicationEndpoint,
+    getMembersEndpoint,
+  ],
 }); 
