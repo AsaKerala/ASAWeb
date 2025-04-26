@@ -5,6 +5,8 @@ import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { ImageProvider } from "@/providers/ImageProvider";
 import Header from "@/components/layout/Header";
 import ConditionalFooter from "@/components/layout/ConditionalFooter";
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +30,8 @@ export default function RootLayout({
               <main className="flex-grow">{children}</main>
               <ConditionalFooter />
             </div>
+            <SpeedInsights />
+            <Analytics />
           </ImageProvider>
         </AuthProvider>
       </body>

@@ -11,6 +11,8 @@
     "docker:dev": "cd .. && docker-compose -f docker-compose.dev.yml up -d frontend"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.6.2",
     "date-fns": "^2.30.0",
     "framer-motion": "^12.7.4",
