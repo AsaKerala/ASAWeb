@@ -25,8 +25,9 @@ export const authHooks = {
   /**
    * Hook that runs after a successful logout
    */
-  afterLogout: async ({ req, user }: { req: PayloadRequest; user: any }): Promise<void> => {
-    if (user) {
+  afterLogout: async ({ req }: { req: PayloadRequest }): Promise<void> => {
+    if (req.user) {
+      const user = req.user;
       // Log the logout activity
       await logActivity(req.payload, {
         action: 'logout',

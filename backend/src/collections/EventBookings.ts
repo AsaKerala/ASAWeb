@@ -63,7 +63,7 @@ const EventBookings: CollectionConfig = {
               
               // Log the status change
               await logActivity(req.payload, {
-                action,
+                action: action as 'update' | 'approve' | 'cancel',
                 entityType: 'event-booking',
                 entityId: String(doc.id),
                 userId: req.user?.id,

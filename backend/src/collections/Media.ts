@@ -224,12 +224,15 @@ const Media: CollectionConfig = {
   hooks: {
     beforeValidate: [
       ({ data, req }) => {
+        if (!data) return data;
+        
         // For YouTube videos, handle upload requirements differently
         if (data.mediaType === 'youtube') {
           // Set a special flag to handle the file upload requirement
-          req.payloadUpload = {
-            skipValidation: true
-          };
+          if (req) {
+            // Instead of using a non-standard property, use a custom property
+            (req as any).skipMediaValidation = true;
+          }
         }
         
         // Set category to media-coverage for YouTube videos if not already set

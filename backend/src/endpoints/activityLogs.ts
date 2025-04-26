@@ -94,7 +94,7 @@ export const getActivityLogs: Endpoint = {
       console.error('Error fetching activity logs:', error);
       return res.status(500).json({
         message: 'An error occurred while fetching activity logs',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },

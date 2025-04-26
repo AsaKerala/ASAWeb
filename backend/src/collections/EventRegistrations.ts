@@ -78,7 +78,7 @@ const EventRegistrations: CollectionConfig = {
                   id: typeof doc.event === 'object' ? doc.event.id : doc.event,
                 });
                 if (event && event.title) {
-                  eventTitle = event.title;
+                  eventTitle = event.title as string;
                 }
               } catch (err) {
                 console.error('Error fetching event details for activity log:', err);
@@ -125,7 +125,7 @@ const EventRegistrations: CollectionConfig = {
                     id: typeof doc.event === 'object' ? doc.event.id : doc.event,
                   });
                   if (event && event.title) {
-                    eventTitle = event.title;
+                    eventTitle = event.title as string;
                   }
                 } catch (err) {
                   console.error('Error fetching event details for activity log:', err);
@@ -134,7 +134,7 @@ const EventRegistrations: CollectionConfig = {
               
               // Log the status change
               await logActivity(req.payload, {
-                action,
+                action: action as 'update' | 'cancel',
                 entityType: 'event-registration',
                 entityId: String(doc.id),
                 userId: req.user?.id,

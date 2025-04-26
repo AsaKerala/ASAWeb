@@ -23,9 +23,40 @@ const Users: CollectionConfig = {
   },
   hooks: {
     afterChange: [authHooks.afterUserUpdate],
-    afterCreate: [authHooks.afterUserCreate],
     afterLogin: [authHooks.afterLogin],
     afterLogout: [authHooks.afterLogout],
+    beforeChange: [
+      async ({ data, operation }) => {
+        // Generate a unique member ID for new users
+        if (operation === 'create' && data.role === 'member') {
+          // Format: ASA-YYYY-XXXX where YYYY is current year and XXXX is random alphanumeric
+          const year = new Date().getFullYear();
+          const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+          
+          // Set the member ID if it doesn't already exist
+          if (!data.membership || !data.membership.memberID) {
+            if (!data.membership) data.membership = {};
+            data.membership.memberID = `ASA-${year}-${randomPart}`;
+          }
+          
+          // Set default join date if not provided
+          if (!data.membership || !data.membership.joinDate) {
+            if (!data.membership) data.membership = {};
+            data.membership.joinDate = new Date().toISOString();
+          }
+          
+          // Set default renewal date to 1 year from join date
+          if (!data.membership || !data.membership.renewalDate) {
+            const joinDate = new Date(data.membership.joinDate || new Date());
+            const renewalDate = new Date(joinDate);
+            renewalDate.setFullYear(renewalDate.getFullYear() + 1);
+            data.membership.renewalDate = renewalDate.toISOString();
+          }
+        }
+        
+        return data;
+      },
+    ],
   },
   fields: [
     {
@@ -49,7 +80,9 @@ const Users: CollectionConfig = {
       defaultValue: 'member',
       required: true,
       access: {
-        update: isAdmin, // Only admins can change roles
+        update: ({ req }) => {
+          return req.user?.role === 'admin';
+        }
       },
     },
     {
@@ -272,40 +305,6 @@ const Users: CollectionConfig = {
       },
     }
   ],
-  hooks: {
-    beforeChange: [
-      async ({ data, operation }) => {
-        // Generate a unique member ID for new users
-        if (operation === 'create' && data.role === 'member') {
-          // Format: ASA-YYYY-XXXX where YYYY is current year and XXXX is random alphanumeric
-          const year = new Date().getFullYear();
-          const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
-          
-          // Set the member ID if it doesn't already exist
-          if (!data.membership || !data.membership.memberID) {
-            if (!data.membership) data.membership = {};
-            data.membership.memberID = `ASA-${year}-${randomPart}`;
-          }
-          
-          // Set default join date if not provided
-          if (!data.membership || !data.membership.joinDate) {
-            if (!data.membership) data.membership = {};
-            data.membership.joinDate = new Date().toISOString();
-          }
-          
-          // Set default renewal date to 1 year from join date
-          if (!data.membership || !data.membership.renewalDate) {
-            const joinDate = new Date(data.membership.joinDate || new Date());
-            const renewalDate = new Date(joinDate);
-            renewalDate.setFullYear(renewalDate.getFullYear() + 1);
-            data.membership.renewalDate = renewalDate.toISOString();
-          }
-        }
-        
-        return data;
-      },
-    ],
-  },
 };
 
 export default Users; 

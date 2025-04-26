@@ -42,20 +42,6 @@ export const getMembersEndpoint: Endpoint = {
             }
           ]
         },
-        // Only include necessary fields - sensitive data should be excluded
-        fields: [
-          'id',
-          'name',
-          'profile.profileImage',
-          'profile.currentOrganization',
-          'profile.position',
-          'profile.japanExperience',
-          'profile.japaneseLanguage',
-          'profile.bio',
-          'profile.socialLinks',
-          'membership.membershipType',
-          'membership.joinDate',
-        ],
         // Sort by name
         sort: 'name',
         // Pagination
@@ -68,6 +54,7 @@ export const getMembersEndpoint: Endpoint = {
       console.error('Error fetching members directory:', error);
       return res.status(500).json({
         message: 'An error occurred while retrieving member directory.',
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },

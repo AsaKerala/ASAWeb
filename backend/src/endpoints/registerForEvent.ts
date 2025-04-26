@@ -1,33 +1,39 @@
-import { PayloadRequest } from 'payload/types';
 import { Endpoint } from 'payload/config';
+import { PayloadRequest } from 'payload/types';
+
+// Interface for event structure
+interface EventData {
+  id: string;
+  title: string;
+  registrationRequired?: boolean;
+  registrationDeadline?: string | Date;
+  capacity?: number;
+  ticketPrice?: number;
+  isFree?: boolean;
+  attendees?: string[];
+  [key: string]: any;
+}
 
 export const registerForEventEndpoint: Endpoint = {
-  path: '/api/register-for-event',
+  path: '/events/:id/register',
   method: 'post',
   handler: async (req: PayloadRequest, res) => {
-    const { user, payload } = req;
-    const { eventId } = req.body;
-
+    const { payload, user } = req;
+    const { id: eventId } = req.params;
+    
     if (!user) {
       return res.status(401).json({
         success: false,
         message: 'You must be logged in to register for an event',
       });
     }
-
-    if (!eventId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Event ID is required',
-      });
-    }
-
+    
     try {
-      // Check if the event exists
+      // Get the event details
       const event = await payload.findByID({
         collection: 'events',
         id: eventId,
-      });
+      }) as EventData;
 
       if (!event) {
         return res.status(404).json({
@@ -57,7 +63,7 @@ export const registerForEventEndpoint: Endpoint = {
       }
 
       // Check if the event is at capacity
-      if (event.capacity > 0) {
+      if (event.capacity && event.capacity > 0) {
         const registrations = await payload.find({
           collection: 'event-registrations',
           where: {
@@ -73,7 +79,7 @@ export const registerForEventEndpoint: Endpoint = {
           },
         });
 
-        if (registrations.docs.length >= event.capacity) {
+        if (registrations.docs.length >= (event.capacity || 0)) {
           // If at capacity, waitlist the registration
           const registration = await payload.create({
             collection: 'event-registrations',
@@ -81,7 +87,7 @@ export const registerForEventEndpoint: Endpoint = {
               user: user.id,
               event: eventId,
               status: 'waitlisted',
-              paymentStatus: event.ticketPrice > 0 && !event.isFree ? 'pending' : 'not-required',
+              paymentStatus: (event.ticketPrice && event.ticketPrice > 0 && !event.isFree) ? 'pending' : 'not-required',
               registrationDate: new Date(),
             },
           });
@@ -115,7 +121,8 @@ export const registerForEventEndpoint: Endpoint = {
       }
 
       // Create the registration
-      const isPaid = event.ticketPrice > 0 && !event.isFree;
+      const isPaid = !!(event.ticketPrice && event.ticketPrice > 0 && !event.isFree);
+      
       const registration = await payload.create({
         collection: 'event-registrations',
         data: {
@@ -132,7 +139,7 @@ export const registerForEventEndpoint: Endpoint = {
 
       // If this is a free event, update attendees list
       if (!isPaid) {
-        const attendees = event.attendees || [];
+        const attendees = Array.isArray(event.attendees) ? [...event.attendees] : [];
         if (!attendees.includes(user.id)) {
           attendees.push(user.id);
           
@@ -160,6 +167,7 @@ export const registerForEventEndpoint: Endpoint = {
       return res.status(500).json({
         success: false,
         message: 'An error occurred while registering for the event',
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },

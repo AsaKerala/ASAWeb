@@ -63,7 +63,9 @@ export const registerForEvent: Endpoint = {
       
       // Update event attendees (for backward compatibility)
       if (event.attendees) {
-        const updatedAttendees = [...event.attendees, req.user.id];
+        const updatedAttendees = Array.isArray(event.attendees) 
+          ? [...event.attendees, req.user.id] 
+          : [req.user.id];
         await req.payload.update({
           collection: 'events',
           id,
@@ -82,7 +84,7 @@ export const registerForEvent: Endpoint = {
       console.error('Error registering for event:', error);
       return res.status(500).json({
         message: 'An error occurred while registering for the event',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },
@@ -165,7 +167,7 @@ export const cancelEventRegistration: Endpoint = {
       console.error('Error cancelling registration:', error);
       return res.status(500).json({
         message: 'An error occurred while cancelling the registration',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },
@@ -206,7 +208,11 @@ export const getUserRegistrations: Endpoint = {
         console.log('First registration:', {
           id: firstReg.id,
           event: typeof firstReg.event === 'string' ? 'ID Only: ' + firstReg.event : 'Full Object',
-          eventId: typeof firstReg.event === 'string' ? firstReg.event : firstReg.event?.id || 'Unknown',
+          eventId: typeof firstReg.event === 'string' 
+            ? firstReg.event 
+            : (firstReg.event && typeof firstReg.event === 'object' && 'id' in firstReg.event 
+              ? firstReg.event.id 
+              : 'Unknown'),
         });
       }
       
@@ -215,7 +221,7 @@ export const getUserRegistrations: Endpoint = {
       console.error('Error getting user registrations:', error);
       return res.status(500).json({
         message: 'An error occurred while getting your registrations',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },
@@ -252,7 +258,7 @@ export const getEventRegistrations: Endpoint = {
       console.error('Error getting event registrations:', error);
       return res.status(500).json({
         message: 'An error occurred while getting event registrations',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },

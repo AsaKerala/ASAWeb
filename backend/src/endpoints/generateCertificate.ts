@@ -68,13 +68,13 @@ export const generateCertificateEndpoint: Endpoint = {
       // Get the event details
       const event = await payload.findByID({
         collection: 'events',
-        id: registration.event,
+        id: String(registration.event),
       });
 
       // Get the user details
       const attendee = await payload.findByID({
         collection: 'users',
-        id: registration.user,
+        id: String(registration.user),
       });
 
       // Generate a unique certificate ID

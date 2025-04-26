@@ -1,4 +1,4 @@
-import { Access, FieldAccess } from 'payload/types';
+import { Access, FieldAccess, AccessArgs } from 'payload/types';
 
 /**
  * Access control function to determine if a user can access resources based on event registration
@@ -8,7 +8,7 @@ import { Access, FieldAccess } from 'payload/types';
  * 2. If the resource is public (everyone can access)
  * 3. If the user has a confirmed or attended registration for the event associated with the resource
  */
-export const checkEventResourceAccess: Access = async ({ req, id, doc }) => {
+export const checkEventResourceAccess: Access = async ({ req, id = '' }: AccessArgs) => {
   // If not logged in, no access to non-public resources
   if (!req.user) {
     return false;
@@ -19,10 +19,10 @@ export const checkEventResourceAccess: Access = async ({ req, id, doc }) => {
     return true;
   }
 
-  // Get the resource document if not already provided
-  const resource = doc || await req.payload.findByID({
+  // Get the resource document
+  const resource = await req.payload.findByID({
     collection: 'media',
-    id,
+    id: id.toString(),
   });
 
   // If the resource is not associated with an event, deny access

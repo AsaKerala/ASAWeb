@@ -505,12 +505,14 @@ const seedDatabase = async (): Promise<void> => {
 
     // Create event categories
     console.log('Creating event categories...');
+    const createdEventCategories: any[] = [];
     for (const category of eventCategoriesData) {
       try {
-        await payload.create({
+        const createdCategory = await payload.create({
           collection: 'event-categories',
           data: category
         });
+        createdEventCategories.push(createdCategory);
         console.log(`Created event category: ${category.name}`);
       } catch (error: any) {
         console.error(`Error creating event category ${category.name}:`, error.message);

@@ -1,7 +1,9 @@
 import seedDatabase from './seed-data';
 import dotenv from 'dotenv';
-import payload from 'payload';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { Config } from 'payload/config';
+import payload from 'payload';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -17,10 +19,8 @@ const runSeed = async () => {
     // Initialize Payload
     await payload.init({
       secret: process.env.PAYLOAD_SECRET || 'default-secret-key',
-      mongoURL: process.env.MONGODB_URI || 'mongodb://localhost/payload-local',
+      config: require(configPath),
       local: true,
-      express: null,
-      configPath,
       onInit: async () => {
         // Run the seeder after Payload initializes
         await seedDatabase();
