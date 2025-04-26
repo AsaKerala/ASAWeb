@@ -14,7 +14,8 @@
     "generate:graphQL": "cross-env PAYLOAD_CONFIG_PATH=src/payload.config.ts payload generate:graphQLSchema",
     "docker:build": "docker build -t asaweb-backend .",
     "docker:dev": "cd .. && docker-compose -f docker-compose.dev.yml up -d backend",
-    "debug": "cross-env PAYLOAD_CONFIG_PATH=src/payload.config.ts NODE_ENV=development DEBUG=* ts-node src/server.ts"
+    "debug": "cross-env PAYLOAD_CONFIG_PATH=src/payload.config.ts NODE_ENV=development DEBUG=* ts-node src/server.ts",
+    "migrate-to-cloudinary": "ts-node src/scripts/migrate-to-cloudinary.ts"
   },
   "keywords": [
     "payload-cms",
@@ -30,10 +31,14 @@
     "@payloadcms/db-mongodb": "^1.0.8",
     "@payloadcms/richtext-slate": "^1.2.0",
     "@types/bcrypt": "^5.0.2",
+    "@types/multer": "^1.4.12",
     "bcrypt": "^5.1.1",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "multer": "^1.4.5-lts.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "payload": "^2.4.0",
     "twilio": "^5.5.2"
   },

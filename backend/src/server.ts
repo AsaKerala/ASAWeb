@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import payload from 'payload';
 import { config } from 'dotenv';
 import cors from 'cors';
@@ -64,8 +64,41 @@ const start = async () => {
     console.log('Payload CMS initialized successfully.');
 
     // Add your own express endpoints
+    // Serve static files from uploads directory
     app.use('/assets', express.static(path.resolve(__dirname, '../uploads')));
-    console.log('Static asset route configured at /assets.');
+
+    // Add a middleware to handle redirects to Cloudinary for media files
+    app.get('/api/media/:id/file', async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const mediaId = req.params.id;
+        
+        if (!mediaId) {
+          return next();
+        }
+        
+        // Lookup the media file by ID
+        const media: any = await payload.findByID({
+          collection: 'media',
+          id: mediaId,
+        });
+        
+        // If it has a Cloudinary URL, redirect to it
+        if (media && typeof media.cloudinaryUrl === 'string') {
+          return res.redirect(media.cloudinaryUrl);
+        } else if (media && typeof media.url === 'string') {
+          // Otherwise use the original URL
+          return res.redirect(media.url);
+        }
+        
+        // If not found, continue to next handler
+        next();
+      } catch (error) {
+        console.error('Error retrieving media file:', error);
+        next();
+      }
+    });
+
+    console.log('Static asset route configured at /assets with Cloudinary support.');
 
     // Error handling
     app.use((err, req, res, next) => {
