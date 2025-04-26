@@ -37,7 +37,7 @@ import { membershipApplicationEndpoint } from './endpoints/membershipApplication
 import { getMembersEndpoint } from './endpoints/members/getMembers';
 
 export default buildConfig({
-  serverURL: process.env.SERVER_URL || 'http://localhost:8000',
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:8000',
   admin: {
     user: Users.slug,
     bundler: webpackBundler(),

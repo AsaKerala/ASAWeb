@@ -46,7 +46,7 @@ services:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://admin:admin123@mongodb:27017/organization?authSource=admin
       - PAYLOAD_SECRET=your-payload-secret-here
-      - SERVER_URL=http://localhost:8000
+      - PAYLOAD_PUBLIC_SERVER_URL=http://localhost:8000
       - CORS_ORIGIN=http://localhost:3000
     volumes:
       - backend_uploads:/app/uploads
