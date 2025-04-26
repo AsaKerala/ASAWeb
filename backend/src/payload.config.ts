@@ -3,6 +3,7 @@ import path from 'path';
 import { webpackBundler } from '@payloadcms/bundler-webpack';
 import { mongooseAdapter } from '@payloadcms/db-mongodb';
 import { slateEditor } from '@payloadcms/richtext-slate';
+import cloudinaryPlugin from 'payload-cloudinary-plugin/dist/plugins';
 
 // Import collections
 import Users from './collections/Users';
@@ -84,6 +85,9 @@ export default buildConfig({
       fileSize: 10000000, // 10MB, in bytes
     },
   },
+  plugins: [
+    cloudinaryPlugin()
+  ],
   endpoints: [
     registerForEvent,
     cancelEventRegistration,

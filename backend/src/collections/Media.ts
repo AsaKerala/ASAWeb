@@ -1,8 +1,4 @@
 import { CollectionConfig } from 'payload/types';
-import { cloudinary, uploadBuffer } from '../services/cloudinary';
-import { File } from 'payload/dist/uploads/types';
-import { PayloadRequest } from 'payload/dist/express/types';
-import path from 'path';
 
 // Create a separate collection for YouTube videos
 const Media: CollectionConfig = {
@@ -31,9 +27,7 @@ const Media: CollectionConfig = {
     },
   },
   upload: {
-    // Set up in-memory storage first, as we'll handle the Cloudinary upload in hooks
-    staticURL: '/assets',
-    staticDir: '../uploads',
+    // Cloudinary will handle storage instead of local filesystem
     imageSizes: [
       {
         name: 'thumbnail',
@@ -56,13 +50,6 @@ const Media: CollectionConfig = {
     ],
     adminThumbnail: 'thumbnail',
     mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/svg+xml', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-    // Fix handlers format - each handler should be a function, not an object
-    handlers: [
-      ({ req, data }) => {
-        // Return data as-is for now, we'll use the afterChange hook for Cloudinary
-        return data;
-      }
-    ],
   },
   fields: [
     {
@@ -195,26 +182,6 @@ const Media: CollectionConfig = {
       },
     },
     {
-      name: 'cloudinaryId',
-      type: 'text',
-      label: 'Cloudinary Public ID',
-      admin: {
-        readOnly: true,
-        position: 'sidebar',
-        condition: (data) => data?.mediaType === 'file'
-      },
-    },
-    {
-      name: 'cloudinaryUrl',
-      type: 'text',
-      label: 'Cloudinary URL',
-      admin: {
-        readOnly: true,
-        position: 'sidebar',
-        condition: (data) => data?.mediaType === 'file'
-      },
-    },
-    {
       name: 'description',
       type: 'textarea',
     },
@@ -273,80 +240,7 @@ const Media: CollectionConfig = {
         }
         return data;
       },
-    ],
-    afterChange: [
-      async ({ req, doc }: { req: PayloadRequest; doc: any }) => {
-        // Only process file uploads, not YouTube videos
-        if (doc.mediaType !== 'file' || !doc.filename) return doc;
-        
-        try {
-          // If already uploaded to Cloudinary (has cloudinaryId), skip
-          if (doc.cloudinaryId) return doc;
-          
-          // Get the file path from the doc
-          const filePath = path.resolve(__dirname, '../../uploads', doc.filename);
-          
-          // Upload to Cloudinary
-          const result = await new Promise<any>((resolve) => {
-            // We need file buffer instead of path for Cloudinary upload
-            // In the meantime, let's use a simulated upload with filepath
-            cloudinary.uploader.upload(filePath, {
-              resource_type: 'auto',
-              folder: `asa-kerala/${doc.category || 'general'}`,
-              public_id: doc.id,
-            }, (error, uploadResult) => {
-              if (error) {
-                console.error('Cloudinary upload failed:', error);
-                resolve(null);
-              } else {
-                resolve(uploadResult);
-              }
-            });
-          });
-          
-          if (result) {
-            // Update the document with Cloudinary information
-            const updatedDoc = await req.payload.update({
-              collection: 'media',
-              id: doc.id,
-              data: {
-                cloudinaryId: result.public_id,
-                cloudinaryUrl: result.secure_url,
-                // Update the URL to use Cloudinary URL instead of local
-                url: result.secure_url,
-              },
-              // Skip hooks to avoid infinite loop
-              depth: 0,
-            });
-            
-            return updatedDoc;
-          }
-        } catch (error) {
-          console.error('Error in Cloudinary upload:', error);
-        }
-        
-        return doc;
-      },
-    ],
-    beforeDelete: [
-      async ({ req, id }: { req: PayloadRequest; id: string }) => {
-        try {
-          // Fetch the document to get its cloudinaryId
-          const doc = await req.payload.findByID({
-            collection: 'media',
-            id,
-          });
-          
-          // If it has a cloudinary ID, delete from Cloudinary
-          if (doc.cloudinaryId) {
-            await cloudinary.uploader.destroy(doc.cloudinaryId);
-            console.log(`Deleted file ${doc.cloudinaryId} from Cloudinary`);
-          }
-        } catch (error) {
-          console.error('Error deleting from Cloudinary:', error);
-        }
-      },
-    ],
+    ]
   }
 };
 
