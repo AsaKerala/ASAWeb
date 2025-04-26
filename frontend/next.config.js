@@ -22,13 +22,28 @@ const nextConfig = {
   
   // Configure allowed image domains
   images: {
-    domains: ['localhost', '127.0.0.1'],
+    domains: ['localhost', '127.0.0.1', 'cluster0.ebg70lj.mongodb.net', 'asakeralaweb.vercel.app'],
     remotePatterns: [
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '8000',
         pathname: '/assets/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.mongodb.net',
+        pathname: '/assets/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.vercel.app',
+        pathname: '/assets/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.amazonaws.com',
+        pathname: '/**',
       },
     ],
   },
