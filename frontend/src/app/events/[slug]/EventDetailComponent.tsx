@@ -20,6 +20,25 @@ interface EventDetailComponentProps {
 }
 
 export default function EventDetailComponent({ initialEvent, slug }: EventDetailComponentProps) {
+  // Debug logs to understand the data structure
+  console.log('Event Detail Component initialized with:', { 
+    slug,
+    eventId: initialEvent?.id,
+    eventTitle: initialEvent?.title,
+    hasContent: !!initialEvent?.content,
+    contentType: initialEvent?.content ? typeof initialEvent.content : 'undefined',
+    hasSummary: !!initialEvent?.summary,
+    hasEventDate: !!initialEvent?.eventDate,
+    hasLocation: !!initialEvent?.venue || !!initialEvent?.customLocation,
+    hasKeyFeatures: Array.isArray(initialEvent?.keyFeatures) && initialEvent?.keyFeatures.length > 0,
+    hasFaqs: Array.isArray(initialEvent?.faqs) && initialEvent?.faqs.length > 0,
+    hasSchedule: Array.isArray(initialEvent?.schedule) && initialEvent?.schedule.length > 0,
+    hasSpeakers: Array.isArray(initialEvent?.speakers) && initialEvent?.speakers.length > 0,
+    hasEventFees: !!initialEvent?.eventFees,
+    isFeatured: initialEvent?.isFeatured,
+    allKeys: Object.keys(initialEvent || {})
+  });
+  
   const [event, setEvent] = useState<Event>(initialEvent);
   const [activeTab, setActiveTab] = useState('overview');
   const router = useRouter();
@@ -138,6 +157,17 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
               <TabsContent value="overview" className="mt-0">
                 <div className="japan-card mb-8">
                   <h2 className="section-title mb-6">About This Event</h2>
+                  {/* Debug logs */}
+                  {(() => {
+                    console.log('Overview tab - Content section:', {
+                      hasContent: !!event.content,
+                      contentType: typeof event.content,
+                      contentValue: event.content,
+                      hasSummary: !!event.summary,
+                      summaryValue: event.summary
+                    });
+                    return null;
+                  })()}
                   {event.content ? (
                     <div 
                       className="prose prose-zinc max-w-none"
@@ -148,6 +178,16 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                   )}
                 </div>
 
+                {/* Debug logs */}
+                {(() => {
+                  console.log('Key Features section:', {
+                    hasKeyFeatures: !!event.keyFeatures,
+                    keyFeaturesType: event.keyFeatures ? typeof event.keyFeatures : 'undefined',
+                    keyFeaturesLength: event.keyFeatures ? event.keyFeatures.length : 0,
+                    keyFeaturesValue: event.keyFeatures
+                  });
+                  return null;
+                })()}
                 {hasTabContent(event.keyFeatures) && (
                   <div className="japan-card mb-8">
                     <h2 className="text-2xl font-bold mb-6 text-zinc-900">Highlights</h2>
@@ -162,6 +202,14 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                   </div>
                 )}
 
+                {/* Debug logs */}
+                {(() => {
+                  console.log('Eligibility section:', {
+                    hasEligibility: !!event.eligibility,
+                    eligibilityValue: event.eligibility
+                  });
+                  return null;
+                })()}
                 {event.eligibility && (
                   <div className="japan-card mb-8">
                     <h2 className="text-2xl font-bold mb-4 text-zinc-900">Who Should Attend</h2>
@@ -171,6 +219,15 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                   </div>
                 )}
                 
+                {/* Debug logs */}
+                {(() => {
+                  console.log('Tags section:', {
+                    hasTags: !!event.tags,
+                    tagsLength: event.tags ? event.tags.length : 0,
+                    tagsValue: event.tags
+                  });
+                  return null;
+                })()}
                 {event.tags && event.tags.length > 0 && (
                   <div className="japan-card mb-8">
                     <h2 className="text-xl font-bold mb-4 text-zinc-900">Tags</h2>
@@ -184,6 +241,18 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                   </div>
                 )}
 
+                {/* Debug logs */}
+                {(() => {
+                  console.log('Organizer section:', {
+                    hasOrganizer: !!event.organizer,
+                    organizerValue: event.organizer,
+                    hasContactEmail: !!event.contactEmail,
+                    contactEmailValue: event.contactEmail,
+                    hasContactPhone: !!event.contactPhone,
+                    contactPhoneValue: event.contactPhone
+                  });
+                  return null;
+                })()}
                 {event.organizer && (
                   <div className="japan-card mb-8">
                     <h2 className="text-xl font-bold mb-4 text-zinc-900">Organizer</h2>
@@ -381,6 +450,36 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
             <div className="japan-card">
               <h2 className="text-xl font-bold mb-4 text-zinc-900">Event Details</h2>
               
+              {/* Debug logs for sidebar event details */}
+              {(() => {
+                console.log('Sidebar Event Details section:', {
+                  hasEventDate: !!event.eventDate,
+                  eventDateValue: event.eventDate,
+                  hasStartDate: !!event.startDate,
+                  startDateValue: event.startDate,
+                  hasEndDate: !!event.endDate,
+                  endDateValue: event.endDate,
+                  hasStartTime: !!event.startTime,
+                  startTimeValue: event.startTime,
+                  hasEndTime: !!event.endTime,
+                  endTimeValue: event.endTime,
+                  hasRegistrationStartDate: !!event.registrationStartDate,
+                  registrationStartDateValue: event.registrationStartDate,
+                  hasRegistrationEndDate: !!event.registrationEndDate,
+                  registrationEndDateValue: event.registrationEndDate,
+                  isVirtual: !!event.isVirtual,
+                  hasVenue: !!event.venue,
+                  venueValue: event.venue,
+                  hasCustomLocation: !!event.customLocation,
+                  customLocationValue: event.customLocation,
+                  hasAddress: !!event.address,
+                  addressValue: event.address,
+                  hasEventFees: !!event.eventFees,
+                  eventFeesValue: event.eventFees
+                });
+                return null;
+              })()}
+              
               <div className="space-y-4">
                 {(event.eventDate || event.startDate) && (
                   <div className="flex items-start">
@@ -478,6 +577,24 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                     <Tag className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
                     <div>
                       <h3 className="font-medium text-zinc-900">Registration Fee</h3>
+                      {/* Debug event fees structure */}
+                      {(() => {
+                        console.log('Event Fees Details:', {
+                          feesType: typeof event.eventFees,
+                          isFree: event.eventFees?.isFree,
+                          hasPrice: event.eventFees?.price !== undefined,
+                          priceValue: event.eventFees?.price,
+                          hasMemberPrice: event.eventFees?.memberPrice !== undefined,
+                          memberPriceValue: event.eventFees?.memberPrice,
+                          hasNonMemberPrice: event.eventFees?.nonMemberPrice !== undefined,
+                          nonMemberPriceValue: event.eventFees?.nonMemberPrice,
+                          currency: event.eventFees?.currency,
+                          hasDiscount: event.eventFees?.hasDiscount,
+                          discountDetails: event.eventFees?.discountDetails,
+                          allFeeKeys: Object.keys(event.eventFees || {})
+                        });
+                        return null;
+                      })()}
                       {event.eventFees.isFree && (
                         <p className="text-green-600 font-medium">Free Event</p>
                       )}

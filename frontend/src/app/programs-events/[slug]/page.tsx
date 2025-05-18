@@ -6,7 +6,7 @@ export const fetchCache = 'default-no-store';
 
 interface ParamProps {
   params: {
-    slug: string;
+  slug: string;
   };
 }
 
@@ -20,14 +20,14 @@ export default async function ProgramEventRedirect({ params }: ParamProps) {
     if (eventResponse && eventResponse.data) {
       // If found, redirect to new event page
       redirect(`/events/${slug}`);
-    } else {
+            } else {
       // Try to find a program with this slug
       const program = await getProgramBySlug(slug);
       
       if (program) {
         // If found, redirect to new program page
         redirect(`/programs/${slug}`);
-      } else {
+            } else {
         // If neither found, redirect to the main programs page
         redirect('/programs');
       }

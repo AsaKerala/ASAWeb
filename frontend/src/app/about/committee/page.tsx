@@ -431,14 +431,14 @@ export default function CommitteePage() {
                               ) : (
                                 <span className="text-gray-500 text-xs">Photo</span>
                               )}
-                            </div>
+                    </div>
                             <div>
                               <p className="font-medium">{member.name}</p>
                               <p className="text-sm text-hinomaru-red">{formatPosition(member.position)}</p>
-                            </div>
-                          </div>
+                    </div>
+                  </div>
                         ))}
-                      </div>
+                  </div>
                     </div>
                   ))}
                 </div>
