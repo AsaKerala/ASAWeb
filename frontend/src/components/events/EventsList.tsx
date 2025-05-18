@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Search, Calendar, MapPin, Video } from 'lucide-react';
-import { eventsApi } from '@/lib/api';
+import { events } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 
 // Define types for our data
@@ -76,23 +76,31 @@ export default function EventsList() {
       setIsLoading(true);
       try {
         // Fetch upcoming events
-        const upcomingResponse = await eventsApi.getUpcoming({
+        const upcomingResponse = await events.getAll({
           limit: 100,
           where: {
             status: {
               equals: 'published'
+            },
+            eventDate: {
+              greater_than: new Date().toISOString()
             }
-          }
+          },
+          sort: 'eventDate'
         });
         
         // Fetch past events
-        const pastResponse = await eventsApi.getPast({
+        const pastResponse = await events.getAll({
           limit: 100,
           where: {
             status: {
               equals: 'published'
+            },
+            eventDate: {
+              less_than: new Date().toISOString()
             }
-          }
+          },
+          sort: '-eventDate'
         });
         
         setUpcomingEvents(upcomingResponse.data.docs || []);

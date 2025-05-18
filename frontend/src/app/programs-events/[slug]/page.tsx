@@ -1,9 +1,12 @@
 import { redirect } from 'next/navigation';
-import { getProgramBySlug, eventsApi } from '@/lib/api';
+import { getProgramBySlug, events } from '@/lib/api';
+
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'default-no-store';
 
 interface ParamProps {
   params: {
-  slug: string;
+    slug: string;
   };
 }
 
@@ -12,24 +15,25 @@ export default async function ProgramEventRedirect({ params }: ParamProps) {
   
   try {
     // Try to find an event with this slug
-    const event = await eventsApi.getBySlug(slug);
+    const eventResponse = await events.getOne(slug);
     
-    if (event) {
+    if (eventResponse && eventResponse.data) {
       // If found, redirect to new event page
       redirect(`/events/${slug}`);
-            } else {
+    } else {
       // Try to find a program with this slug
       const program = await getProgramBySlug(slug);
       
       if (program) {
         // If found, redirect to new program page
         redirect(`/programs/${slug}`);
-            } else {
+      } else {
         // If neither found, redirect to the main programs page
         redirect('/programs');
       }
     }
   } catch (error) {
+    console.error('Error in redirect:', error);
     // In case of error, redirect to programs page
     redirect('/programs');
   }

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,7 +15,7 @@ interface EventDetailProps {
 }
 
 export default function EventDetail({ event }: EventDetailProps) {
-  const isUpcoming = new Date(event.eventDate) > new Date();
+  const isUpcoming = event.eventDate ? new Date(event.eventDate) > new Date() : false;
   
   return (
     <div className="container mx-auto py-8">
@@ -183,7 +185,7 @@ export default function EventDetail({ event }: EventDetailProps) {
                   <Calendar className="h-5 w-5" /> 
                   Date & Time
                 </h3>
-                <p>{formatDate(event.eventDate)}</p>
+                <p>{event.eventDate ? formatDate(event.eventDate) : 'Date TBA'}</p>
                 {event.startDate && event.endDate && (
                   <p className="text-sm text-muted-foreground">
                     {formatTime(event.startDate)} - {formatTime(event.endDate)}

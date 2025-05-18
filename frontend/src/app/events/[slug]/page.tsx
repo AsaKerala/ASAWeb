@@ -1,14 +1,18 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-import { eventsApi } from '@/lib/api';
+import { events } from '@/lib/api';
 import EventDetail from '@/components/events/EventDetail';
 import { Metadata, ResolvingMetadata } from 'next';
+import { Event } from '@/types';
 
 interface EventPageProps {
   params: {
     slug: string;
   };
 }
+
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'default-no-store';
 
 export async function generateMetadata(
   { params }: EventPageProps,
@@ -17,7 +21,8 @@ export async function generateMetadata(
   const { slug } = params;
   
   try {
-    const event = await eventsApi.getBySlug(slug);
+    const response = await events.getOne(slug);
+    const event = response.data;
     
     if (!event) {
       return {
@@ -42,6 +47,7 @@ export async function generateMetadata(
       },
     };
   } catch (error) {
+    console.error('Error generating metadata:', error);
     return {
       title: 'Event Not Found',
     };
@@ -52,7 +58,8 @@ export default async function EventPage({ params }: EventPageProps) {
   const { slug } = params;
   
   try {
-    const event = await eventsApi.getBySlug(slug);
+    const response = await events.getOne(slug);
+    const event = response.data;
     
     if (!event) {
       notFound();
@@ -60,6 +67,7 @@ export default async function EventPage({ params }: EventPageProps) {
     
     return <EventDetail event={event} />;
   } catch (error) {
+    console.error('Error loading event:', error);
     notFound();
   }
 } 

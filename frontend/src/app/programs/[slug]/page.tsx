@@ -3,12 +3,16 @@ import { notFound } from 'next/navigation';
 import { getProgramBySlug } from '@/lib/api';
 import ProgramDetail from '@/components/programs/ProgramDetail';
 import { Metadata, ResolvingMetadata } from 'next';
+import { Program } from '@/types';
 
 interface ProgramPageProps {
   params: {
     slug: string;
   };
 }
+
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'default-no-store';
 
 export async function generateMetadata(
   { params }: ProgramPageProps,
@@ -42,6 +46,7 @@ export async function generateMetadata(
       },
     };
   } catch (error) {
+    console.error('Error generating metadata:', error);
     return {
       title: 'Program Not Found',
     };
@@ -60,6 +65,7 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
     
     return <ProgramDetail program={program} />;
   } catch (error) {
+    console.error('Error loading program:', error);
     notFound();
   }
 } 
