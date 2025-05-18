@@ -42,20 +42,28 @@ export default function CommitteePage() {
       try {
         setLoading(true);
         
-        // Fetch managing committee members
-        const managingCommitteeRes = await committeeMembers.getManagingCommittee();
-        setManagingCommittee(managingCommitteeRes.data.docs || []);
+        // Fetch all active committee members
+        const allCommitteeRes = await committeeMembers.getActive();
+        const allMembers = allCommitteeRes.data.docs || [];
         
-        // Fetch governing council members
-        const governingCouncilRes = await committeeMembers.getGoverningCouncil();
-        setGoverningCouncil(governingCouncilRes.data.docs || []);
+        // Filter for managing committee members
+        const managingMembers = allMembers.filter((member: CommitteeMember) => 
+          member.committeeType === 'managing-committee' || 
+          ['president', 'vice-president', 'secretary', 'joint-secretary', 'treasurer'].includes(member.position)
+        );
+        setManagingCommittee(managingMembers.length > 0 ? managingMembers : []);
         
-        // Fetch all subcommittee members
-        const subcommitteesRes = await committeeMembers.getSubcommittees();
+        // Filter for governing council members
+        const councilMembers = allMembers.filter((member: CommitteeMember) => 
+          member.committeeType === 'governing-council'
+        );
+        setGoverningCouncil(councilMembers.length > 0 ? councilMembers : []);
         
         // Process subcommittee data and group by type
         const subcommitteeData: SubcommitteeData = {};
-        const subcommitteeMembers = subcommitteesRes.data.docs || [];
+        const subcommitteeMembers = allMembers.filter((member: CommitteeMember) => 
+          member.committeeType === 'subcommittee'
+        );
         
         subcommitteeMembers.forEach((member: CommitteeMember) => {
           if (!member.subcommitteeType) return;
@@ -219,14 +227,46 @@ export default function CommitteePage() {
   
   // Past presidents (Arranged by term period)
   const pastPresidents = [
-    { name: '[Past President 1]', period: '2020-2022', achievements: 'Key initiatives and achievements during their presidency.' },
-    { name: '[Past President 2]', period: '2018-2020', achievements: 'Key initiatives and achievements during their presidency.' },
-    { name: '[Past President 3]', period: '2016-2018', achievements: 'Key initiatives and achievements during their presidency.' },
-    { name: '[Past President 4]', period: '2014-2016', achievements: 'Key initiatives and achievements during their presidency.' },
-    { name: '[Past President 5]', period: '2012-2014', achievements: 'Key initiatives and achievements during their presidency.' },
-    { name: '[Past President 6]', period: '2010-2012', achievements: 'Key initiatives and achievements during their presidency.' },
-    { name: '[Past President 7]', period: '2008-2010', achievements: 'Key initiatives and achievements during their presidency.' },
-    { name: '[Past President 8]', period: '2006-2008', achievements: 'Key initiatives and achievements during their presidency.' },
+    { 
+      name: '[Past President 1]', 
+      period: '2020-2022', 
+      photo: null 
+    },
+    { 
+      name: '[Past President 2]', 
+      period: '2018-2020', 
+      photo: null 
+    },
+    { 
+      name: '[Past President 3]', 
+      period: '2016-2018', 
+      photo: null 
+    },
+    { 
+      name: '[Past President 4]', 
+      period: '2014-2016', 
+      photo: null 
+    },
+    { 
+      name: '[Past President 5]', 
+      period: '2012-2014', 
+      photo: null 
+    },
+    { 
+      name: '[Past President 6]', 
+      period: '2010-2012', 
+      photo: null 
+    },
+    { 
+      name: '[Past President 7]', 
+      period: '2008-2010', 
+      photo: null 
+    },
+    { 
+      name: '[Past President 8]', 
+      period: '2006-2008', 
+      photo: null 
+    },
   ];
   
   // Helper function to format position title
@@ -417,19 +457,26 @@ export default function CommitteePage() {
               We honor the leaders who have shaped ASA Kerala's journey through the years with their vision, dedication, and service.
             </p>
             
-            <div className="max-w-4xl mx-auto">
-              <div className="space-y-6">
+            <div className="max-w-5xl mx-auto">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {pastPresidents.map((president, index) => (
-                  <div key={index} className="bg-white shadow-md rounded-lg p-6">
-                    <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-zinc-900">{president.name}</h3>
-                        <p className="text-hinomaru-red">Term: {president.period}</p>
-                      </div>
-                      <div className="max-w-md">
-                        <p className="text-zinc-800">{president.achievements}</p>
-                      </div>
+                  <div key={index} className="japan-card text-center p-6">
+                    <div className="w-32 h-32 rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center overflow-hidden">
+                      {president.photo ? (
+                        <SafeImage
+                          src={president.photo}
+                          alt={president.name}
+                          width={128}
+                          height={128}
+                          className="object-cover w-full h-full"
+                          fallbackSrc="/assets/placeholder-user.png"
+                        />
+                      ) : (
+                        <span className="text-gray-500 text-sm">Photo</span>
+                      )}
                     </div>
+                    <h3 className="text-xl font-bold text-zinc-900 mb-1">{president.name}</h3>
+                    <p className="text-hinomaru-red">{president.period}</p>
                   </div>
                 ))}
               </div>
@@ -437,6 +484,90 @@ export default function CommitteePage() {
           </div>
         </section>
       )}
+
+      {/* Message from the President */}
+      <section className="py-12 bg-zinc-50">
+        <div className="container-custom">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="section-title text-center mb-10">Message from the President</h2>
+            <div className="japan-card p-8">
+              <div className="flex flex-col md:flex-row gap-8 mb-8">
+                <div className="md:w-1/3 flex justify-center">
+                  <div className="w-40 h-40 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                    <span className="text-gray-500 text-sm">President's Photo</span>
+                  </div>
+                </div>
+                <div className="md:w-2/3">
+                  <h3 className="text-2xl font-bold text-zinc-900 mb-2">[President's Name]</h3>
+                  <p className="text-hinomaru-red font-medium mb-4">President, ASA Kerala</p>
+                  <p className="text-sm text-zinc-600 mb-4">Term: 2022-2024</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4 text-zinc-800">
+                <p>
+                  Dear Members and Friends of ASA Kerala,
+                </p>
+                <p>
+                  It is my honor to serve as the President of ASA Kerala, an organization with a rich history of fostering Indo-Japanese relations through knowledge exchange, cultural understanding, and business collaboration.
+                </p>
+                <p>
+                  As we navigate the ever-evolving global landscape, our mission to bridge Kerala and Japan remains steadfast. We are committed to creating valuable opportunities for our members, enhancing the impact of our training programs, and strengthening our cultural exchange initiatives.
+                </p>
+                <p>
+                  I am privileged to work alongside a dedicated team of committee members who bring diverse expertise and perspectives to our organization. Together, we strive to uphold the values and traditions that have defined ASA Kerala while embracing innovation and new ideas to meet the needs of our members and the broader community.
+                </p>
+                <p>
+                  I invite you to engage with our programs, connect with fellow members, and contribute to our shared mission. Whether you are a long-standing member or new to our community, your participation and support are invaluable to our success.
+                </p>
+                <p>
+                  Thank you for your continued trust and involvement in ASA Kerala.
+                </p>
+                <p className="font-medium">
+                  Sincerely,<br />
+                  [President's Signature]<br />
+                  [President's Name]<br />
+                  President, ASA Kerala
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Governance Structure */}
+      <section className="py-12">
+        <div className="container-custom">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="section-title text-center mb-10 text-zinc-50">Our Governance Structure</h2>
+            <div className="japan-card p-8">
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-hinomaru-red mb-4">Organizational Structure</h3>
+                <p className="text-zinc-800 mb-4">
+                  ASA Kerala operates under a democratic governance structure with elected officials serving two-year terms. Our organizational hierarchy includes:
+                </p>
+                <ul className="space-y-2 text-zinc-800 list-disc pl-6">
+                  <li>General Body (All members)</li>
+                  <li>Managing Committee (Elected officials)</li>
+                  <li>Executive Committee (Managing Committee + Committee Chairs)</li>
+                  <li>Specialized Committees and Working Groups</li>
+                  <li>Administrative Staff</li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="text-xl font-bold text-hinomaru-red mb-4">Election Process</h3>
+                <p className="text-zinc-800 mb-4">
+                  Elections for the Managing Committee are held every two years during the Annual General Meeting. All active members in good standing are eligible to vote and contest for positions. The election process is overseen by an independent Election Committee appointed by the outgoing Managing Committee.
+                </p>
+                <p className="text-zinc-800">
+                  The newly elected committee takes office within one month of the election, following a formal handover ceremony that honors the organization's traditions while embracing new leadership and ideas.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 } 
