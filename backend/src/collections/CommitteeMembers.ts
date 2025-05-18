@@ -4,7 +4,7 @@ const CommitteeMembers: CollectionConfig = {
   slug: 'committee-members',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'position', 'term', 'active'],
+    defaultColumns: ['name', 'position', 'committeeType', 'term', 'active'],
     group: 'Content',
   },
   access: {
@@ -18,6 +18,34 @@ const CommitteeMembers: CollectionConfig = {
       label: 'Full Name',
     },
     {
+      name: 'committeeType',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Managing Committee', value: 'managing-committee' },
+        { label: 'Governing Council', value: 'governing-council' },
+        { label: 'Subcommittee', value: 'subcommittee' },
+      ],
+      defaultValue: 'governing-council',
+      admin: {
+        description: 'Select the type of committee this member belongs to',
+      },
+    },
+    {
+      name: 'subcommitteeType',
+      type: 'select',
+      options: [
+        { label: 'Infrastructure Management Committee', value: 'infrastructure-committee' },
+        { label: 'Saturday Meet Committee', value: 'saturday-meet-committee' },
+        { label: 'Business Circle', value: 'business-circle' },
+        { label: 'Training Committee', value: 'training-committee' },
+      ],
+      admin: {
+        condition: (data) => data.committeeType === 'subcommittee',
+        description: 'Select the specific subcommittee (only applicable for subcommittee members)',
+      },
+    },
+    {
       name: 'position',
       type: 'select',
       required: true,
@@ -28,6 +56,8 @@ const CommitteeMembers: CollectionConfig = {
         { label: 'Joint Secretary', value: 'joint-secretary' },
         { label: 'Treasurer', value: 'treasurer' },
         { label: 'Committee Member', value: 'committee-member' },
+        { label: 'Chairperson', value: 'chairperson' },
+        { label: 'Coordinator', value: 'coordinator' },
       ],
     },
     {

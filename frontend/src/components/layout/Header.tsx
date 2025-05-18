@@ -58,7 +58,7 @@ const menuItems = [
     link: '/news',
   },
   { 
-    label: 'Join Us', 
+    label: 'Membership', 
     link: '/membership',
   },
   { 

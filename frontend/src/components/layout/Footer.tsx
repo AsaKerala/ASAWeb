@@ -243,7 +243,7 @@ export default function Footer() {
               </svg>
               <div>
                 <h4 className="text-white text-sm md:text-base font-medium mb-1">Email</h4>
-                <a href="mailto:info@asakeralajapan.org" className="text-gray-400 text-xs md:text-sm hover:text-sakura-200 transition-colors no-underline overflow-hidden overflow-ellipsis">info@asakeralajapan.org</a>
+                <a href="mailto:asanipponkerala@gmail.com" className="text-gray-400 text-xs md:text-sm hover:text-sakura-200 transition-colors no-underline overflow-hidden overflow-ellipsis">asanipponkerala@gmail.com</a>
               </div>
             </div>
             <div className="flex items-start mt-4 md:mt-0">
@@ -252,7 +252,7 @@ export default function Footer() {
               </svg>
               <div>
                 <h4 className="text-white text-sm md:text-base font-medium mb-1">Phone</h4>
-                <a href="tel:+919876543210" className="text-gray-400 text-xs md:text-sm hover:text-sakura-200 transition-colors no-underline">+91 98765 43210</a>
+                <a href="tel:+917558081097" className="text-gray-400 text-xs md:text-sm hover:text-sakura-200 transition-colors no-underline">+91 7558081097</a>
               </div>
             </div>
           </div>

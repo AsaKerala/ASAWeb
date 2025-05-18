@@ -351,6 +351,63 @@ export const committeeMembers = {
       } 
     });
   },
+  getByType: async (type: string) => {
+    return api.get('/api/committee-members', { 
+      params: { 
+        where: { 
+          committeeType: { equals: type },
+          active: { equals: true } 
+        },
+        sort: 'order',
+        limit: 100
+      } 
+    });
+  },
+  getManagingCommittee: async () => {
+    return api.get('/api/committee-members', { 
+      params: { 
+        where: { 
+          committeeType: { equals: 'managing-committee' },
+          active: { equals: true } 
+        },
+        sort: 'order'
+      } 
+    });
+  },
+  getGoverningCouncil: async () => {
+    return api.get('/api/committee-members', { 
+      params: { 
+        where: { 
+          committeeType: { equals: 'governing-council' },
+          active: { equals: true } 
+        },
+        sort: 'order'
+      } 
+    });
+  },
+  getSubcommittees: async () => {
+    return api.get('/api/committee-members', { 
+      params: { 
+        where: { 
+          committeeType: { equals: 'subcommittee' },
+          active: { equals: true } 
+        },
+        sort: 'order'
+      } 
+    });
+  },
+  getSubcommitteesByType: async (subcommitteeType: string) => {
+    return api.get('/api/committee-members', { 
+      params: { 
+        where: { 
+          committeeType: { equals: 'subcommittee' },
+          subcommitteeType: { equals: subcommitteeType },
+          active: { equals: true } 
+        },
+        sort: 'order'
+      } 
+    });
+  },
 };
 
 // Member endpoints
