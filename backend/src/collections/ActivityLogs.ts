@@ -44,6 +44,7 @@ export const ActivityLogs: CollectionConfig = {
         { label: 'Event Booking', value: 'event-booking' },
         { label: 'Event Registration', value: 'event-registration' },
         { label: 'Program', value: 'program' },
+        { label: 'Program Registration', value: 'program-registration' },
         { label: 'News', value: 'news' },
         { label: 'Facility', value: 'facility' },
         { label: 'Resource', value: 'resource' },

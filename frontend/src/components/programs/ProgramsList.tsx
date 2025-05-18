@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -109,14 +111,20 @@ export default function ProgramsList() {
   
   // Update URL when category changes
   const handleCategoryChange = (value: string) => {
-    const params = new URLSearchParams(searchParams);
+    const current = new URLSearchParams();
+    // Copy all current parameters
+    searchParams.forEach((value, key) => {
+      current.set(key, value);
+    });
+    
+    // Update category parameter
     if (value === PROGRAM_CATEGORIES.ALL) {
-      params.delete('category');
+      current.delete('category');
     } else {
-      params.set('category', value);
+      current.set('category', value);
     }
     
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(`${pathname}?${current.toString()}`);
   };
   
   // Handle search input change
@@ -170,6 +178,7 @@ export default function ProgramsList() {
         </form>
         
         <Tabs 
+          value={categoryParam}
           defaultValue={categoryParam} 
           onValueChange={handleCategoryChange}
           className="w-full"

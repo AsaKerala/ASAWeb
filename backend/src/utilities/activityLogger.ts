@@ -3,7 +3,7 @@ import { Request } from 'express';
 
 export interface ActivityLogParams {
   action: 'create' | 'update' | 'delete' | 'login' | 'logout' | 'register' | 'book' | 'cancel' | 'approve' | 'reject' | 'other';
-  entityType: 'user' | 'event' | 'room-booking' | 'event-booking' | 'event-registration' | 'program' | 'news' | 'facility' | 'resource' | 'system' | 'youtube-video';
+  entityType: 'user' | 'event' | 'room-booking' | 'event-booking' | 'event-registration' | 'program' | 'program-registration' | 'news' | 'facility' | 'resource' | 'system' | 'youtube-video';
   entityId?: string;
   userId?: string;
   details?: any;

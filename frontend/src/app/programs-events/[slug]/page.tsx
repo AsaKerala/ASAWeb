@@ -3,7 +3,7 @@ import { getProgramBySlug, eventsApi } from '@/lib/api';
 
 interface ParamProps {
   params: {
-    slug: string;
+  slug: string;
   };
 }
 
@@ -17,14 +17,14 @@ export default async function ProgramEventRedirect({ params }: ParamProps) {
     if (event) {
       // If found, redirect to new event page
       redirect(`/events/${slug}`);
-    } else {
+            } else {
       // Try to find a program with this slug
       const program = await getProgramBySlug(slug);
       
       if (program) {
         // If found, redirect to new program page
         redirect(`/programs/${slug}`);
-      } else {
+            } else {
         // If neither found, redirect to the main programs page
         redirect('/programs');
       }

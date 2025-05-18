@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -130,20 +132,29 @@ export default function EventsList() {
   
   // Update URL when tab changes
   const handleTabChange = (value: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('tab', value);
-    router.push(`${pathname}?${params.toString()}`);
+    const current = new URLSearchParams();
+    // Copy all current parameters
+    searchParams.forEach((value, key) => {
+      current.set(key, value);
+    });
+    current.set('tab', value);
+    router.push(`${pathname}?${current.toString()}`);
   };
   
   // Update URL when type changes
   const handleTypeChange = (value: string) => {
-    const params = new URLSearchParams(searchParams);
+    const current = new URLSearchParams();
+    // Copy all current parameters
+    searchParams.forEach((value, key) => {
+      current.set(key, value);
+    });
+    
     if (value === EVENT_TYPES.ALL) {
-      params.delete('type');
+      current.delete('type');
     } else {
-      params.set('type', value);
+      current.set('type', value);
     }
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(`${pathname}?${current.toString()}`);
   };
   
   // Handle search input change
@@ -203,6 +214,7 @@ export default function EventsList() {
         </form>
         
         <Tabs 
+          value={tabParam}
           defaultValue={tabParam} 
           onValueChange={handleTabChange}
           className="w-full"
@@ -218,6 +230,7 @@ export default function EventsList() {
         </Tabs>
         
         <Tabs 
+          value={typeParam}
           defaultValue={typeParam} 
           onValueChange={handleTypeChange}
           className="w-full"
