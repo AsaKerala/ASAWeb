@@ -88,7 +88,7 @@ export default function EventDetail({ event }: EventDetailProps) {
                     {event.keyFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <span className="text-primary mt-1">•</span>
-                        <span>{feature}</span>
+                        <span>{feature.feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -103,12 +103,9 @@ export default function EventDetail({ event }: EventDetailProps) {
                     <div key={index} className="border-l-2 border-primary pl-4 relative">
                       <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-1"></div>
                       <p className="text-sm text-muted-foreground">
-                        {formatTime(item.startTime)} - {formatTime(item.endTime)}
+                        {item.time}
                       </p>
-                      <h3 className="font-medium text-lg">{item.title}</h3>
-                      {item.description && (
-                        <p className="mt-1 text-muted-foreground">{item.description}</p>
-                      )}
+                      <h3 className="font-medium text-lg">{item.activity}</h3>
                       {item.speaker && (
                         <p className="mt-2 text-sm flex items-center gap-1">
                           <User className="h-3 w-3" />
@@ -128,10 +125,10 @@ export default function EventDetail({ event }: EventDetailProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {event.speakers.map((speaker, index) => (
                     <div key={index} className="flex flex-col md:flex-row gap-4">
-                      {speaker.photo && (
+                      {speaker.image && (
                         <div className="shrink-0">
                           <Image 
-                            src={speaker.photo.url} 
+                            src={speaker.image.url} 
                             alt={speaker.name} 
                             width={120} 
                             height={120} 
@@ -228,18 +225,18 @@ export default function EventDetail({ event }: EventDetailProps) {
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Registration Fees</h3>
                   <div className="space-y-2">
-                    {event.eventFees.memberFee !== undefined && (
+                    {event.eventFees.memberPrice !== undefined && (
                       <p><span className="font-medium">Member:</span> {
-                        event.eventFees.memberFee === 0 
+                        event.eventFees.memberPrice === 0 
                           ? 'Free' 
-                          : `₹${event.eventFees.memberFee}`
+                          : `₹${event.eventFees.memberPrice}`
                       }</p>
                     )}
-                    {event.eventFees.nonMemberFee !== undefined && (
+                    {event.eventFees.nonMemberPrice !== undefined && (
                       <p><span className="font-medium">Non-Member:</span> {
-                        event.eventFees.nonMemberFee === 0 
+                        event.eventFees.nonMemberPrice === 0 
                           ? 'Free' 
-                          : `₹${event.eventFees.nonMemberFee}`
+                          : `₹${event.eventFees.nonMemberPrice}`
                       }</p>
                     )}
                   </div>

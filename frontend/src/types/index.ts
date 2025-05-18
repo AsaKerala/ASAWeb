@@ -65,6 +65,7 @@ export interface Event {
   status?: string;
   eventType?: string;
   isFeatured?: boolean;
+  mode?: string;
   featuredImage?: {
     id: string;
     url: string;
@@ -75,7 +76,9 @@ export interface Event {
       tablet?: { url: string };
     };
   };
-  keyFeatures?: string[];
+  keyFeatures?: Array<{
+    feature: string;
+  }>;
   eventDate?: string;
   startDate?: string;
   endDate?: string;
@@ -84,26 +87,36 @@ export interface Event {
   customLocation?: string;
   eligibility?: string;
   eventFees?: {
-    memberFee?: number;
-    nonMemberFee?: number;
+    memberPrice?: number;
+    nonMemberPrice?: number;
+    currency?: string;
+    hasDiscount?: boolean;
+    discountDetails?: string;
   };
   schedule?: Array<{
-    title: string;
-    startTime: string;
-    endTime: string;
-    description?: string;
+    time?: string;
+    activity?: string;
     speaker?: string;
   }>;
   speakers?: Array<{
     name: string;
     title?: string;
     bio?: string;
-    photo?: {
+    image?: {
       url: string;
     };
   }>;
   faqs?: Array<{
     question: string;
     answer: string;
+  }>;
+  gallery?: Array<{
+    url: string;
+    alt?: string;
+  }>;
+  relatedEvents?: Array<{
+    id: string;
+    title: string;
+    slug: string;
   }>;
 } 

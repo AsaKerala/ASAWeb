@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Search, Calendar } from 'lucide-react';
-import { getAllEvents } from '@/lib/api';
+import { events as eventsApi } from '@/lib/api';
 import { format } from 'date-fns';
 import { SafeImage } from '@/components/common';
 
@@ -70,7 +70,7 @@ export default function EventsList() {
       setIsLoading(true);
       try {
         console.log('Fetching events data...');
-        const response = await getAllEvents({
+        const response = await eventsApi.getAll({
           limit: 100,
           where: {
             status: {
