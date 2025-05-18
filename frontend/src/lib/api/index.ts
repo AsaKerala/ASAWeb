@@ -492,11 +492,20 @@ export const getProgramBySlug = async (slug: string) => {
 
 export const getAllPrograms = async (params = {}) => {
   try {
+    console.log('getAllPrograms called with params:', params);
     const response = await api.get('/api/programs', { params });
-    return response.data;
+    console.log('getAllPrograms response:', response.status, response.statusText);
+    
+    // Return the full response so the component can handle different data structures
+    return {
+      data: response.data,
+      status: response.status,
+      statusText: response.statusText
+    };
   } catch (error) {
     console.error('Error fetching programs:', error);
-    return { data: { docs: [] } };
+    // Throw the error to allow the component to handle it
+    throw error;
   }
 };
 

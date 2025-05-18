@@ -67,6 +67,7 @@ export default function ProgramsList() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        console.log('Fetching programs data...');
         const response = await getAllPrograms({
           limit: 100,
           where: {
@@ -76,10 +77,25 @@ export default function ProgramsList() {
           }
         });
         
-        setPrograms(response.data.docs || []);
+        console.log('Programs API response:', response);
+        
+        if (!response || !response.data) {
+          console.error('Invalid response structure:', response);
+          setError('Failed to load data: Invalid response format');
+          return;
+        }
+        
+        // Check if docs array is present
+        if (!response.data.docs) {
+          console.error('No docs array in response data:', response.data);
+          setError('Failed to load data: Missing program data');
+          return;
+        }
+        
+        setPrograms(response.data.docs);
       } catch (err) {
         console.error('Error fetching programs data:', err);
-        setError('Failed to load data. Please try again later.');
+        setError(`Failed to load data: ${err instanceof Error ? err.message : 'Unknown error'}`);
       } finally {
         setIsLoading(false);
       }

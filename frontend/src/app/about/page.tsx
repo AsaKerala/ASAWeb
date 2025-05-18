@@ -348,6 +348,71 @@ export default function AboutPage() {
                   View All Committee Members
                 </Link>
               </div>
+
+              {/* Message from the President */}
+              <div className="mt-16">
+                <h3 className="text-2xl font-bold text-zinc-900 mb-10 text-center">Message from the President</h3>
+                <motion.div 
+                  className="japan-card p-8 max-w-4xl mx-auto"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  <div className="flex flex-col md:flex-row gap-8 mb-8">
+                    <div className="md:w-1/3 flex justify-center">
+                      {committeeData.length > 0 && committeeData.find(m => m.position === 'president')?.photo ? (
+                        <div className="w-40 h-40 rounded-full overflow-hidden">
+                          <SafeImage 
+                            src={committeeData.find(m => m.position === 'president')?.photo?.url || ''} 
+                            alt="President" 
+                            width={160} 
+                            height={160} 
+                            className="object-cover w-full h-full"
+                            fallbackSrc="/assets/placeholder-user.png"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-40 h-40 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                          <span className="text-gray-500 text-sm">President's Photo</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="md:w-2/3">
+                      <h4 className="text-2xl font-bold text-zinc-900 mb-2">
+                        {committeeData.find(m => m.position === 'president')?.name || '[President\'s Name]'}
+                      </h4>
+                      <p className="text-hinomaru-red font-medium mb-4">President, ASA Kerala</p>
+                      <p className="text-sm text-zinc-600 mb-4">Term: 2022-2024</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4 text-zinc-800">
+                    <p>
+                      Dear Members and Friends of ASA Kerala,
+                    </p>
+                    <p>
+                      It is my honor to serve as the President of ASA Kerala, an organization with a rich history of fostering Indo-Japanese relations through knowledge exchange, cultural understanding, and business collaboration.
+                    </p>
+                    <p>
+                      As we navigate the ever-evolving global landscape, our mission to bridge Kerala and Japan remains steadfast. We are committed to creating valuable opportunities for our members, enhancing the impact of our training programs, and strengthening our cultural exchange initiatives.
+                    </p>
+                    <p>
+                      I am privileged to work alongside a dedicated team of committee members who bring diverse expertise and perspectives to our organization. Together, we strive to uphold the values and traditions that have defined ASA Kerala while embracing innovation and new ideas to meet the needs of our members and the broader community.
+                    </p>
+                    <p>
+                      I invite you to engage with our programs, connect with fellow members, and contribute to our shared mission. Whether you are a long-standing member or new to our community, your participation and support are invaluable to our success.
+                    </p>
+                    <p>
+                      Thank you for your continued trust and involvement in ASA Kerala.
+                    </p>
+                    <p className="font-medium">
+                      Sincerely,<br />
+                      {committeeData.find(m => m.position === 'president')?.name || '[President\'s Name]'}<br />
+                      President, ASA Kerala
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
             </div>
           </motion.section>
         )}

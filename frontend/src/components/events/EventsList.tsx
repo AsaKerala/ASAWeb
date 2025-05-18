@@ -75,36 +75,36 @@ export default function EventsList() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch upcoming events
-        const upcomingResponse = await events.getAll({
+        // Basic query without date filtering
+        const baseQuery = {
           limit: 100,
           where: {
             status: {
               equals: 'published'
-            },
-            eventDate: {
-              greater_than: new Date().toISOString()
             }
-          },
-          sort: 'eventDate'
-        });
+          }
+        };
         
-        // Fetch past events
-        const pastResponse = await events.getAll({
-          limit: 100,
-          where: {
-            status: {
-              equals: 'published'
-            },
-            eventDate: {
-              less_than: new Date().toISOString()
-            }
-          },
-          sort: '-eventDate'
-        });
+        // Fetch all events first
+        const allEventsResponse = await events.getAll(baseQuery);
+        const allEvents = allEventsResponse.data.docs || [];
         
-        setUpcomingEvents(upcomingResponse.data.docs || []);
-        setPastEvents(pastResponse.data.docs || []);
+        // Manually filter for upcoming and past events based on eventDate
+        const currentDate = new Date();
+        const upcoming = allEvents.filter(event => 
+          event.eventDate && new Date(event.eventDate) > currentDate
+        ).sort((a, b) => 
+          new Date(a.eventDate!).getTime() - new Date(b.eventDate!).getTime()
+        );
+        
+        const past = allEvents.filter(event => 
+          !event.eventDate || new Date(event.eventDate) <= currentDate
+        ).sort((a, b) => 
+          new Date(b.eventDate || 0).getTime() - new Date(a.eventDate || 0).getTime()
+        );
+        
+        setUpcomingEvents(upcoming);
+        setPastEvents(past);
       } catch (err) {
         console.error('Error fetching events data:', err);
         setError('Failed to load data. Please try again later.');
