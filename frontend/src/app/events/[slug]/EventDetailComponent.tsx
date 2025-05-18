@@ -32,14 +32,12 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
   
   const handleRegisterClick = () => {
     if (isAuthenticated) {
-      // Handle direct registration
-      // You can add API call to register the user for this event
-      console.log("Registering user for event:", event.id);
-      // For now, just display an alert
-      alert("Registration successful! You will receive a confirmation email shortly.");
+      console.log('User is authenticated, processing registration');
+      // Here you would handle the registration API call
+      alert('Registration successful! You will receive confirmation details via email.');
     } else {
-      // Redirect to login page, with return URL to come back to this event page
-      loginWithRedirect(`/events/${slug}`);
+      console.log('User is not authenticated, redirecting to login');
+      loginWithRedirect(`/events/${event.slug}`);
     }
   };
 
@@ -49,7 +47,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
       <div className="relative w-full h-[40vh] md:h-[50vh] overflow-hidden">
         {event.featuredImage ? (
           <SafeImage
-            src={event.featuredImage.url}
+            src={typeof event.featuredImage === 'string' ? event.featuredImage : event.featuredImage.url || ''}
             alt={event.title}
             fill
             className="object-cover"
@@ -119,7 +117,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                   {event.content ? (
                     <div 
                       className="prose prose-zinc max-w-none"
-                      dangerouslySetInnerHTML={{ __html: typeof event.content === 'string' ? event.content : JSON.stringify(event.content) }}
+                      dangerouslySetInnerHTML={{ __html: typeof event.content === 'string' ? event.content : 'No detailed description available' }}
                     />
                   ) : (
                     <p className="text-zinc-700">{event.summary || 'No description available'}</p>
@@ -133,7 +131,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                       {event.keyFeatures.map((feature, index) => (
                         <li key={index} className="flex items-start">
                           <ChevronRight className="h-5 w-5 mr-2 text-hinomaru-red flex-shrink-0 mt-0.5" />
-                          <span className="text-zinc-700">{feature.feature}</span>
+                          <span className="text-zinc-700">{typeof feature === 'string' ? feature : feature.feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -156,8 +154,8 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                       {event.gallery.map((image, index) => (
                         <div key={index} className="relative h-40 rounded-md overflow-hidden">
                           <SafeImage
-                            src={image.url}
-                            alt={image.alt || `Gallery image ${index + 1}`}
+                            src={typeof image === 'string' ? image : image.url}
+                            alt={typeof image === 'string' ? `Gallery image ${index + 1}` : (image.alt || `Gallery image ${index + 1}`)}
                             fill
                             className="object-cover hover:scale-105 transition-transform duration-300"
                             fallbackSrc="/assets/placeholder-image.jpg"
@@ -177,11 +175,11 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                       {event.schedule.map((item, index) => (
                         <div key={index} className="flex border-l-4 border-hinomaru-red pl-4 py-2">
                           <div className="w-24 flex-shrink-0 text-hinomaru-red font-medium">
-                            {item.time}
+                            {typeof item === 'string' ? item : item.time}
                           </div>
                           <div>
-                            <h3 className="font-semibold text-zinc-900">{item.activity}</h3>
-                            {item.speaker && (
+                            <h3 className="font-semibold text-zinc-900">{typeof item === 'string' ? 'Session' : item.activity}</h3>
+                            {typeof item !== 'string' && item.speaker && (
                               <p className="text-sm text-zinc-600">Speaker: {item.speaker}</p>
                             )}
                           </div>
@@ -199,27 +197,25 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                     <div className="grid grid-cols-1 gap-6">
                       {event.speakers.map((speaker, index) => (
                         <div key={index} className="bg-gray-50 p-6 rounded-md border border-gray-100 flex flex-col md:flex-row gap-6">
-                          {speaker.image ? (
-                            <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden flex-shrink-0 mx-auto md:mx-0">
-                              <SafeImage
-                                src={speaker.image.url}
-                                alt={speaker.name}
-                                fill
-                                className="object-cover"
-                                fallbackSrc="/assets/placeholder-avatar.png"
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 mx-auto md:mx-0">
-                              <User className="h-12 w-12 text-gray-400" />
-                            </div>
-                          )}
+                          <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden flex-shrink-0 mx-auto md:mx-0">
+                            <SafeImage
+                              src={typeof speaker === 'string' 
+                                ? '/assets/placeholder-avatar.png' 
+                                : (typeof speaker.image === 'string' 
+                                  ? speaker.image 
+                                  : speaker.image?.url || '/assets/placeholder-avatar.png')}
+                              alt={typeof speaker === 'string' ? 'Speaker' : speaker.name}
+                              fill
+                              className="object-cover"
+                              fallbackSrc="/assets/placeholder-avatar.png"
+                            />
+                          </div>
                           <div>
-                            <h3 className="text-xl font-bold text-zinc-900">{speaker.name}</h3>
-                            {speaker.title && (
+                            <h3 className="text-xl font-bold text-zinc-900">{typeof speaker === 'string' ? 'Speaker' : speaker.name}</h3>
+                            {typeof speaker !== 'string' && speaker.title && (
                               <p className="text-zinc-600 mb-3">{speaker.title}</p>
                             )}
-                            <p className="text-zinc-700">{speaker.bio}</p>
+                            <p className="text-zinc-700">{typeof speaker === 'string' ? speaker : speaker.bio}</p>
                           </div>
                         </div>
                       ))}
@@ -236,10 +232,10 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                       {event.faqs.map((faq, index) => (
                         <AccordionItem key={index} value={`faq-${index}`}>
                           <AccordionTrigger className="text-lg font-medium text-zinc-900">
-                            {faq.question}
+                            {typeof faq === 'string' ? `FAQ ${index + 1}` : faq.question}
                           </AccordionTrigger>
                           <AccordionContent className="text-zinc-700">
-                            {faq.answer}
+                            {typeof faq === 'string' ? faq : faq.answer}
                           </AccordionContent>
                         </AccordionItem>
                       ))}
@@ -264,13 +260,13 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                       <h3 className="font-medium text-zinc-900">Date & Time</h3>
                       {event.eventDate && (
                         <p className="text-zinc-700">
-                          {formatDate(event.eventDate)}
+                          {formatDate(new Date(event.eventDate))}
                         </p>
                       )}
                       {!event.eventDate && event.startDate && (
                         <p className="text-zinc-700">
-                          Starts: {formatDate(event.startDate)}
-                          {event.endDate && <span> <br />Ends: {formatDate(event.endDate)}</span>}
+                          Starts: {formatDate(new Date(event.startDate))}
+                          {event.endDate && <span> <br />Ends: {formatDate(new Date(event.endDate))}</span>}
                         </p>
                       )}
                     </div>
@@ -350,11 +346,11 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                 <div className="space-y-3">
                   {event.relatedEvents.map((relatedEvent) => (
                     <Link 
-                      key={relatedEvent.id}
-                      href={`/events/${relatedEvent.slug}`}
+                      key={typeof relatedEvent === 'string' ? relatedEvent : relatedEvent.id}
+                      href={`/events/${typeof relatedEvent === 'string' ? relatedEvent : relatedEvent.slug}`}
                       className="block p-3 border border-gray-200 rounded-md hover:border-hinomaru-red hover:bg-gray-50 transition-colors"
                     >
-                      <h3 className="font-medium text-zinc-900">{relatedEvent.title}</h3>
+                      <h3 className="font-medium text-zinc-900">{typeof relatedEvent === 'string' ? 'Related Event' : relatedEvent.title}</h3>
                     </Link>
                   ))}
                 </div>

@@ -261,18 +261,19 @@ export default function EventsList() {
                 )}
               </div>
               
-              <h3 className="text-xl font-bold text-zinc-900 mb-2 line-clamp-2">{event.title}</h3>
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 group-hover:text-hinomaru-red truncate">
+                {event.title}
+              </h3>
               
+              {/* Event date display */}
               {event.eventDate && (
-                <div className="flex items-center gap-2 mb-2 text-zinc-600">
+                <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
                   <Calendar className="h-4 w-4" />
-                  <span>
-                    {format(new Date(event.eventDate), 'MMMM d, yyyy')}
-                  </span>
+                  <span>{format(new Date(event.eventDate), 'MMMM d, yyyy')}</span>
                 </div>
               )}
               {!event.eventDate && event.startDate && (
-                <div className="flex items-center gap-2 mb-2 text-zinc-600">
+                <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
                   <Calendar className="h-4 w-4" />
                   <span>
                     {format(new Date(event.startDate), 'MMMM d, yyyy')}
