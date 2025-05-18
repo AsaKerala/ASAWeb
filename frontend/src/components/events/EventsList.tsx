@@ -91,15 +91,15 @@ export default function EventsList() {
         
         // Manually filter for upcoming and past events based on eventDate
         const currentDate = new Date();
-        const upcoming = allEvents.filter(event => 
+        const upcoming = allEvents.filter((event: Event) => 
           event.eventDate && new Date(event.eventDate) > currentDate
-        ).sort((a, b) => 
+        ).sort((a: Event, b: Event) => 
           new Date(a.eventDate!).getTime() - new Date(b.eventDate!).getTime()
         );
         
-        const past = allEvents.filter(event => 
+        const past = allEvents.filter((event: Event) => 
           !event.eventDate || new Date(event.eventDate) <= currentDate
-        ).sort((a, b) => 
+        ).sort((a: Event, b: Event) => 
           new Date(b.eventDate || 0).getTime() - new Date(a.eventDate || 0).getTime()
         );
         
@@ -123,13 +123,13 @@ export default function EventsList() {
     
     // Filter by type
     if (typeParam !== EVENT_TYPES.ALL) {
-      filtered = filtered.filter(event => event.eventType === typeParam);
+      filtered = filtered.filter((event: Event) => event.eventType === typeParam);
     }
     
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(event => 
+      filtered = filtered.filter((event: Event) => 
         event.title.toLowerCase().includes(query) || 
         event.summary.toLowerCase().includes(query)
       );
@@ -269,7 +269,7 @@ export default function EventsList() {
       {/* Results */}
       {filteredEvents.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map(event => (
+          {filteredEvents.map((event: Event) => (
             <Card key={event.id} className="overflow-hidden h-full flex flex-col">
               <div className="relative h-48 w-full">
                 {event.featuredImage ? (
