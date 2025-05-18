@@ -1,88 +1,68 @@
-import { events } from '@/lib/api';
-import { Metadata, ResolvingMetadata } from 'next';
+import { Metadata } from 'next';
+import { eventsApi } from '@/lib/api/events-api';
 import EventDetailComponent from './EventDetailComponent';
 
-interface EventPageProps {
+// Set dynamic rendering and cache policy
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'default-no-store';
+
+interface EventDetailPageProps {
   params: {
     slug: string;
   };
 }
 
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'default-no-store';
-
-export async function generateMetadata(
-  { params }: EventPageProps,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: EventDetailPageProps): Promise<Metadata> {
   const { slug } = params;
   
   try {
-    const response = await events.getOne(slug);
-    const event = response.data;
+    const event = await eventsApi.getBySlug(slug);
     
     if (!event) {
       return {
-        title: 'Event Not Found',
+        title: 'Event Not Found'
       };
     }
     
     return {
       title: `${event.title} | ASA Events`,
-      description: event.summary || event.content?.slice(0, 160),
+      description: event.summary || `Learn more about ${event.title} and register today.`,
       openGraph: {
         title: event.title,
-        description: event.summary || event.content?.slice(0, 160),
-        images: event.featuredImage ? [
-          {
-            url: event.featuredImage.url,
-            width: 1200,
-            height: 630,
-            alt: event.title,
-          }
-        ] : [],
-      },
+        description: event.summary || `Learn more about ${event.title} and register today.`,
+        images: typeof event.featuredImage === 'object' && event.featuredImage?.url ? [event.featuredImage.url] : []
+      }
     };
   } catch (error) {
-    console.error('Error generating metadata:', error);
+    console.error('Error fetching event data for metadata:', error);
     return {
-      title: 'Event Not Found',
+      title: 'Event Not Found'
     };
   }
 }
 
-export default async function EventPage({ params }: EventPageProps) {
+export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { slug } = params;
   
   try {
-    const response = await events.getOne(slug);
+    const event = await eventsApi.getBySlug(slug);
     
-    if (!response || !response.data) {
+    if (!event) {
       return (
-        <div className="container-custom py-20">
-          <div className="japan-card">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
-            <p className="text-zinc-700 mb-6">Event not found</p>
-            <a href="/events" className="btn-primary">
-              Back to Events
-            </a>
-          </div>
+        <div className="container-custom py-16 text-center">
+          <h1 className="text-3xl font-bold mb-4">Event Not Found</h1>
+          <p className="text-zinc-700 mb-8">The event you're looking for doesn't exist or has been removed.</p>
         </div>
       );
     }
     
-    return <EventDetailComponent initialEvent={response.data} slug={slug} />;
+    return <EventDetailComponent initialEvent={event} slug={slug} />;
   } catch (error) {
-    console.error('Error loading event:', error);
+    console.error('Error fetching event:', error);
     return (
-      <div className="container-custom py-20">
-        <div className="japan-card">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
-          <p className="text-zinc-700 mb-6">Failed to load event data</p>
-          <a href="/events" className="btn-primary">
-            Back to Events
-          </a>
-        </div>
+      <div className="container-custom py-16 text-center">
+        <h1 className="text-3xl font-bold mb-4">Error Loading Event</h1>
+        <p className="text-zinc-700 mb-8">There was an error loading this event. Please try again later.</p>
       </div>
     );
   }
