@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Calendar, Clock, MapPin, Video, User, Award, DollarSign } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+import SafeImage from '@/components/common/SafeImage';
 
 interface ProgramDetailProps {
   program: Program;
@@ -20,7 +21,9 @@ export default function ProgramDetail({ program }: ProgramDetailProps) {
       <div className="relative w-full h-[400px] mb-8">
         {program.featuredImage && (
           <Image 
-            src={program.featuredImage.url} 
+            src={typeof program.featuredImage === 'string' 
+              ? program.featuredImage 
+              : program.featuredImage.url} 
             alt={program.title} 
             fill 
             className="object-cover rounded-lg" 
@@ -69,7 +72,7 @@ export default function ProgramDetail({ program }: ProgramDetailProps) {
                     {program.keyFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <span className="text-primary mt-1">•</span>
-                        <span>{feature}</span>
+                        <span>{typeof feature === 'string' ? feature : feature.feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -96,28 +99,41 @@ export default function ProgramDetail({ program }: ProgramDetailProps) {
             <TabsContent value="testimonials">
               {program.testimonials && program.testimonials.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {program.testimonials.map((testimonial, index) => (
-                    <div key={index} className="bg-muted p-6 rounded-lg">
-                      <p className="italic mb-4">"{testimonial.quote}"</p>
-                      <div className="flex items-center gap-3">
-                        {testimonial.avatar && (
-                          <Image 
-                            src={testimonial.avatar.url} 
-                            alt={testimonial.name} 
-                            width={48} 
-                            height={48}
-                            className="rounded-full" 
-                          />
-                        )}
-                        <div>
-                          <p className="font-semibold">{testimonial.name}</p>
-                          {testimonial.title && (
-                            <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+                  {program.testimonials.map((testimonial, index) => {
+                    // Check if testimonial is a string or object
+                    if (typeof testimonial === 'string') {
+                      return (
+                        <div key={index} className="bg-muted p-6 rounded-lg">
+                          <p className="italic mb-4">"{testimonial}"</p>
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <div key={index} className="bg-muted p-6 rounded-lg">
+                        <p className="italic mb-4">"{testimonial.quote || testimonial.text || ''}"</p>
+                        <div className="flex items-center gap-3">
+                          {testimonial.avatar && (
+                            <Image 
+                              src={typeof testimonial.avatar === 'string' 
+                                ? testimonial.avatar 
+                                : testimonial.avatar.url} 
+                              alt={testimonial.name} 
+                              width={48} 
+                              height={48}
+                              className="rounded-full" 
+                            />
                           )}
+                          <div>
+                            <p className="font-semibold">{testimonial.name}</p>
+                            {testimonial.title && (
+                              <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <p>No testimonials available yet.</p>
@@ -127,14 +143,28 @@ export default function ProgramDetail({ program }: ProgramDetailProps) {
             <TabsContent value="faq">
               {program.faqs && program.faqs.length > 0 ? (
                 <Accordion type="single" collapsible className="w-full">
-                  {program.faqs.map((faq, index) => (
-                    <AccordionItem key={index} value={`item-${index}`}>
-                      <AccordionTrigger>{faq.question}</AccordionTrigger>
-                      <AccordionContent>
-                        <div dangerouslySetInnerHTML={{ __html: faq.answer }} />
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
+                  {program.faqs.map((faq, index) => {
+                    // Check if FAQ is string or object
+                    if (typeof faq === 'string') {
+                      return (
+                        <AccordionItem key={index} value={`item-${index}`}>
+                          <AccordionTrigger>FAQ #{index + 1}</AccordionTrigger>
+                          <AccordionContent>
+                            <div dangerouslySetInnerHTML={{ __html: faq }} />
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    }
+                    
+                    return (
+                      <AccordionItem key={index} value={`item-${index}`}>
+                        <AccordionTrigger>{faq.question}</AccordionTrigger>
+                        <AccordionContent>
+                          <div dangerouslySetInnerHTML={{ __html: faq.answer }} />
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
                 </Accordion>
               ) : (
                 <p>No FAQs available yet.</p>
@@ -191,35 +221,46 @@ export default function ProgramDetail({ program }: ProgramDetailProps) {
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-2">Upcoming Batches</h3>
                 <div className="space-y-4">
-                  {program.upcomingBatches.map((batch, index) => (
-                    <div key={index} className="border border-border rounded-md p-4">
-                      <h4 className="font-medium">{batch.name}</h4>
-                      
-                      <div className="text-sm space-y-2 mt-2">
-                        <div className="flex gap-2 items-center">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {formatDate(batch.startDate)} - {formatDate(batch.endDate)}
-                          </span>
+                  {program.upcomingBatches.map((batch, index) => {
+                    // Check if batch is string or object
+                    if (typeof batch === 'string') {
+                      return (
+                        <div key={index} className="border border-border rounded-md p-4">
+                          <p>{batch}</p>
                         </div>
+                      );
+                    }
+                    
+                    return (
+                      <div key={index} className="border border-border rounded-md p-4">
+                        <h4 className="font-medium">{batch.name || batch.batchName}</h4>
                         
-                        {batch.application && (
+                        <div className="text-sm space-y-2 mt-2">
                           <div className="flex gap-2 items-center">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span>Application deadline: {formatDate(batch.application)}</span>
-                          </div>
-                        )}
-                        
-                        {batch.capacity && (
-                          <div className="mt-2">
-                            <span className="text-xs bg-secondary px-2 py-1 rounded">
-                              {batch.capacity} seats available
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span>
+                              {formatDate(batch.startDate)} {batch.endDate ? `- ${formatDate(batch.endDate)}` : ''}
                             </span>
                           </div>
-                        )}
+                          
+                          {batch.application && (
+                            <div className="flex gap-2 items-center">
+                              <Clock className="h-4 w-4 text-muted-foreground" />
+                              <span>Application deadline: {formatDate(batch.application)}</span>
+                            </div>
+                          )}
+                          
+                          {batch.capacity && (
+                            <div className="mt-2">
+                              <span className="text-xs bg-secondary px-2 py-1 rounded">
+                                {batch.capacity} seats available
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

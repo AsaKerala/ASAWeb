@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Calendar, Clock, MapPin, Video, User, Users, Tag } from 'lucide-react';
 import { formatDate, formatTime } from '@/lib/utils';
+import { SafeImage } from '@/components/common';
 
 interface EventDetailProps {
   event: Event;
@@ -22,11 +23,12 @@ export default function EventDetail({ event }: EventDetailProps) {
       {/* Header */}
       <div className="relative w-full h-[400px] mb-8">
         {event.featuredImage && (
-          <Image 
-            src={event.featuredImage.url} 
+          <SafeImage 
+            src={typeof event.featuredImage === 'string' ? event.featuredImage : event.featuredImage.url}
             alt={event.title} 
             fill 
             className="object-cover rounded-lg" 
+            fallbackSrc="/assets/placeholder-event-banner.jpg"
             priority
           />
         )}
@@ -68,16 +70,22 @@ export default function EventDetail({ event }: EventDetailProps) {
           <Tabs defaultValue="overview" className="w-full">
             <TabsList className="w-full justify-start mb-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="schedule">Schedule</TabsTrigger>
-              <TabsTrigger value="speakers">Speakers</TabsTrigger>
-              <TabsTrigger value="faq">FAQ</TabsTrigger>
+              {event.schedule && event.schedule.length > 0 && (
+                <TabsTrigger value="schedule">Schedule</TabsTrigger>
+              )}
+              {event.speakers && event.speakers.length > 0 && (
+                <TabsTrigger value="speakers">Speakers</TabsTrigger>
+              )}
+              {event.faqs && event.faqs.length > 0 && (
+                <TabsTrigger value="faq">FAQ</TabsTrigger>
+              )}
             </TabsList>
             
             <TabsContent value="overview" className="mt-0">
               {event.content && (
                 <div 
                   className="prose max-w-none" 
-                  dangerouslySetInnerHTML={{ __html: event.content }} 
+                  dangerouslySetInnerHTML={{ __html: typeof event.content === 'string' ? event.content : 'No detailed content available' }} 
                 />
               )}
               
@@ -88,7 +96,7 @@ export default function EventDetail({ event }: EventDetailProps) {
                     {event.keyFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <span className="text-primary mt-1">•</span>
-                        <span>{feature.feature}</span>
+                        <span>{typeof feature === 'string' ? feature : feature.feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -103,10 +111,10 @@ export default function EventDetail({ event }: EventDetailProps) {
                     <div key={index} className="border-l-2 border-primary pl-4 relative">
                       <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-1"></div>
                       <p className="text-sm text-muted-foreground">
-                        {item.time}
+                        {typeof item === 'string' ? item : item.time}
                       </p>
-                      <h3 className="font-medium text-lg">{item.activity}</h3>
-                      {item.speaker && (
+                      <h3 className="font-medium text-lg">{typeof item === 'string' ? 'Session' : item.activity}</h3>
+                      {typeof item !== 'string' && item.speaker && (
                         <p className="mt-2 text-sm flex items-center gap-1">
                           <User className="h-3 w-3" />
                           <span>{item.speaker}</span>
@@ -125,23 +133,24 @@ export default function EventDetail({ event }: EventDetailProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {event.speakers.map((speaker, index) => (
                     <div key={index} className="flex flex-col md:flex-row gap-4">
-                      {speaker.image && (
+                      {typeof speaker !== 'string' && speaker.image && (
                         <div className="shrink-0">
-                          <Image 
-                            src={speaker.image.url} 
+                          <SafeImage 
+                            src={typeof speaker.image === 'string' ? speaker.image : speaker.image.url} 
                             alt={speaker.name} 
                             width={120} 
                             height={120} 
                             className="rounded-lg object-cover"
+                            fallbackSrc="/assets/placeholder-avatar.png"
                           />
                         </div>
                       )}
                       <div>
-                        <h3 className="text-xl font-medium">{speaker.name}</h3>
-                        {speaker.title && (
+                        <h3 className="text-xl font-medium">{typeof speaker === 'string' ? 'Speaker' : speaker.name}</h3>
+                        {typeof speaker !== 'string' && speaker.title && (
                           <p className="text-muted-foreground">{speaker.title}</p>
                         )}
-                        {speaker.bio && (
+                        {typeof speaker !== 'string' && speaker.bio && (
                           <p className="mt-2 text-sm">{speaker.bio}</p>
                         )}
                       </div>
@@ -158,9 +167,13 @@ export default function EventDetail({ event }: EventDetailProps) {
                 <Accordion type="single" collapsible className="w-full">
                   {event.faqs.map((faq, index) => (
                     <AccordionItem key={index} value={`item-${index}`}>
-                      <AccordionTrigger>{faq.question}</AccordionTrigger>
+                      <AccordionTrigger>{typeof faq === 'string' ? `FAQ ${index + 1}` : faq.question}</AccordionTrigger>
                       <AccordionContent>
-                        <div dangerouslySetInnerHTML={{ __html: faq.answer }} />
+                        {typeof faq === 'string' ? (
+                          <p>{faq}</p>
+                        ) : (
+                          <div dangerouslySetInnerHTML={{ __html: faq.answer }} />
+                        )}
                       </AccordionContent>
                     </AccordionItem>
                   ))}
@@ -182,10 +195,10 @@ export default function EventDetail({ event }: EventDetailProps) {
                   <Calendar className="h-5 w-5" /> 
                   Date & Time
                 </h3>
-                <p>{event.eventDate ? formatDate(event.eventDate) : 'Date TBA'}</p>
+                <p>{event.eventDate ? formatDate(new Date(event.eventDate)) : 'Date TBA'}</p>
                 {event.startDate && event.endDate && (
                   <p className="text-sm text-muted-foreground">
-                    {formatTime(event.startDate)} - {formatTime(event.endDate)}
+                    {formatTime(new Date(event.startDate))} - {formatTime(new Date(event.endDate))}
                   </p>
                 )}
               </div>
@@ -199,64 +212,62 @@ export default function EventDetail({ event }: EventDetailProps) {
                     </>
                   ) : (
                     <>
-                      <MapPin className="h-5 w-5" />
+                      <MapPin className="h-5 w-5" /> 
                       Location
                     </>
                   )}
                 </h3>
                 {event.isVirtual ? (
-                  event.virtualLink ? (
-                    <Button variant="outline" asChild className="w-full mt-2">
-                      <Link href={event.virtualLink} target="_blank" rel="noopener noreferrer">
-                        Join Event
+                  <>
+                    <p>Virtual Event</p>
+                    {event.virtualLink && (
+                      <Link href={event.virtualLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline mt-1 inline-block text-sm">
+                        Join Link
                       </Link>
-                    </Button>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Link will be provided after registration
-                    </p>
-                  )
+                    )}
+                  </>
                 ) : (
-                  <p>{event.customLocation || "To be announced"}</p>
+                  <p>{event.venue || event.customLocation || "ASA Kerala Center"}</p>
                 )}
               </div>
               
               {event.eventFees && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Registration Fees</h3>
-                  <div className="space-y-2">
-                    {event.eventFees.memberPrice !== undefined && (
-                      <p><span className="font-medium">Member:</span> {
-                        event.eventFees.memberPrice === 0 
-                          ? 'Free' 
-                          : `₹${event.eventFees.memberPrice}`
-                      }</p>
-                    )}
-                    {event.eventFees.nonMemberPrice !== undefined && (
-                      <p><span className="font-medium">Non-Member:</span> {
-                        event.eventFees.nonMemberPrice === 0 
-                          ? 'Free' 
-                          : `₹${event.eventFees.nonMemberPrice}`
-                      }</p>
-                    )}
-                  </div>
+                  <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                    <Tag className="h-5 w-5" /> 
+                    Registration Fee
+                  </h3>
+                  {event.eventFees.isFree ? (
+                    <p className="text-green-600 font-medium">Free Event</p>
+                  ) : (
+                    <>
+                      {event.eventFees.memberPrice !== undefined && (
+                        <p>Members: {event.eventFees.currency || '₹'}{event.eventFees.memberPrice}</p>
+                      )}
+                      {event.eventFees.nonMemberPrice !== undefined && (
+                        <p>Non-members: {event.eventFees.currency || '₹'}{event.eventFees.nonMemberPrice}</p>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
               
-              {event.eligibility && (
+              {(event.maxAttendees || event.currentAttendees) && (
                 <div>
                   <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Who Can Attend
+                    <Users className="h-5 w-5" /> 
+                    Capacity
                   </h3>
-                  <div dangerouslySetInnerHTML={{ __html: event.eligibility }} />
+                  {event.maxAttendees && <p>{event.maxAttendees} attendees</p>}
+                  {event.currentAttendees && <p className="text-sm text-muted-foreground">{event.currentAttendees} registered</p>}
                 </div>
               )}
             </div>
             
-            {isUpcoming && (
-              <Button className="w-full mt-6">Register Now</Button>
-            )}
+            <div className="mt-6 space-y-2">
+              <Button className="w-full">Register Now</Button>
+              <Button variant="outline" className="w-full">Add to Calendar</Button>
+            </div>
           </div>
         </div>
       </div>
