@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, Calendar, MapPin, Video } from 'lucide-react';
-import { events } from '@/lib/api';
-import { formatDate } from '@/lib/utils';
+import { Search, Calendar } from 'lucide-react';
+import { getAllEvents } from '@/lib/api';
+import { format } from 'date-fns';
+import { SafeImage } from '@/components/common';
 
 // Define types for our data
 interface Event {
@@ -21,38 +22,33 @@ interface Event {
   summary: string;
   eventType: string;
   isFeatured?: boolean;
+  eventDate?: string;
   featuredImage?: {
     url: string;
     alt?: string;
   };
-  eventDate?: string;
-  startDate?: string;
-  endDate?: string;
-  isVirtual?: boolean;
-  customLocation?: string;
+  mode?: string;
 }
 
 const EVENT_TYPES = {
   ALL: 'all',
-  CONFERENCE: 'conference',
-  SEMINAR: 'seminar',
-  WORKSHOP: 'workshop',
-  NETWORKING: 'networking',
-  CULTURAL: 'cultural',
-  WEBINAR: 'webinar',
+  CONFERENCES: 'conferences',
+  SEMINARS: 'seminars',
+  WORKSHOPS: 'workshops',
+  CULTURAL: 'cultural-events',
+  WEBINARS: 'webinars',
   OTHER: 'other'
 };
 
 // Type labels for display and matching purposes
 const TYPE_LABELS: Record<string, string> = {
   'all': 'All Events',
-  'conference': 'Conference',
-  'seminar': 'Seminar',
-  'workshop': 'Workshop',
-  'networking': 'Networking',
-  'cultural': 'Cultural Event',
-  'webinar': 'Webinar',
-  'other': 'Other'
+  'conferences': 'Conferences',
+  'seminars': 'Seminars',
+  'workshops': 'Workshops',
+  'cultural-events': 'Cultural Events',
+  'webinars': 'Webinars',
+  'other': 'Other Events'
 };
 
 export default function EventsList() {
@@ -60,54 +56,48 @@ export default function EventsList() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   
-  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
-  const [pastEvents, setPastEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Get params from URL, default to 'upcoming' and 'all'
-  const tabParam = searchParams.get('tab') || 'upcoming';
+  // Get type from URL query params, default to 'all'
   const typeParam = searchParams.get('type') || EVENT_TYPES.ALL;
   
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Basic query without date filtering
-        const baseQuery = {
+        console.log('Fetching events data...');
+        const response = await getAllEvents({
           limit: 100,
           where: {
             status: {
               equals: 'published'
             }
           }
-        };
+        });
         
-        // Fetch all events first
-        const allEventsResponse = await events.getAll(baseQuery);
-        const allEvents = allEventsResponse.data.docs || [];
+        console.log('Events API response:', response);
         
-        // Manually filter for upcoming and past events based on eventDate
-        const currentDate = new Date();
-        const upcoming = allEvents.filter((event: Event) => 
-          event.eventDate && new Date(event.eventDate) > currentDate
-        ).sort((a: Event, b: Event) => 
-          new Date(a.eventDate!).getTime() - new Date(b.eventDate!).getTime()
-        );
+        if (!response || !response.data) {
+          console.error('Invalid response structure:', response);
+          setError('Failed to load data: Invalid response format');
+          return;
+        }
         
-        const past = allEvents.filter((event: Event) => 
-          !event.eventDate || new Date(event.eventDate) <= currentDate
-        ).sort((a: Event, b: Event) => 
-          new Date(b.eventDate || 0).getTime() - new Date(a.eventDate || 0).getTime()
-        );
+        // Check if docs array is present
+        if (!response.data.docs) {
+          console.error('No docs array in response data:', response.data);
+          setError('Failed to load data: Missing event data');
+          return;
+        }
         
-        setUpcomingEvents(upcoming);
-        setPastEvents(past);
+        setEvents(response.data.docs);
       } catch (err) {
         console.error('Error fetching events data:', err);
-        setError('Failed to load data. Please try again later.');
+        setError(`Failed to load data: ${err instanceof Error ? err.message : 'Unknown error'}`);
       } finally {
         setIsLoading(false);
       }
@@ -117,9 +107,8 @@ export default function EventsList() {
   }, []);
   
   useEffect(() => {
-    // Apply filters whenever events, tab, type, or search query changes
-    const currentEvents = tabParam === 'upcoming' ? upcomingEvents : pastEvents;
-    let filtered = [...currentEvents];
+    // Apply filters whenever events, type, or search query changes
+    let filtered = [...events];
     
     // Filter by type
     if (typeParam !== EVENT_TYPES.ALL) {
@@ -136,18 +125,7 @@ export default function EventsList() {
     }
     
     setFilteredEvents(filtered);
-  }, [upcomingEvents, pastEvents, tabParam, typeParam, searchQuery]);
-  
-  // Update URL when tab changes
-  const handleTabChange = (value: string) => {
-    const current = new URLSearchParams();
-    // Copy all current parameters
-    searchParams.forEach((value, key) => {
-      current.set(key, value);
-    });
-    current.set('tab', value);
-    router.push(`${pathname}?${current.toString()}`);
-  };
+  }, [events, typeParam, searchQuery]);
   
   // Update URL when type changes
   const handleTypeChange = (value: string) => {
@@ -157,11 +135,13 @@ export default function EventsList() {
       current.set(key, value);
     });
     
+    // Update type parameter
     if (value === EVENT_TYPES.ALL) {
       current.delete('type');
     } else {
       current.set('type', value);
     }
+    
     router.push(`${pathname}?${current.toString()}`);
   };
   
@@ -176,16 +156,10 @@ export default function EventsList() {
     // You could also add the search query to the URL if needed
   };
   
-  // Helper function to get location text
-  const getLocationText = (event: Event): string => {
-    if (event.isVirtual) return 'Virtual Event';
-    return event.customLocation || 'ASA Kerala Center';
-  };
-  
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-hinomaru-red"></div>
       </div>
     );
   }
@@ -216,26 +190,10 @@ export default function EventsList() {
             onChange={handleSearchChange}
             className="flex-1"
           />
-          <Button type="submit" variant="outline" size="icon">
+          <Button type="submit" className="btn-primary" size="icon">
             <Search className="h-4 w-4" />
           </Button>
         </form>
-        
-        <Tabs 
-          value={tabParam}
-          defaultValue={tabParam} 
-          onValueChange={handleTabChange}
-          className="w-full"
-        >
-          <TabsList className="w-full justify-start mb-4">
-            <TabsTrigger value="upcoming">
-              Upcoming Events
-            </TabsTrigger>
-            <TabsTrigger value="past">
-              Past Events
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
         
         <Tabs 
           value={typeParam}
@@ -243,23 +201,23 @@ export default function EventsList() {
           onValueChange={handleTypeChange}
           className="w-full"
         >
-          <TabsList className="w-full justify-start overflow-x-auto">
-            <TabsTrigger value={EVENT_TYPES.ALL}>
-              All Types
+          <TabsList className="w-full justify-start overflow-x-auto bg-white border border-gray-200 rounded-lg p-1">
+            <TabsTrigger value={EVENT_TYPES.ALL} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
+              All Events
             </TabsTrigger>
-            <TabsTrigger value={EVENT_TYPES.CONFERENCE}>
+            <TabsTrigger value={EVENT_TYPES.CONFERENCES} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               Conferences
             </TabsTrigger>
-            <TabsTrigger value={EVENT_TYPES.SEMINAR}>
+            <TabsTrigger value={EVENT_TYPES.SEMINARS} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               Seminars
             </TabsTrigger>
-            <TabsTrigger value={EVENT_TYPES.WORKSHOP}>
+            <TabsTrigger value={EVENT_TYPES.WORKSHOPS} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               Workshops
             </TabsTrigger>
-            <TabsTrigger value={EVENT_TYPES.CULTURAL}>
+            <TabsTrigger value={EVENT_TYPES.CULTURAL} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               Cultural Events
             </TabsTrigger>
-            <TabsTrigger value={EVENT_TYPES.WEBINAR}>
+            <TabsTrigger value={EVENT_TYPES.WEBINARS} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               Webinars
             </TabsTrigger>
           </TabsList>
@@ -270,72 +228,64 @@ export default function EventsList() {
       {filteredEvents.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredEvents.map((event: Event) => (
-            <Card key={event.id} className="overflow-hidden h-full flex flex-col">
-              <div className="relative h-48 w-full">
+            <div key={event.id} className="japan-card overflow-hidden h-full flex flex-col transition-all hover:shadow-lg">
+              <div className="relative h-48 w-full mb-4">
                 {event.featuredImage ? (
-                  <Image 
+                  <SafeImage
                     src={event.featuredImage.url} 
                     alt={event.title} 
                     fill 
-                    className="object-cover"
+                    className="object-cover rounded-md"
+                    fallbackSrc="/assets/placeholder-event.jpg"
                   />
                 ) : (
-                  <div className="bg-muted h-full w-full flex items-center justify-center">
-                    <p className="text-muted-foreground">No image</p>
+                  <div className="bg-gray-200 h-full w-full flex items-center justify-center rounded-md">
+                    <p className="text-gray-500">No image</p>
                   </div>
                 )}
                 {event.isFeatured && (
-                  <Badge variant="default" className="absolute top-2 right-2">
+                  <Badge className="absolute top-2 right-2 bg-hinomaru-red text-white border-none">
                     Featured
                   </Badge>
                 )}
-                {event.eventType && (
-                  <Badge variant="secondary" className="absolute bottom-2 left-2">
-                    {TYPE_LABELS[event.eventType] || event.eventType}
+                <Badge className="absolute bottom-2 left-2 bg-white text-hinomaru-red border-none">
+                  {TYPE_LABELS[event.eventType] || event.eventType}
+                </Badge>
+                
+                {event.mode && (
+                  <Badge className="absolute bottom-2 right-2 bg-zinc-800 text-white border-none">
+                    {event.mode}
                   </Badge>
                 )}
               </div>
               
-              <CardHeader>
-                <h3 className="text-xl font-semibold line-clamp-2">{event.title}</h3>
-              </CardHeader>
+              <h3 className="text-xl font-bold text-zinc-900 mb-2 line-clamp-2">{event.title}</h3>
               
-              <CardContent className="flex-grow space-y-3">
-                <p className="text-muted-foreground line-clamp-3">{event.summary}</p>
-                
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <span>{formatDate(event.eventDate || event.startDate || '')}</span>
+              {event.eventDate && (
+                <div className="flex items-center gap-2 mb-2 text-zinc-600">
+                  <Calendar className="h-4 w-4" />
+                  <span>{format(new Date(event.eventDate), 'MMMM d, yyyy')}</span>
                 </div>
-                
-                <div className="flex items-center text-sm text-muted-foreground">
-                  {event.isVirtual ? (
-                    <>
-                      <Video className="h-4 w-4 mr-2" />
-                      <span>Virtual Event</span>
-                    </>
-                  ) : (
-                    <>
-                      <MapPin className="h-4 w-4 mr-2" />
-                      <span>{event.customLocation || "ASA Kerala Center"}</span>
-                    </>
-                  )}
-                </div>
-              </CardContent>
+              )}
               
-              <CardFooter>
-                <Button asChild className="w-full">
-                  <Link href={`/events/${event.slug}`}>View Details</Link>
-                </Button>
-              </CardFooter>
-            </Card>
+              <p className="text-zinc-700 mb-4 flex-grow line-clamp-3">{event.summary}</p>
+              
+              <div className="mt-auto">
+                <Link 
+                  href={`/events/${event.slug}`}
+                  className="btn-primary inline-block w-full text-center"
+                >
+                  View Details
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-muted rounded-lg">
-          <p className="text-muted-foreground mb-2">No events found matching your criteria.</p>
+        <div className="japan-card text-center py-8">
+          <p className="text-zinc-700 mb-4">No events found matching your criteria.</p>
           <Button 
-            variant="outline" 
+            className="btn-primary"
             onClick={() => {
               setSearchQuery('');
               router.push('/events');

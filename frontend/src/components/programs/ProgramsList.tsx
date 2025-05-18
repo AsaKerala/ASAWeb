@@ -11,6 +11,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge';
 import { Search } from 'lucide-react';
 import { getAllPrograms } from '@/lib/api';
+import { SafeImage } from '@/components/common';
 
 // Define types for our data
 interface Program {
@@ -110,13 +111,13 @@ export default function ProgramsList() {
     
     // Filter by category
     if (categoryParam !== PROGRAM_CATEGORIES.ALL) {
-      filtered = filtered.filter(program => program.category === categoryParam);
+      filtered = filtered.filter((program: Program) => program.category === categoryParam);
     }
     
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(program => 
+      filtered = filtered.filter((program: Program) => 
         program.title.toLowerCase().includes(query) || 
         program.summary.toLowerCase().includes(query)
       );
@@ -157,7 +158,7 @@ export default function ProgramsList() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-hinomaru-red"></div>
       </div>
     );
   }
@@ -188,7 +189,7 @@ export default function ProgramsList() {
             onChange={handleSearchChange}
             className="flex-1"
           />
-          <Button type="submit" variant="outline" size="icon">
+          <Button type="submit" className="btn-primary" size="icon">
             <Search className="h-4 w-4" />
           </Button>
         </form>
@@ -199,26 +200,26 @@ export default function ProgramsList() {
           onValueChange={handleCategoryChange}
           className="w-full"
         >
-          <TabsList className="w-full justify-start overflow-x-auto">
-            <TabsTrigger value={PROGRAM_CATEGORIES.ALL}>
+          <TabsList className="w-full justify-start overflow-x-auto bg-white border border-gray-200 rounded-lg p-1">
+            <TabsTrigger value={PROGRAM_CATEGORIES.ALL} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               All Programs
             </TabsTrigger>
-            <TabsTrigger value={PROGRAM_CATEGORIES.TRAINING_JAPAN}>
+            <TabsTrigger value={PROGRAM_CATEGORIES.TRAINING_JAPAN} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               Training in Japan
             </TabsTrigger>
-            <TabsTrigger value={PROGRAM_CATEGORIES.TRAINING_INDIA}>
+            <TabsTrigger value={PROGRAM_CATEGORIES.TRAINING_INDIA} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               Training in India
             </TabsTrigger>
-            <TabsTrigger value={PROGRAM_CATEGORIES.LANGUAGE}>
+            <TabsTrigger value={PROGRAM_CATEGORIES.LANGUAGE} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               Language Training
             </TabsTrigger>
-            <TabsTrigger value={PROGRAM_CATEGORIES.INTERNSHIPS}>
+            <TabsTrigger value={PROGRAM_CATEGORIES.INTERNSHIPS} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               Internships
             </TabsTrigger>
-            <TabsTrigger value={PROGRAM_CATEGORIES.SKILL_DEVELOPMENT}>
+            <TabsTrigger value={PROGRAM_CATEGORIES.SKILL_DEVELOPMENT} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               Skill Development
             </TabsTrigger>
-            <TabsTrigger value={PROGRAM_CATEGORIES.WNF_PROGRAMS}>
+            <TabsTrigger value={PROGRAM_CATEGORIES.WNF_PROGRAMS} className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
               WNF Programs
             </TabsTrigger>
           </TabsList>
@@ -228,50 +229,52 @@ export default function ProgramsList() {
       {/* Results */}
       {filteredPrograms.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPrograms.map(program => (
-            <Card key={program.id} className="overflow-hidden h-full flex flex-col">
-              <div className="relative h-48 w-full">
+          {filteredPrograms.map((program: Program) => (
+            <div key={program.id} className="japan-card overflow-hidden h-full flex flex-col transition-all hover:shadow-lg">
+              <div className="relative h-48 w-full mb-4">
                 {program.featuredImage ? (
-                  <Image 
+                  <SafeImage
                     src={program.featuredImage.url} 
                     alt={program.title} 
                     fill 
-                    className="object-cover"
+                    className="object-cover rounded-md"
+                    fallbackSrc="/assets/placeholder-program.jpg"
                   />
                 ) : (
-                  <div className="bg-muted h-full w-full flex items-center justify-center">
-                    <p className="text-muted-foreground">No image</p>
+                  <div className="bg-gray-200 h-full w-full flex items-center justify-center rounded-md">
+                    <p className="text-gray-500">No image</p>
                   </div>
                 )}
                 {program.isFeatured && (
-                  <Badge variant="default" className="absolute top-2 right-2">
+                  <Badge className="absolute top-2 right-2 bg-hinomaru-red text-white border-none">
                     Featured
                   </Badge>
                 )}
+                <Badge className="absolute bottom-2 left-2 bg-white text-hinomaru-red border-none">
+                  {CATEGORY_LABELS[program.category] || program.category}
+                </Badge>
               </div>
               
-              <CardHeader>
-                <h3 className="text-xl font-semibold line-clamp-2">{program.title}</h3>
-                <Badge variant="outline">{CATEGORY_LABELS[program.category] || program.category}</Badge>
-              </CardHeader>
+              <h3 className="text-xl font-bold text-zinc-900 mb-2 line-clamp-2">{program.title}</h3>
               
-              <CardContent className="flex-grow">
-                <p className="text-muted-foreground line-clamp-3">{program.summary}</p>
-              </CardContent>
+              <p className="text-zinc-700 mb-4 flex-grow line-clamp-3">{program.summary}</p>
               
-              <CardFooter>
-                <Button asChild className="w-full">
-                  <Link href={`/programs/${program.slug}`}>View Details</Link>
-                </Button>
-              </CardFooter>
-            </Card>
+              <div className="mt-auto">
+                <Link 
+                  href={`/programs/${program.slug}`}
+                  className="btn-primary inline-block w-full text-center"
+                >
+                  View Details
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-muted rounded-lg">
-          <p className="text-muted-foreground mb-2">No programs found matching your criteria.</p>
+        <div className="japan-card text-center py-8">
+          <p className="text-zinc-700 mb-4">No programs found matching your criteria.</p>
           <Button 
-            variant="outline" 
+            className="btn-primary"
             onClick={() => {
               setSearchQuery('');
               router.push('/programs');
