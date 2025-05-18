@@ -183,6 +183,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Function to redirect to login with a return URL
+  const loginWithRedirect = (redirectPath?: string) => {
+    if (typeof window !== 'undefined') {
+      // Store the return URL in localStorage
+      if (redirectPath) {
+        localStorage.setItem('auth-redirect', redirectPath);
+      } else {
+        // If no specific path provided, store current URL as return destination
+        localStorage.setItem('auth-redirect', window.location.pathname);
+      }
+      
+      // Redirect to login page
+      window.location.href = '/auth/login';
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -195,6 +211,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logout,
         refreshUser,
         checkAdminAccess: checkAdminAccessFn,
+        loginWithRedirect
       }}
     >
       {children}

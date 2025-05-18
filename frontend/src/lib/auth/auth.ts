@@ -57,6 +57,7 @@ export type AuthContextType = {
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   checkAdminAccess: () => Promise<boolean>;
+  loginWithRedirect: (redirectPath?: string) => void;
 };
 
 export async function loginUser(email: string, password: string): Promise<User> {
@@ -208,6 +209,7 @@ export const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
   refreshUser: async () => {},
   checkAdminAccess: async () => false,
+  loginWithRedirect: () => {}
 });
 
 // Hook to use the auth context

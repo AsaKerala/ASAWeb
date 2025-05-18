@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { SafeImage } from '@/components/common';
 import { Event } from '@/types';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth/auth';
 
 interface EventDetailComponentProps {
   initialEvent: Event;
@@ -20,10 +22,25 @@ interface EventDetailComponentProps {
 export default function EventDetailComponent({ initialEvent, slug }: EventDetailComponentProps) {
   const [event, setEvent] = useState<Event>(initialEvent);
   const [activeTab, setActiveTab] = useState('overview');
+  const router = useRouter();
+  const { isAuthenticated, loginWithRedirect } = useAuth();
 
   const getLocationText = () => {
     if (event.isVirtual) return 'Virtual Event';
     return event.customLocation || 'ASA Kerala Center';
+  };
+  
+  const handleRegisterClick = () => {
+    if (isAuthenticated) {
+      // Handle direct registration
+      // You can add API call to register the user for this event
+      console.log("Registering user for event:", event.id);
+      // For now, just display an alert
+      alert("Registration successful! You will receive a confirmation email shortly.");
+    } else {
+      // Redirect to login page, with return URL to come back to this event page
+      loginWithRedirect(`/events/${slug}`);
+    }
   };
 
   return (
@@ -102,7 +119,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                   {event.content ? (
                     <div 
                       className="prose prose-zinc max-w-none"
-                      dangerouslySetInnerHTML={{ __html: event.content }}
+                      dangerouslySetInnerHTML={{ __html: typeof event.content === 'string' ? event.content : JSON.stringify(event.content) }}
                     />
                   ) : (
                     <p className="text-zinc-700">{event.summary || 'No description available'}</p>
@@ -295,12 +312,12 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                     <Tag className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
                     <div>
                       <h3 className="font-medium text-zinc-900">Registration Fee</h3>
-                      {event.eventFees.memberPrice && (
+                      {event.eventFees.memberPrice !== undefined && (
                         <p className="text-zinc-700">
                           Members: {event.eventFees.currency || '₹'}{event.eventFees.memberPrice}
                         </p>
                       )}
-                      {event.eventFees.nonMemberPrice && (
+                      {event.eventFees.nonMemberPrice !== undefined && (
                         <p className="text-zinc-700">
                           Non-members: {event.eventFees.currency || '₹'}{event.eventFees.nonMemberPrice}
                         </p>
@@ -314,7 +331,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
               </div>
 
               <div className="mt-6 flex flex-col space-y-3">
-                <Button className="btn-primary">
+                <Button className="btn-primary" onClick={handleRegisterClick}>
                   Register Now
                 </Button>
                 <Button className="btn-outline">

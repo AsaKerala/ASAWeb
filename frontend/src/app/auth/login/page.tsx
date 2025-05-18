@@ -1,70 +1,51 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth';
 
 export default function LoginPage() {
+  const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const returnTo = searchParams.get('returnTo') || '/dashboard';
-  const { login } = useAuth();
+
+  // Check if user is already authenticated, redirect to dashboard or saved path
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Check if there's a saved redirect path
+      const redirectPath = localStorage.getItem('auth-redirect');
+      if (redirectPath) {
+        localStorage.removeItem('auth-redirect'); // Clear it after use
+        router.push(redirectPath);
+      } else {
+        router.push('/dashboard'); // Default redirect
+      }
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setIsLoading(true);
-
+    setError(null);
+    
     try {
-      console.log('Attempting login...');
-      const user = await login(email, password);
-      console.log('Login successful, checking user role...');
+      await login(email, password);
       
-      // Determine redirect destination based on user role
-      let redirectPath = returnTo;
-      
-      // If user is admin and not explicitly returning to another page, go to admin dashboard
-      if (user?.role === 'admin' && returnTo === '/dashboard') {
-        redirectPath = '/admin-dashboard';
-        console.log('Admin user detected, redirecting to admin dashboard');
+      // After successful login, redirect to the stored path or dashboard
+      const redirectPath = localStorage.getItem('auth-redirect');
+      if (redirectPath) {
+        localStorage.removeItem('auth-redirect'); // Clear it after use
+        router.push(redirectPath);
       } else {
-        console.log('Redirecting to:', redirectPath);
+        router.push('/dashboard'); // Default redirect
       }
-      
-      // Add a small delay to ensure localStorage and cookies are properly set
-      // before redirecting to the dashboard
-      setTimeout(() => {
-        console.log('Redirecting after delay...');
-        
-        // Verify token is stored before redirecting
-        const token = localStorage.getItem('payload-token');
-        console.log('Before redirect - Token exists:', !!token);
-        
-        // Use window.location for a full page navigation instead of Next.js router
-        // This ensures a complete page reload with the new authentication state
-        window.location.href = redirectPath;
-      }, 1000); // Increased to 1000ms for more reliability
     } catch (err: any) {
       console.error('Login error:', err);
-      if (err?.response?.data?.errors) {
-        // Detailed API error
-        setError(Object.values(err.response.data.errors).join(', '));
-      } else if (err?.response?.data?.message) {
-        // Simple API error message
-        setError(err.response.data.message);
-      } else if (err?.message) {
-        // JavaScript error
-        setError(err.message);
-      } else {
-        // Fallback
-        setError('Failed to login. Please check your credentials and try again.');
-      }
+      setError(err.response?.data?.message || 'Failed to login. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -120,18 +101,6 @@ export default function LoginPage() {
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                Remember me
-              </label>
-            </div>
-
             <div className="text-sm">
               <Link href="/auth/reset-password" className="text-hinomaru-red hover:text-red-800">
                 Forgot your password?
@@ -145,7 +114,7 @@ export default function LoginPage() {
               disabled={isLoading}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-hinomaru-red hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
         </form>

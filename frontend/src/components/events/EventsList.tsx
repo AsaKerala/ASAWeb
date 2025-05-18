@@ -28,6 +28,8 @@ interface Event {
     alt?: string;
   };
   mode?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 const EVENT_TYPES = {
@@ -264,7 +266,18 @@ export default function EventsList() {
               {event.eventDate && (
                 <div className="flex items-center gap-2 mb-2 text-zinc-600">
                   <Calendar className="h-4 w-4" />
-                  <span>{format(new Date(event.eventDate), 'MMMM d, yyyy')}</span>
+                  <span>
+                    {format(new Date(event.eventDate), 'MMMM d, yyyy')}
+                  </span>
+                </div>
+              )}
+              {!event.eventDate && event.startDate && (
+                <div className="flex items-center gap-2 mb-2 text-zinc-600">
+                  <Calendar className="h-4 w-4" />
+                  <span>
+                    {format(new Date(event.startDate), 'MMMM d, yyyy')}
+                    {event.endDate && ` - ${format(new Date(event.endDate), 'MMMM d, yyyy')}`}
+                  </span>
                 </div>
               )}
               
