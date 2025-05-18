@@ -19,10 +19,10 @@ interface Program {
   category: string;
   isFeatured?: boolean;
   summary?: string;
-  content?: string;
-  keyFeatures?: { feature: string }[];
-  curriculum?: { module: string; description: string }[];
-  learningOutcomes?: { outcome: string }[];
+  content?: string | any;
+  keyFeatures?: Array<{ feature: string } | string>;
+  curriculum?: Array<{ module: string; description: string } | string>;
+  learningOutcomes?: Array<{ outcome: string } | string>;
   programFees?: {
     memberPrice?: number;
     nonMemberPrice?: number;
@@ -30,21 +30,27 @@ interface Program {
     hasScholarship?: boolean;
     scholarshipDetails?: string;
   };
-  upcomingBatches?: {
+  upcomingBatches?: Array<{
     batchName: string;
     startDate: string;
     endDate?: string;
     applicationDeadline?: string;
     capacity?: number;
     registrationsOpen?: boolean;
-  }[];
-  applicationProcess?: { step: string; description: string }[];
+  } | any>;
+  applicationProcess?: Array<{ step: string; description: string } | string>;
   featuredImage?: {
     url: string;
-    alt: string;
-  };
-  faqs?: { question: string; answer: string }[];
-  testimonials?: { name: string; position?: string; text: string; image?: { url: string } }[];
+    alt?: string;
+  } | string;
+  faqs?: Array<{ question: string; answer: string } | string>;
+  testimonials?: Array<{ 
+    name: string; 
+    position?: string; 
+    text?: string;
+    quote?: string;
+    image?: { url: string } | string;
+  } | string>;
 }
 
 interface ProgramDetailComponentProps {
@@ -56,13 +62,18 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
   const [program] = useState<Program>(initialProgram);
   const [activeTab, setActiveTab] = useState('overview');
 
+  // Helper function to determine if curriculum, application process, and faqs tabs should be shown
+  const hasTabContent = (data: any[] | undefined): boolean => {
+    return !!data && data.length > 0;
+  };
+
   return (
     <div className="pb-16">
       {/* Hero section with image */}
       <div className="relative w-full h-[40vh] md:h-[50vh] overflow-hidden">
         {program.featuredImage ? (
           <SafeImage
-            src={program.featuredImage.url}
+            src={typeof program.featuredImage === 'string' ? program.featuredImage : program.featuredImage.url}
             alt={program.title}
             fill
             className="object-cover"
@@ -104,17 +115,17 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                 <TabsTrigger value="overview" className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
                   Overview
                 </TabsTrigger>
-                {program.curriculum && program.curriculum.length > 0 && (
+                {hasTabContent(program.curriculum) && (
                   <TabsTrigger value="curriculum" className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
                     Curriculum
                   </TabsTrigger>
                 )}
-                {program.applicationProcess && program.applicationProcess.length > 0 && (
+                {hasTabContent(program.applicationProcess) && (
                   <TabsTrigger value="application" className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
                     How to Apply
                   </TabsTrigger>
                 )}
-                {program.faqs && program.faqs.length > 0 && (
+                {hasTabContent(program.faqs) && (
                   <TabsTrigger value="faqs" className="data-[state=active]:bg-hinomaru-red data-[state=active]:text-white">
                     FAQs
                   </TabsTrigger>
@@ -127,53 +138,57 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                   {program.content ? (
                     <div 
                       className="prose prose-zinc max-w-none"
-                      dangerouslySetInnerHTML={{ __html: program.content }}
+                      dangerouslySetInnerHTML={{ __html: typeof program.content === 'string' ? program.content : 'No detailed description available' }}
                     />
                   ) : (
                     <p className="text-zinc-700">{program.summary || 'No description available'}</p>
                   )}
                 </div>
 
-                {program.keyFeatures && program.keyFeatures.length > 0 && (
+                {hasTabContent(program.keyFeatures) && (
                   <div className="japan-card mb-8">
                     <h2 className="text-2xl font-bold mb-6 text-zinc-900">Key Features</h2>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {program.keyFeatures.map((feature, index) => (
+                      {program.keyFeatures?.map((feature, index) => (
                         <li key={index} className="flex items-start">
                           <ChevronRight className="h-5 w-5 mr-2 text-hinomaru-red flex-shrink-0 mt-0.5" />
-                          <span className="text-zinc-700">{feature.feature}</span>
+                          <span className="text-zinc-700">
+                            {typeof feature === 'string' ? feature : feature.feature}
+                          </span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
 
-                {program.learningOutcomes && program.learningOutcomes.length > 0 && (
+                {hasTabContent(program.learningOutcomes) && (
                   <div className="japan-card mb-8">
                     <h2 className="text-2xl font-bold mb-6 text-zinc-900">Learning Outcomes</h2>
                     <ul className="space-y-3">
-                      {program.learningOutcomes.map((outcome, index) => (
+                      {program.learningOutcomes?.map((outcome, index) => (
                         <li key={index} className="flex items-start">
                           <Award className="h-5 w-5 mr-3 text-hinomaru-red flex-shrink-0 mt-0.5" />
-                          <span className="text-zinc-700">{outcome.outcome}</span>
+                          <span className="text-zinc-700">
+                            {typeof outcome === 'string' ? outcome : outcome.outcome}
+                          </span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
 
-                {program.testimonials && program.testimonials.length > 0 && (
+                {hasTabContent(program.testimonials) && (
                   <div className="japan-card mb-8">
                     <h2 className="text-2xl font-bold mb-6 text-zinc-900">Testimonials</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {program.testimonials.map((testimonial, index) => (
+                      {program.testimonials?.map((testimonial, index) => (
                         <div key={index} className="bg-gray-50 p-6 rounded-md border border-gray-200">
                           <div className="flex items-start">
-                            {testimonial.image ? (
+                            {typeof testimonial !== 'string' && testimonial.image ? (
                               <div className="relative w-12 h-12 rounded-full overflow-hidden mr-4">
                                 <SafeImage
-                                  src={testimonial.image.url}
-                                  alt={testimonial.name}
+                                  src={typeof testimonial.image === 'string' ? testimonial.image : testimonial.image.url}
+                                  alt={typeof testimonial === 'string' ? 'Testimonial' : testimonial.name}
                                   fill
                                   className="object-cover"
                                   fallbackSrc="/assets/placeholder-avatar.png"
@@ -185,11 +200,17 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                               </div>
                             )}
                             <div>
-                              <h3 className="font-semibold text-zinc-900">{testimonial.name}</h3>
-                              {testimonial.position && <p className="text-sm text-zinc-500">{testimonial.position}</p>}
+                              <h3 className="font-semibold text-zinc-900">
+                                {typeof testimonial === 'string' ? 'Happy Student' : testimonial.name}
+                              </h3>
+                              {typeof testimonial !== 'string' && testimonial.position && (
+                                <p className="text-sm text-zinc-500">{testimonial.position}</p>
+                              )}
                             </div>
                           </div>
-                          <p className="mt-4 text-zinc-700 italic">"{testimonial.text}"</p>
+                          <p className="mt-4 text-zinc-700 italic">
+                            "{typeof testimonial === 'string' ? testimonial : (testimonial.text || testimonial.quote || '')}"
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -197,15 +218,19 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                 )}
               </TabsContent>
 
-              {program.curriculum && program.curriculum.length > 0 && (
+              {hasTabContent(program.curriculum) && (
                 <TabsContent value="curriculum" className="mt-0">
                   <div className="japan-card">
                     <h2 className="section-title mb-6">Curriculum</h2>
                     <div className="space-y-6">
-                      {program.curriculum.map((module, index) => (
+                      {program.curriculum?.map((module, index) => (
                         <div key={index} className="bg-gray-50 p-6 rounded-md border border-gray-100">
-                          <h3 className="font-bold text-xl mb-2 text-zinc-900">{module.module}</h3>
-                          <p className="text-zinc-700">{module.description}</p>
+                          <h3 className="font-bold text-xl mb-2 text-zinc-900">
+                            {typeof module === 'string' ? `Module ${index + 1}` : module.module}
+                          </h3>
+                          <p className="text-zinc-700">
+                            {typeof module === 'string' ? module : module.description}
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -213,19 +238,23 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                 </TabsContent>
               )}
 
-              {program.applicationProcess && program.applicationProcess.length > 0 && (
+              {hasTabContent(program.applicationProcess) && (
                 <TabsContent value="application" className="mt-0">
                   <div className="japan-card">
                     <h2 className="section-title mb-6">Application Process</h2>
                     <div className="space-y-6">
-                      {program.applicationProcess.map((step, index) => (
+                      {program.applicationProcess?.map((step, index) => (
                         <div key={index} className="bg-gray-50 p-6 rounded-md border border-gray-100 flex">
                           <div className="flex-shrink-0 w-10 h-10 rounded-full bg-hinomaru-red text-white flex items-center justify-center mr-4">
                             {index + 1}
                           </div>
                           <div>
-                            <h3 className="font-bold text-xl mb-2 text-zinc-900">{step.step}</h3>
-                            <p className="text-zinc-700">{step.description}</p>
+                            <h3 className="font-bold text-xl mb-2 text-zinc-900">
+                              {typeof step === 'string' ? `Step ${index + 1}` : step.step}
+                            </h3>
+                            <p className="text-zinc-700">
+                              {typeof step === 'string' ? step : step.description}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -234,18 +263,18 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                 </TabsContent>
               )}
 
-              {program.faqs && program.faqs.length > 0 && (
+              {hasTabContent(program.faqs) && (
                 <TabsContent value="faqs" className="mt-0">
                   <div className="japan-card">
                     <h2 className="section-title mb-6">Frequently Asked Questions</h2>
                     <Accordion type="single" collapsible className="w-full">
-                      {program.faqs.map((faq, index) => (
+                      {program.faqs?.map((faq, index) => (
                         <AccordionItem key={index} value={`faq-${index}`}>
                           <AccordionTrigger className="text-lg font-medium text-zinc-900">
-                            {faq.question}
+                            {typeof faq === 'string' ? `Question ${index + 1}` : faq.question}
                           </AccordionTrigger>
                           <AccordionContent className="text-zinc-700">
-                            {faq.answer}
+                            {typeof faq === 'string' ? faq : faq.answer}
                           </AccordionContent>
                         </AccordionItem>
                       ))}
@@ -268,38 +297,40 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                   <div className="space-y-4">
                     {program.upcomingBatches.map((batch, index) => (
                       <div key={index} className="p-4 bg-gray-50 rounded-md border border-gray-200">
-                        <div className="font-medium text-zinc-900 mb-2">{batch.batchName}</div>
+                        <div className="font-medium text-zinc-900 mb-2">
+                          {typeof batch === 'string' ? `Batch ${index + 1}` : batch.batchName || batch.name}
+                        </div>
                         <div className="flex items-center text-zinc-700 text-sm mb-1">
                           <Calendar className="h-4 w-4 mr-2 text-hinomaru-red" />
-                          <span>Starts: {formatDate(batch.startDate)}</span>
+                          <span>Starts: {typeof batch === 'string' ? batch : formatDate(new Date(batch.startDate))}</span>
                         </div>
-                        {batch.endDate && (
+                        {typeof batch !== 'string' && batch.endDate && (
                           <div className="flex items-center text-zinc-700 text-sm mb-1">
                             <Calendar className="h-4 w-4 mr-2 text-hinomaru-red" />
-                            <span>Ends: {formatDate(batch.endDate)}</span>
+                            <span>Ends: {formatDate(new Date(batch.endDate))}</span>
                           </div>
                         )}
-                        {batch.applicationDeadline && (
+                        {typeof batch !== 'string' && batch.applicationDeadline && (
                           <div className="flex items-center text-zinc-700 text-sm mb-1">
                             <Clock className="h-4 w-4 mr-2 text-hinomaru-red" />
-                            <span>Application Deadline: {formatDate(batch.applicationDeadline)}</span>
+                            <span>Application Deadline: {formatDate(new Date(batch.applicationDeadline))}</span>
                           </div>
                         )}
-                        {batch.capacity && (
+                        {typeof batch !== 'string' && batch.capacity && (
                           <div className="flex items-center text-zinc-700 text-sm">
                             <User className="h-4 w-4 mr-2 text-hinomaru-red" />
                             <span>Capacity: {batch.capacity} students</span>
                           </div>
                         )}
-                        {batch.registrationsOpen && (
+                        {typeof batch !== 'string' && batch.registrationsOpen && (
                           <Button className="btn-primary w-full mt-4">
                             Apply Now
                           </Button>
                         )}
-                        {!batch.registrationsOpen && (
-                          <Button disabled className="w-full mt-4 bg-gray-300 text-gray-700">
-                            Registration Closed
-                          </Button>
+                        {typeof batch !== 'string' && !batch.registrationsOpen && (
+                          <p className="text-sm text-gray-500 mt-2">
+                            Applications currently closed
+                          </p>
                         )}
                       </div>
                     ))}
@@ -310,46 +341,48 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
               {program.programFees && (
                 <div className="mb-6">
                   <h3 className="font-semibold text-lg mb-3 text-zinc-800">Program Fees</h3>
-                  <div className="p-4 bg-gray-50 rounded-md border border-gray-200">
-                    <div className="flex items-center text-zinc-700 mb-2">
-                      <CreditCard className="h-5 w-5 mr-2 text-hinomaru-red" />
-                      <div>
-                        {program.programFees.memberPrice && (
-                          <div className="font-medium">
-                            Members: {program.programFees.currency || '₹'}{program.programFees.memberPrice}
-                          </div>
-                        )}
-                        {program.programFees.nonMemberPrice && (
-                          <div>
-                            Non-members: {program.programFees.currency || '₹'}{program.programFees.nonMemberPrice}
-                          </div>
-                        )}
+                  <div className="space-y-2">
+                    {program.programFees.memberPrice !== undefined && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-zinc-700">ASA Members:</span>
+                        <span className="font-medium text-zinc-900">
+                          {program.programFees.currency || '₹'}{program.programFees.memberPrice}
+                        </span>
                       </div>
-                    </div>
-                    {program.programFees.hasScholarship && program.programFees.scholarshipDetails && (
-                      <div className="mt-2 text-sm bg-blue-50 p-3 rounded border border-blue-100 text-blue-800">
-                        <span className="font-medium block mb-1">Scholarship Available</span>
-                        {program.programFees.scholarshipDetails}
+                    )}
+                    {program.programFees.nonMemberPrice !== undefined && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-zinc-700">Non-members:</span>
+                        <span className="font-medium text-zinc-900">
+                          {program.programFees.currency || '₹'}{program.programFees.nonMemberPrice}
+                        </span>
                       </div>
                     )}
                   </div>
+                  
+                  {program.programFees.hasScholarship && program.programFees.scholarshipDetails && (
+                    <div className="mt-4 p-3 bg-green-50 rounded-md border border-green-100">
+                      <div className="flex items-start">
+                        <BookOpen className="h-5 w-5 mr-2 text-green-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-green-800 mb-1">Scholarship Available</h4>
+                          <p className="text-sm text-green-700">{program.programFees.scholarshipDetails}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
-              <div className="flex flex-col space-y-3">
-                <Button className="btn-primary">
-                  Apply for Program
+              <div className="space-y-3">
+                <Button className="btn-primary w-full" asChild>
+                  <Link href={`/programs/${program.slug}/apply`}>Apply Now</Link>
                 </Button>
-                <Button className="btn-outline">
-                  Download Brochure
-                </Button>
-                <Button variant="outline">
-                  Contact Program Coordinator
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/contact?subject=Program Enquiry">Request Information</Link>
                 </Button>
               </div>
             </div>
-
-            {/* Other programs you might like - can be added later */}
           </div>
         </div>
       </div>
