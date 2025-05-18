@@ -5,8 +5,8 @@ const Events: CollectionConfig = {
   slug: 'events',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['featuredImage', 'title', 'status', 'programCategory', 'isFeatured'],
-    listSearchableFields: ['title', 'summary', 'programCategory'],
+    defaultColumns: ['featuredImage', 'title', 'status', 'eventType', 'isFeatured'],
+    listSearchableFields: ['title', 'summary', 'eventType'],
   },
   access: {
     read: () => true, // Anyone can read events
@@ -70,7 +70,7 @@ const Events: CollectionConfig = {
               eventInfo: {
                 title: doc.title,
                 status: doc.status,
-                category: doc.programCategory,
+                category: doc.eventType,
               }
             }
           });
@@ -89,7 +89,7 @@ const Events: CollectionConfig = {
                 eventInfo: {
                   title: doc.title,
                   status: doc.status,
-                  category: doc.programCategory,
+                  category: doc.eventType,
                   isFeatured: doc.isFeatured,
                 }
               }
@@ -181,31 +181,32 @@ const Events: CollectionConfig = {
       },
     },
     {
-      name: 'programCategory',
-      label: 'Program Category',
+      name: 'eventType',
+      label: 'Event Type',
       type: 'select',
       required: true,
       options: [
-        { label: 'Training Programs', value: 'training-programs' },
-        { label: 'Language Training', value: 'language-training' },
-        { label: 'Internships', value: 'internships' },
-        { label: 'Skill Development', value: 'skill-development' },
-        { label: 'Cultural Activities', value: 'cultural-activities' },
+        { label: 'Conference', value: 'conference' },
+        { label: 'Seminar', value: 'seminar' },
+        { label: 'Workshop', value: 'workshop' },
+        { label: 'Networking', value: 'networking' },
+        { label: 'Cultural', value: 'cultural' },
+        { label: 'General Meeting', value: 'meeting' },
         { label: 'Other', value: 'other' },
       ],
       admin: {
-        description: 'Primary category for this program/event',
+        description: 'Type of event',
         position: 'sidebar',
       },
       validate: (value) => {
-        if (!value) return 'Please select a program category';
+        if (!value) return 'Please select an event type';
         return true;
       },
     },
     {
       name: 'isFeatured',
       type: 'checkbox',
-      label: 'Featured Program/Event',
+      label: 'Featured Event',
       defaultValue: false,
       admin: {
         description: 'Display this event in featured sections',
@@ -223,10 +224,10 @@ const Events: CollectionConfig = {
     // Overview section
     {
       name: 'summary',
-      label: 'Summary/Brief Introduction',
+      label: 'Summary/Brief Description',
       type: 'textarea',
       admin: {
-        description: 'A brief introduction explaining the purpose, target audience, and key benefits'
+        description: 'A brief description of the event'
       }
     },
     {
@@ -238,18 +239,11 @@ const Events: CollectionConfig = {
     {
       name: 'keyFeatures',
       type: 'group',
-      label: 'Key Features',
+      label: 'Event Details',
       admin: {
-        description: 'Essential information about the program'
+        description: 'Essential information about the event'
       },
       fields: [
-        {
-          name: 'duration',
-          type: 'text',
-          admin: {
-            description: 'e.g., 2 weeks, 1 month'
-          }
-        },
         {
           name: 'mode',
           type: 'select',
@@ -264,7 +258,23 @@ const Events: CollectionConfig = {
           label: 'Location',
           type: 'text',
           admin: {
-            description: 'e.g., Japan, India, NKC'
+            description: 'e.g., NKC, Hotel Name, etc.'
+          }
+        },
+        {
+          name: 'address',
+          type: 'textarea',
+          admin: {
+            condition: (data) => data?.keyFeatures?.mode !== 'online',
+            description: 'Full address of the venue'
+          }
+        },
+        {
+          name: 'mapLink',
+          type: 'text',
+          admin: {
+            condition: (data) => data?.keyFeatures?.mode !== 'online',
+            description: 'Google Maps link to the venue'
           }
         },
         {
@@ -278,7 +288,7 @@ const Events: CollectionConfig = {
           type: 'text',
           label: 'Virtual Event Link',
           admin: {
-            condition: (data) => data?.keyFeatures?.isVirtual,
+            condition: (data) => data?.keyFeatures?.isVirtual || data?.keyFeatures?.mode === 'online',
             description: 'Link for virtual events (Zoom, Teams, etc.)'
           }
         },
@@ -287,7 +297,7 @@ const Events: CollectionConfig = {
           label: 'Event Date (for single-day events)',
           type: 'date',
           admin: {
-            description: 'Use this for one-day events that do not have batches',
+            description: 'Use this for one-day events',
             date: {
               pickerAppearance: 'dayAndTime',
             }
@@ -314,72 +324,89 @@ const Events: CollectionConfig = {
               pickerAppearance: 'dayAndTime',
             }
           }
-        },
-        {
-          name: 'certification',
-          type: 'select',
-          options: [
-            { label: 'Yes', value: 'yes' },
-            { label: 'No', value: 'no' },
-          ]
-        },
-        {
-          name: 'eligibility',
-          type: 'text',
-          admin: {
-            description: 'Who can apply?'
-          }
         }
       ]
     },
-    // Program Curriculum
+    // Event Schedule
     {
-      name: 'curriculum',
+      name: 'schedule',
       type: 'array',
-      label: 'Program Curriculum',
+      label: 'Event Schedule',
       admin: {
-        description: 'Add program modules and their descriptions'
+        description: 'Add agenda items and timings'
       },
       fields: [
         {
-          name: 'module',
+          name: 'time',
+          type: 'text',
+          required: true,
+          admin: {
+            description: 'e.g., 9:00 AM - 10:30 AM'
+          }
+        },
+        {
+          name: 'title',
           type: 'text',
           required: true,
         },
         {
           name: 'description',
           type: 'textarea',
+        },
+        {
+          name: 'speaker',
+          type: 'text',
+          admin: {
+            description: 'Optional speaker or presenter for this session'
+          }
         }
       ]
     },
-    // Learning Outcomes
+    // Speakers/Presenters
     {
-      name: 'learningOutcomes',
+      name: 'speakers',
       type: 'array',
-      label: 'Learning Outcomes',
-      admin: {
-        description: 'What participants will gain from the program'
-      },
+      label: 'Speakers/Presenters',
       fields: [
         {
-          name: 'outcome',
+          name: 'name',
           type: 'text',
           required: true,
+        },
+        {
+          name: 'role',
+          type: 'text',
+        },
+        {
+          name: 'bio',
+          type: 'textarea',
+        },
+        {
+          name: 'photo',
+          type: 'upload',
+          relationTo: 'media',
         }
       ]
     },
-    // Program Fees
+    // Event Fees
     {
-      name: 'programFees',
+      name: 'eventFees',
       type: 'group',
-      label: 'Program Fees',
+      label: 'Event Fees',
       fields: [
+        {
+          name: 'isFree',
+          type: 'checkbox',
+          label: 'Free Event',
+          defaultValue: false,
+        },
         {
           name: 'memberPrice',
           label: 'Price for Members',
           type: 'number',
           admin: {
-            description: 'Price in ₹ for ASA Kerala members'
+            description: 'Price in ₹ for ASA Kerala members',
+            condition: (data) => !data?.eventFees?.isFree,
           }
         },
         {
@@ -387,149 +414,71 @@ const Events: CollectionConfig = {
           label: 'Price for Non-Members',
           type: 'number',
           admin: {
-            description: 'Regular price in ₹'
-          }
-        },
-        {
-          name: 'hasScholarships',
-          label: 'Scholarships Available',
-          type: 'checkbox',
-          defaultValue: false,
-        },
-        {
-          name: 'scholarshipDetails',
-          label: 'Scholarship Details',
-          type: 'textarea',
-          admin: {
-            condition: (data) => data?.programFees?.hasScholarships,
+            description: 'Regular price in ₹',
+            condition: (data) => !data?.eventFees?.isFree,
           }
         }
       ]
     },
-    // Upcoming Batches
+    // Related Events
     {
-      name: 'upcomingBatches',
-      type: 'array',
-      label: 'Upcoming Batches',
-      fields: [
-        {
-          name: 'startDate',
-          type: 'date',
-          required: true,
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-            }
-          }
-        },
-        {
-          name: 'mode',
-          type: 'select',
-          options: [
-            { label: 'Online', value: 'online' },
-            { label: 'Offline', value: 'offline' },
-            { label: 'Hybrid', value: 'hybrid' },
-          ]
-        },
-        {
-          name: 'applicationDeadline',
-          type: 'date',
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-            }
-          }
-        }
-      ]
-    },
-    // Application Process
-    {
-      name: 'applicationProcess',
-      type: 'array',
-      label: 'Application Process',
+      name: 'relatedEvents',
+      type: 'relationship',
+      relationTo: 'events',
+      hasMany: true,
       admin: {
-        description: 'Steps to apply for the program'
-      },
+        description: 'Other events related to this one'
+      }
+    },
+    // Related Programs
+    {
+      name: 'relatedPrograms',
+      type: 'relationship',
+      relationTo: 'programs',
+      hasMany: true,
+      admin: {
+        description: 'Programs related to this event'
+      }
+    },
+    // Event Resources
+    {
+      name: 'resources',
+      type: 'array',
+      label: 'Event Resources',
       fields: [
         {
-          name: 'step',
+          name: 'title',
           type: 'text',
+          required: true,
+        },
+        {
+          name: 'file',
+          type: 'upload',
+          relationTo: 'media',
           required: true,
         },
         {
           name: 'description',
-          type: 'textarea',
+          type: 'text',
         }
       ]
     },
-    // Testimonials
+    // Gallery
     {
-      name: 'testimonials',
+      name: 'gallery',
       type: 'array',
-      label: 'Testimonials',
       fields: [
         {
-          name: 'quote',
-          type: 'textarea',
-          required: true,
-        },
-        {
-          name: 'author',
-          type: 'text',
-          required: true,
-        },
-        {
-          name: 'title',
-          type: 'text',
-        }
-      ]
-    },
-    // FAQs
-    {
-      name: 'faqs',
-      type: 'array',
-      label: 'FAQs',
-      fields: [
-        {
-          name: 'question',
-          type: 'text',
-          required: true,
-        },
-        {
-          name: 'answer',
-          type: 'textarea',
-          required: true,
-        }
-      ]
-    },
-    // Contact Information
-    {
-      name: 'contactInfo',
-      type: 'group',
-      label: 'Contact Information',
-      fields: [
-        {
-          name: 'email',
-          type: 'email',
-        },
-        {
-          name: 'phone',
-          type: 'text',
-        },
-        {
-          name: 'brochureFile',
-          label: 'Program Brochure',
+          name: 'image',
           type: 'upload',
           relationTo: 'media',
+          required: true,
+        },
+        {
+          name: 'caption',
+          type: 'text',
         }
       ]
-    },
-    // Legacy relationship fields that may still be needed
-    {
-      name: 'attendees',
-      type: 'relationship',
-      relationTo: 'users',
-      hasMany: true,
     },
     {
       name: 'categories',
@@ -537,7 +486,16 @@ const Events: CollectionConfig = {
       relationTo: 'event-categories',
       hasMany: true,
       admin: {
-        description: 'Additional categories/tags for this event',
+        description: 'Categories this event belongs to',
+      },
+    },
+    {
+      name: 'memberOnly',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'If checked, only members can view details of this event',
+        position: 'sidebar'
       },
     },
   ],

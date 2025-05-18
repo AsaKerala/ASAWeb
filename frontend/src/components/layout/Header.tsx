@@ -11,17 +11,37 @@ const menuItems = [
   { label: 'Home', link: '/' },
   { 
     label: 'About Us', 
-    link: '/about'
+    link: '/about',
+    submenu: [
+      { label: 'Overview', link: '/about?tab=overview' },
+      { label: 'History', link: '/about?tab=history' },
+      { label: 'What is AOTS?', link: '/about?tab=aots' },
+      { label: 'Our Team', link: '/about?tab=team' },
+      { label: 'Sister Organizations & Affiliations', link: '/about?tab=affiliations' }
+    ]
   },
   { 
-    label: 'Programs & Events', 
-    link: '/programs-events',
+    label: 'Programs', 
+    link: '/programs',
     submenu: [
-      { label: 'Training Programs', link: '/programs-events#training-programs' },
-      { label: 'Language Training', link: '/programs-events#language-training' },
-      { label: 'Internships', link: '/programs-events#internships' },
-      { label: 'Skill Development', link: '/programs-events#skill-development' },
-      { label: 'Cultural Activities', link: '/programs-events#cultural-activities' }
+      { label: 'Training in Japan', link: '/programs#training-japan' },
+      { label: 'Training in India', link: '/programs#training-india' },
+      { label: 'Language Training', link: '/programs#language-training' },
+      { label: 'Internships', link: '/programs#internships' },
+      { label: 'Skill Development', link: '/programs#skill-development' },
+      { label: 'WNF Programs', link: '/programs#wnf-programs' }
+    ]
+  },
+  { 
+    label: 'Events', 
+    link: '/events',
+    submenu: [
+      { label: 'Upcoming Events', link: '/events#all' },
+      { label: 'Conferences', link: '/events#conferences' },
+      { label: 'Seminars', link: '/events#seminars' },
+      { label: 'Workshops', link: '/events#workshops' },
+      { label: 'Cultural Events', link: '/events#cultural' },
+      { label: 'Webinars', link: '/events#webinars' }
     ]
   },
   { 

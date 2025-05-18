@@ -422,6 +422,27 @@ export { galleryApi };
 
 export { bookingsApi } from './bookings';
 
+export const getProgramBySlug = async (slug: string) => {
+  try {
+    const normalizedSlug = normalizeSlug(slug);
+    const response = await api.get(`/api/programs/slug/${normalizedSlug}`);
+    return response.data.docs[0] || null;
+  } catch (error) {
+    console.error('Error fetching program by slug:', error);
+    return null;
+  }
+};
+
+export const getAllPrograms = async (params = {}) => {
+  try {
+    const response = await api.get('/api/programs', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching programs:', error);
+    return { data: { docs: [] } };
+  }
+};
+
 export default {
   auth,
   events,

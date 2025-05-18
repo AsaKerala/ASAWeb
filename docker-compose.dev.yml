@@ -55,6 +55,9 @@ services:
       - PAYLOAD_SECRET=dev-payload-secret
       - PAYLOAD_PUBLIC_SERVER_URL=http://localhost:8000
       - CORS_ORIGIN=http://localhost:3000
+      - CLOUDINARY_CLOUD_NAME=dxvvlkx6d
+      - CLOUDINARY_API_KEY=834985999526348
+      - CLOUDINARY_API_SECRET=rYURvtrPEvcrfr4eIlQkMZZtFoQ
 
 
     volumes:

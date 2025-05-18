@@ -11,6 +11,7 @@ import Media from './collections/Media';
 import Events from './collections/Events';
 import News from './collections/News';
 import Programs from './collections/Programs';
+import ProgramRegistrations from './collections/ProgramRegistrations';
 import Facilities from './collections/Facilities';
 import EventCategories from './collections/EventCategories';
 import EventRegistrations from './collections/EventRegistrations';
@@ -53,6 +54,7 @@ export default buildConfig({
     Events,
     News,
     Programs,
+    ProgramRegistrations,
     Facilities,
     EventCategories,
     EventRegistrations,

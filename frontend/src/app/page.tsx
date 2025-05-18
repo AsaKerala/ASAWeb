@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { events as eventsApi, programs as programsApi } from '@/lib/api';
+import { events as eventsApi, programs as programsApi, galleryApi } from '@/lib/api';
 import { SafeImage } from '@/components/common';
 
 // Define types for our data
@@ -44,6 +44,18 @@ interface Program {
   category: string;
 }
 
+interface GalleryImage {
+  id: string;
+  title: string;
+  image: {
+    url: string;
+    alt?: string;
+  };
+  caption?: string;
+  category: string;
+  featured: boolean;
+}
+
 // Define hardcoded featured programs
 const hardcodedPrograms = [
   {
@@ -80,7 +92,62 @@ const hardcodedPrograms = [
     summary: 'Learn from a wide array of ASAK hosted programs for industries and professionals.',
     category: 'Training',
     slug: '/programs-events#training-programs'
+  },
+  {
+    id: '6',
+    title: 'Training Programs under WNF',
+    summary: 'Specialized training programs under the World Network of Friendship.',
+    category: 'Training',
+    slug: '/programs-events#training-programs'
   }
+];
+
+// Sample carousel images as fallback
+const sampleCarouselImages = [
+  {
+    id: '1',
+    title: 'Welcome to ASA Kerala',
+    image: {
+      url: '/assets/facilities/nkc-exterior-1.jpg',
+      alt: 'ASA Kerala Welcome',
+    },
+    caption: 'Fostering Indo-Japanese relations through knowledge and cultural exchange',
+    category: 'exterior',
+    featured: true,
+  },
+  {
+    id: '2',
+    title: 'Building Professional Networks',
+    image: {
+      url: '/assets/facilities/golden-jubilee-hall.jpg',
+      alt: 'Professional Networking',
+    },
+    caption: 'Connect with professionals who share an interest in Japanese management practices',
+    category: 'training',
+    featured: true,
+  },
+  {
+    id: '3',
+    title: 'Cultural Exchange',
+    image: {
+      url: '/assets/facilities/twin-room-suite.jpg',
+      alt: 'Cultural Exchange',
+    },
+    caption: 'Experience the best of Japanese and Indian cultural collaborations',
+    category: 'rooms',
+    featured: true,
+  },
+  {
+    id: '4',
+    title: 'Knowledge Transfer',
+    image: {
+      url: '/assets/facilities/zen-garden.jpg',
+      alt: 'Knowledge Transfer',
+    },
+    caption: 'Learn and implement Japanese industrial knowledge and management techniques',
+    category: 'japanese',
+    featured: true,
+  },
 ];
 
 export default function Home() {
@@ -88,6 +155,9 @@ export default function Home() {
   const [featuredPrograms, setFeaturedPrograms] = useState<Program[]>(hardcodedPrograms);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [carouselImages, setCarouselImages] = useState<GalleryImage[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [scrollEvents, setScrollEvents] = useState<Event[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,7 +168,7 @@ export default function Home() {
         
         // Fetch upcoming events - using the eventDate field under keyFeatures
         const eventsResponse = await eventsApi.getAll({ 
-          limit: 5, // Get more than needed so we can filter
+          limit: 10, // Get more than needed so we can filter and use for scrolling banner
           where: {
             status: {
               equals: 'published'
@@ -120,12 +190,27 @@ export default function Home() {
           return new Date(dateA).getTime() - new Date(dateB).getTime();
         });
         
-        // Take just the first 3 events after sorting
+        // Take just the first 3 events after sorting for the main display
         setUpcomingEvents(fetchedEvents.slice(0, 3));
+        
+        // Use up to 5 events for the scrolling banner
+        setScrollEvents(fetchedEvents.slice(0, 5));
+
+        // Fetch featured images for the carousel
+        const featuredResponse = await galleryApi.getFeatured(4);
+        const featured = featuredResponse.data?.docs || [];
+        
+        if (featured.length > 0) {
+          setCarouselImages(featured);
+        } else {
+          // Fallback to sample images if no featured images available
+          setCarouselImages(sampleCarouselImages);
+        }
       } catch (err) {
         console.error('Error fetching homepage data:', err);
         setError('Failed to load events. Please try again later.');
         setUpcomingEvents([]);
+        setCarouselImages(sampleCarouselImages);
       } finally {
         // Always use hardcoded programs regardless of API success/failure
         setFeaturedPrograms(hardcodedPrograms);
@@ -135,6 +220,17 @@ export default function Home() {
 
     fetchData();
   }, []);
+
+  // Auto-rotate carousel
+  useEffect(() => {
+    if (carouselImages.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev === carouselImages.length - 1 ? 0 : prev + 1));
+    }, 4000); // Change slide every 4 seconds
+    
+    return () => clearInterval(interval);
+  }, [carouselImages.length]);
 
   // Format date for display
   const formatEventDate = (dateString?: string) => {
@@ -150,24 +246,88 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Banner Section */}
-      <section id="banner" className="relative bg-gradient-to-r from-hinomaru-red to-sakura-700 text-white py-32">
-        <div className="absolute inset-0 bg-[url('/assets/sakura-pattern.png')] bg-repeat opacity-10"></div>
-        <div className="container-custom relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-              Join ASA Kerala – Connect, Learn, and Grow
+      {/* Scrolling Events Banner */}
+      {scrollEvents.length > 0 && (
+        <div className="bg-hinomaru-red text-white py-2 overflow-hidden">
+          <div className="flex whitespace-nowrap relative">
+            <div className="animate-marquee inline-flex gap-8 whitespace-nowrap">
+              {scrollEvents.map((event, index) => {
+                const eventDateString = event.keyFeatures?.eventDate || 
+                                        event.keyFeatures?.startDate || 
+                                        event.eventDate || 
+                                        event.startDate;
+                const date = eventDateString ? new Date(eventDateString).toLocaleDateString() : 'TBD';
+                
+                return (
+                  <Link key={index} href={`/programs-events/${event.slug}`} className="inline-flex items-center hover:underline">
+                    <span className="font-bold mr-2">NEW EVENT:</span>
+                    <span>{event.title}</span>
+                    <span className="mx-2">•</span>
+                    <span>{date}</span>
+                  </Link>
+                );
+              })}
+            </div>
+            {/* Duplicate banner content for seamless scrolling */}
+            <div className="animate-marquee inline-flex gap-8 whitespace-nowrap absolute left-full">
+              {scrollEvents.map((event, index) => {
+                const eventDateString = event.keyFeatures?.eventDate || 
+                                        event.keyFeatures?.startDate || 
+                                        event.eventDate || 
+                                        event.startDate;
+                const date = eventDateString ? new Date(eventDateString).toLocaleDateString() : 'TBD';
+                
+                return (
+                  <Link key={`dup-${index}`} href={`/programs-events/${event.slug}`} className="inline-flex items-center hover:underline">
+                    <span className="font-bold mr-2">NEW EVENT:</span>
+                    <span>{event.title}</span>
+                    <span className="mx-2">•</span>
+                    <span>{date}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hero Banner Section with Carousel */}
+      <section id="banner" className="relative h-[600px] md:h-[650px] lg:h-[700px] overflow-hidden">
+        {/* Carousel Images */}
+        {carouselImages.map((image, index) => (
+          <div 
+            key={image.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+          >
+            {image.image?.url ? (
+              <Image
+                src={image.image.url}
+                alt={image.image?.alt || image.title}
+                fill
+                className="object-cover"
+                priority={index === 0}
+                unoptimized={true}
+              />
+            ) : (
+              <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
+                <span className="text-zinc-300 text-xl">{image.image?.alt || image.title}</span>
+              </div>
+            )}
+            <div className="absolute inset-0 bg-black/40"></div>
+          </div>
+        ))}
+        
+        {/* Text overlay */}
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="container-custom text-center text-white max-w-3xl px-4">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 drop-shadow-lg">
+              Welcome to ASA Kerala
             </h1>
-            <p className="text-xl mb-10">
-              Explore training opportunities in Japan, business networking, and cultural exchange programs. Be part of an esteemed alumni association fostering Indo-Japanese relations.
+            <p className="text-xl mb-10 drop-shadow-md">
+              Explore training opportunities in Japan, business networking, and cultural exchange programs. 
+              Be part of an esteemed alumni association fostering Indo-Japanese relations.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/membership"
-                className="btn-primary"
-              >
-                Join Now
-              </Link>
               <Link
                 href="#welcome"
                 className="bg-white text-hinomaru-red border border-white hover:bg-gray-100 px-6 py-3 rounded-washi font-medium transition duration-300"
@@ -182,6 +342,19 @@ export default function Home() {
               </Link>
             </div>
           </div>
+        </div>
+        
+        {/* Carousel Indicators */}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
+          {carouselImages.map((_, index) => (
+            <button
+              key={index}
+              className={`w-3 h-3 rounded-full transition-colors ${
+                index === currentSlide ? 'bg-white' : 'bg-white/40'
+              }`}
+              onClick={() => setCurrentSlide(index)}
+            />
+          ))}
         </div>
       </section>
 
@@ -235,11 +408,11 @@ export default function Home() {
               <li className="flex items-start">
                 <span className="text-hinomaru-red mr-2">•</span>
                 <span>Strengthen Indo-Japanese relationships through cultural and business collaborations.</span>
-          </li>
+              </li>
               <li className="flex items-start">
                 <span className="text-hinomaru-red mr-2">•</span>
                 <span>Transfer learnings and best practices from Japan and India to the rest of the world, particularly other developing countries.</span>
-          </li>
+              </li>
             </ul>
           </div>
         </div>
@@ -257,25 +430,17 @@ export default function Home() {
 
           {/* For Featured Programs, always show the data since it's hardcoded */}
           <div className="relative">
-            {/* Decorative element - Horizontal line */}
-            <div className="absolute left-0 right-0 top-1/2 h-1 bg-gradient-to-r from-hinomaru-red via-sakura-500 to-hinomaru-red transform -translate-y-1/2 hidden md:block"></div>
-            
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between md:space-x-6 relative z-10">
-              {featuredPrograms.map((program, index) => (
+            {/* Grid display for the programs instead of timeline format */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredPrograms.map((program) => (
                 <div 
                   key={program.id}
-                  className={`featured-program-item group relative mb-8 md:mb-0 transition-all duration-500 hover:scale-105 ${
-                    index % 2 === 0 ? 'md:mt-8' : 'md:mb-8'
-                  }`}
+                  className="featured-program-item group relative mb-8 transition-all duration-500 hover:scale-105"
                 >
                   {/* Mobile decorative element - left accent */}
-                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-hinomaru-red to-sakura-300 rounded-full md:hidden"></div>
+                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-hinomaru-red to-sakura-300 rounded-full"></div>
                   
-                  {/* Desktop timeline decorative elements */}
-                  <div className="absolute left-1/2 -top-8 w-6 h-6 rounded-full bg-hinomaru-red transform -translate-x-1/2 hidden md:block"></div>
-                  <div className="absolute left-1/2 bottom-full w-1 h-8 bg-hinomaru-red transform -translate-x-1/2 hidden md:block"></div>
-                  
-                  <div className="bg-white rounded-washi shadow-lg p-6 pl-8 md:pl-6 overflow-hidden border-t-4 border-hinomaru-red hover:shadow-xl transition-all duration-300">
+                  <div className="bg-white rounded-washi shadow-lg p-6 pl-8 overflow-hidden border-t-4 border-hinomaru-red hover:shadow-xl transition-all duration-300">
                     <div className="relative z-10">
                       {/* Program category tag */}
                       <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-sakura-100 text-hinomaru-red mb-3">
@@ -429,16 +594,16 @@ export default function Home() {
       <section className="py-20 bg-gradient-to-r from-hinomaru-red to-sakura-700 text-white relative">
         <div className="absolute inset-0 bg-[url('/assets/sakura-pattern.png')] bg-repeat opacity-10"></div>
         <div className="container-custom text-center relative z-10">
-          <h2 className="text-3xl font-bold mb-4">Join Our Community</h2>
+          <h2 className="text-3xl font-bold mb-4">About Our Community</h2>
           <p className="max-w-2xl mx-auto mb-8 text-white text-opacity-90 text-lg">
-            Become a member today to access exclusive resources, attend events, and connect with Japan enthusiasts across Kerala.
+            ASA Kerala is a distinguished alumni community of professionals who have received training in Japan through AOTS scholarships. We share our knowledge and experience to strengthen Indo-Japanese relations and promote cultural understanding.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/membership/join"
+              href="/about"
               className="bg-white text-hinomaru-red px-8 py-3 rounded-washi font-medium hover:bg-gray-100 transition duration-300"
             >
-              Become a Member
+              Learn About ASA
             </Link>
             <Link
               href="/contact"

@@ -25,6 +25,18 @@ export default function AboutPage() {
     }
   }, []);
 
+  // Function to update URL when tab changes
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    
+    // Update URL without refreshing page
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tab);
+      window.history.pushState({}, '', url);
+    }
+  };
+
   // Fetch committee members from the CMS
   useEffect(() => {
     const fetchCommitteeMembers = async () => {
@@ -50,7 +62,7 @@ export default function AboutPage() {
     { year: 1980, description: 'Expansion of training initiatives and collaboration with Indian industries.' },
     { year: 2000, description: 'Increased participation in AOTS management and technical training programs.' },
     { year: 2010, description: 'Establishment of Nippon Kerala Centre (NKC) to provide a world-class training facility inspired by AOTS centers in Japan.' },
-    { year: 2023, description: 'Continuing to grow as a key hub for knowledge exchange, professional training, and Indo-Japanese networking.' },
+    { year: 2018, description: 'Golden Jubilee Celebrations' },
   ];
 
   return (
@@ -71,31 +83,31 @@ export default function AboutPage() {
         <div className="container-custom">
           <div className="flex justify-center overflow-x-auto py-4 gap-8">
             <button 
-              onClick={() => setActiveTab('overview')}
+              onClick={() => handleTabChange('overview')}
               className={`px-4 py-2 font-medium transition-colors ${activeTab === 'overview' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
             >
               Overview
             </button>
             <button 
-              onClick={() => setActiveTab('history')}
+              onClick={() => handleTabChange('history')}
               className={`px-4 py-2 font-medium transition-colors ${activeTab === 'history' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
             >
               History
             </button>
             <button 
-              onClick={() => setActiveTab('aots')}
+              onClick={() => handleTabChange('aots')}
               className={`px-4 py-2 font-medium transition-colors ${activeTab === 'aots' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
             >
               What is AOTS?
             </button>
             <button 
-              onClick={() => setActiveTab('team')}
+              onClick={() => handleTabChange('team')}
               className={`px-4 py-2 font-medium transition-colors ${activeTab === 'team' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
             >
               Our Team
             </button>
             <button 
-              onClick={() => setActiveTab('affiliations')}
+              onClick={() => handleTabChange('affiliations')}
               className={`px-4 py-2 font-medium transition-colors ${activeTab === 'affiliations' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
             >
               Sister Organizations & Affiliations
@@ -159,7 +171,7 @@ export default function AboutPage() {
                   The foundation of ASA Kerala traces back to the late 1960s when a group of forward-thinking professionals from Kerala participated in specialized training programs in Japan under AOTS sponsorship. Recognizing the potential of Japanese industrial and management techniques, they formed ASA Kerala to promote these methodologies in India. Over the decades, ASAK has played a crucial role in fostering Indo-Japanese relations through training programs, business collaborations, and cultural exchanges.
                 </p>
                 
-                <h3 className="text-2xl font-bold text-zinc-900 mb-10 text-center">Milestones in ASAK's History</h3>
+                <h3 className="text-2xl font-bold text-zinc-900 mb-10 text-center">Milestones</h3>
                 
                 <div className="space-y-0 relative">
                   {/* Vertical timeline line */}
@@ -266,7 +278,7 @@ export default function AboutPage() {
                 <div className="text-center py-8">
                   <p className="text-red-500">{error}</p>
                   <button 
-                    onClick={() => setActiveTab('team')} 
+                    onClick={() => handleTabChange('team')} 
                     className="mt-4 btn-primary"
                   >
                     Retry
