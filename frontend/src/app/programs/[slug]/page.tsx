@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { programsApi } from '@/lib/api/programs-api';
+import { programs } from '@/lib/api';
 import ProgramDetailComponent from './ProgramDetailComponent';
 
 // Set dynamic rendering and cache policy
@@ -16,7 +16,8 @@ export async function generateMetadata({ params }: ProgramDetailPageProps): Prom
   const { slug } = params;
   
   try {
-    const program = await programsApi.getBySlug(slug);
+    const response = await programs.getOne(slug);
+    const program = response.data;
     
     if (!program) {
       return {
@@ -26,10 +27,10 @@ export async function generateMetadata({ params }: ProgramDetailPageProps): Prom
     
     return {
       title: `${program.title} | ASA Programs`,
-      description: program.summary || `Learn more about the ${program.title} program and enroll today.`,
+      description: program.summary || `Learn more about ${program.title} and register today.`,
       openGraph: {
         title: program.title,
-        description: program.summary || `Learn more about the ${program.title} program and enroll today.`,
+        description: program.summary || `Learn more about ${program.title} and register today.`,
         images: typeof program.featuredImage === 'object' && program.featuredImage?.url ? [program.featuredImage.url] : []
       }
     };
@@ -45,7 +46,8 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
   const { slug } = params;
   
   try {
-    const program = await programsApi.getBySlug(slug);
+    const response = await programs.getOne(slug);
+    const program = response.data;
     
     if (!program) {
       return (
