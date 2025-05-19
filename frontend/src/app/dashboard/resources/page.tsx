@@ -149,7 +149,7 @@ export default async function ResourcesPage() {
           </p>
           <div className="mt-6">
             <Link
-              href="/programs-events"
+              href="/events"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
             >
               Explore Events

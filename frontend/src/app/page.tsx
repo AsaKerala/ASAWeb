@@ -63,42 +63,42 @@ const hardcodedPrograms = [
     title: 'Training Programs in Japan',
     summary: 'Learn about the latest industrial and management techniques from top Japanese experts.',
     category: 'Training',
-    slug: '/programs-events#training-programs'
+    slug: '/programs#training-programs'
   },
   {
     id: '2',
-    title: 'Internships & Job Opportunities',
-    summary: 'Gain exposure to the Japanese work environment through structured internship programs.',
+    title: 'Internships & Employment',
+    summary: 'Access internship opportunities and job placements in Japanese companies in India and abroad.',
     category: 'Internship',
-    slug: '/programs-events#internships'
+    slug: '/programs#internships'
   },
   {
     id: '3',
-    title: 'Language Training',
-    summary: 'Enroll in Japanese language courses to enhance career prospects and communication.',
+    title: 'Japanese Language Training',
+    summary: 'Learn Japanese language with our certified instructors and enhance your career prospects.',
     category: 'Language',
-    slug: '/programs-events#language-training'
+    slug: '/programs#language-training'
   },
   {
     id: '4',
-    title: 'Business Networking & Start-up Support',
-    summary: 'Leverage our community to explore new business opportunities.',
+    title: 'Skill Development',
+    summary: 'Upgrade your skills with specialized courses focused on Japanese management and technical expertise.',
     category: 'Networking',
-    slug: '/programs-events#skill-development'
+    slug: '/programs#skill-development'
   },
   {
     id: '5',
-    title: 'Training Programs in India',
-    summary: 'Learn from a wide array of ASAK hosted programs for industries and professionals.',
-    category: 'Training',
-    slug: '/programs-events#training-programs'
+    title: 'Business Networking',
+    summary: 'Connect with Japanese businesses and professionals through our extensive network and events.',
+    category: 'Networking',
+    slug: '/programs#training-programs'
   },
   {
     id: '6',
-    title: 'Training Programs under WNF',
-    summary: 'Specialized training programs under the World Network of Friendship.',
-    category: 'Training',
-    slug: '/programs-events#training-programs'
+    title: 'Cultural Exchange',
+    summary: 'Participate in cultural exchange activities to deepen understanding between India and Japan.',
+    category: 'Networking',
+    slug: '/programs#training-programs'
   }
 ];
 
@@ -335,7 +335,7 @@ export default function Home() {
                 Learn More
               </Link>
               <Link
-                href="/programs-events"
+                href="/programs#training-programs"
                 className="btn-secondary"
               >
                 Upcoming Events

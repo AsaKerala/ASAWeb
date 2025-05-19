@@ -143,7 +143,7 @@ function EventCard({ registration }: { registration: EventRegistration }) {
         
         <div className="flex justify-between items-center pt-3 border-t border-zinc-100">
           <Link 
-            href={`/programs-events/${event.slug}`}
+            href={`/events/${event.slug}`}
             className="text-sm font-medium text-hinomaru-red hover:text-sakura-700 transition-colors flex items-center"
           >
             Event Details
@@ -372,7 +372,7 @@ export default function EventsPage() {
               <h3 className="text-xl font-medium text-zinc-900 mb-2">No Upcoming Events</h3>
               <p className="text-zinc-600 mb-6">You haven't registered for any upcoming events yet.</p>
               <Link 
-                href="/programs-events"
+                href="/events"
                 className="btn-primary inline-flex items-center"
               >
                 Explore Events

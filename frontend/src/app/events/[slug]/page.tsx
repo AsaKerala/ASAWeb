@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { events } from '@/lib/api';
 import EventDetailComponent from './EventDetailComponent';
+import Link from 'next/link';
 
 // Set dynamic rendering and cache policy
 export const dynamic = 'force-dynamic';
@@ -54,6 +55,20 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
         <div className="container-custom py-16 text-center">
           <h1 className="text-3xl font-bold mb-4">Event Not Found</h1>
           <p className="text-zinc-700 mb-8">The event you're looking for doesn't exist or has been removed.</p>
+          <div className="flex justify-center gap-4">
+            <Link 
+              href="/events" 
+              className="bg-hinomaru-red text-white px-6 py-3 rounded-washi font-medium hover:bg-sakura-700 transition duration-300"
+            >
+              Browse All Events
+            </Link>
+            <Link 
+              href="/" 
+              className="bg-transparent border border-hinomaru-red text-hinomaru-red px-6 py-3 rounded-washi font-medium hover:bg-hinomaru-red/5 transition duration-300"
+            >
+              Return to Home
+            </Link>
+          </div>
         </div>
       );
     }
@@ -65,6 +80,20 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
       <div className="container-custom py-16 text-center">
         <h1 className="text-3xl font-bold mb-4">Error Loading Event</h1>
         <p className="text-zinc-700 mb-8">There was an error loading this event. Please try again later.</p>
+        <div className="flex justify-center gap-4">
+          <Link 
+            href="/events" 
+            className="bg-hinomaru-red text-white px-6 py-3 rounded-washi font-medium hover:bg-sakura-700 transition duration-300"
+          >
+            Browse All Events
+          </Link>
+          <Link 
+            href="/" 
+            className="bg-transparent border border-hinomaru-red text-hinomaru-red px-6 py-3 rounded-washi font-medium hover:bg-hinomaru-red/5 transition duration-300"
+          >
+            Return to Home
+          </Link>
+        </div>
       </div>
     );
   }

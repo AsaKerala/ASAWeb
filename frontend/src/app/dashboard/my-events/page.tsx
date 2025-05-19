@@ -83,7 +83,7 @@ export default function MyEventsPage() {
           </svg>
           <h2 className="text-xl font-bold text-zinc-800 mb-2">No Registered Events</h2>
           <p className="text-zinc-600 mb-6">You haven't registered for any events yet.</p>
-          <Link href="/programs-events" className="btn-primary">
+          <Link href="/events" className="btn-primary">
             Browse Programs & Events
           </Link>
         </div>
@@ -184,7 +184,7 @@ export default function MyEventsPage() {
                   
                   <div className="flex flex-wrap gap-3 mt-6">
                     <Link 
-                      href={`/programs-events/${registration.event.slug}`} 
+                      href={`/events/${registration.event.slug}`} 
                       className="btn-outline text-sm"
                     >
                       View Details

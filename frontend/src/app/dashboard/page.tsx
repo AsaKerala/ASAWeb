@@ -122,7 +122,7 @@ export default function Dashboard() {
               <div className="text-center py-8 text-zinc-500">
                 <p>You haven't registered for any events yet.</p>
                 <Link 
-                  href="/programs-events" 
+                  href="/events" 
                   className="mt-4 inline-block text-hinomaru-red hover:text-pink-700 font-medium"
                 >
                   Browse Events
@@ -153,7 +153,7 @@ export default function Dashboard() {
                         {reg.status.charAt(0).toUpperCase() + reg.status.slice(1)}
                       </span>
                       <Link 
-                        href={`/programs-events/${typeof reg.event !== 'string' ? reg.event?.slug : ''}`}
+                        href={`/events/${typeof reg.event !== 'string' ? reg.event?.slug : ''}`}
                         className="text-sm text-hinomaru-red hover:text-pink-700"
                       >
                         View Event
@@ -215,7 +215,7 @@ export default function Dashboard() {
                     </p>
                     <div className="mt-2">
                       <Link 
-                        href={`/programs-events/${event.slug}`}
+                        href={`/events/${event.slug}`}
                         className="text-sm text-hinomaru-red hover:text-pink-700"
                       >
                         View Details
@@ -226,7 +226,7 @@ export default function Dashboard() {
                 
                 <div className="pt-2 text-center">
                   <Link 
-                    href="/programs-events" 
+                    href="/events" 
                     className="inline-block text-hinomaru-red hover:text-pink-700 font-medium text-sm"
                   >
                     View All Events
@@ -243,7 +243,7 @@ export default function Dashboard() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <Link 
-              href="/programs-events" 
+              href="/events" 
               className="flex flex-col items-center p-4 bg-zinc-50 rounded-lg hover:bg-zinc-100 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-hinomaru-red mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

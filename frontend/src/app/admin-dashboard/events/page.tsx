@@ -318,7 +318,7 @@ export default function AdminEventsPage() {
                     {upcomingEvents.map((event) => (
                       <tr key={event.id} className="hover:bg-zinc-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">
-                          <Link href={`/programs-events/${event.slug}`} className="hover:text-hinomaru-red">
+                          <Link href={`/events/${event.slug}`} className="hover:text-hinomaru-red">
                             {event.title}
                           </Link>
                         </td>
@@ -420,7 +420,7 @@ export default function AdminEventsPage() {
                     {pastEvents.map((event) => (
                       <tr key={event.id} className="hover:bg-zinc-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">
-                          <Link href={`/programs-events/${event.slug}`} className="hover:text-hinomaru-red">
+                          <Link href={`/events/${event.slug}`} className="hover:text-hinomaru-red">
                             {event.title}
                           </Link>
                         </td>

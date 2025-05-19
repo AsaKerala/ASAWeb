@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { programs } from '@/lib/api';
 import ProgramDetailComponent from './ProgramDetailComponent';
+import Link from 'next/link';
 
 // Set dynamic rendering and cache policy
 export const dynamic = 'force-dynamic';
@@ -54,6 +55,20 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
         <div className="container-custom py-16 text-center">
           <h1 className="text-3xl font-bold mb-4">Program Not Found</h1>
           <p className="text-zinc-700 mb-8">The program you're looking for doesn't exist or has been removed.</p>
+          <div className="flex justify-center gap-4">
+            <Link 
+              href="/programs" 
+              className="bg-hinomaru-red text-white px-6 py-3 rounded-washi font-medium hover:bg-sakura-700 transition duration-300"
+            >
+              Browse All Programs
+            </Link>
+            <Link 
+              href="/" 
+              className="bg-transparent border border-hinomaru-red text-hinomaru-red px-6 py-3 rounded-washi font-medium hover:bg-hinomaru-red/5 transition duration-300"
+            >
+              Return to Home
+            </Link>
+          </div>
         </div>
       );
     }
@@ -65,6 +80,20 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
       <div className="container-custom py-16 text-center">
         <h1 className="text-3xl font-bold mb-4">Error Loading Program</h1>
         <p className="text-zinc-700 mb-8">There was an error loading this program. Please try again later.</p>
+        <div className="flex justify-center gap-4">
+          <Link 
+            href="/programs" 
+            className="bg-hinomaru-red text-white px-6 py-3 rounded-washi font-medium hover:bg-sakura-700 transition duration-300"
+          >
+            Browse All Programs
+          </Link>
+          <Link 
+            href="/" 
+            className="bg-transparent border border-hinomaru-red text-hinomaru-red px-6 py-3 rounded-washi font-medium hover:bg-hinomaru-red/5 transition duration-300"
+          >
+            Return to Home
+          </Link>
+        </div>
       </div>
     );
   }

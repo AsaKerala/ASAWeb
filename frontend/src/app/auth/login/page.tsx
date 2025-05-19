@@ -16,12 +16,16 @@ export default function LoginPage() {
   // Check if user is already authenticated, redirect to dashboard or saved path
   useEffect(() => {
     if (isAuthenticated) {
+      console.log('User is already authenticated, preparing to redirect');
+      
       // Check if there's a saved redirect path
       const redirectPath = localStorage.getItem('auth-redirect');
       if (redirectPath) {
+        console.log('Found saved redirect path:', redirectPath);
         localStorage.removeItem('auth-redirect'); // Clear it after use
         router.push(redirectPath);
       } else {
+        console.log('No saved redirect path, going to dashboard');
         router.push('/dashboard'); // Default redirect
       }
     }
@@ -32,20 +36,70 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
     
+    console.log('Login attempt for email:', email);
+    
     try {
+      // Check if localStorage is working before attempting login
+      try {
+        localStorage.setItem('test-storage', 'test');
+        const testValue = localStorage.getItem('test-storage');
+        if (testValue !== 'test') {
+          console.error('localStorage test failed - could not retrieve test value');
+          throw new Error('Browser storage is not working correctly');
+        }
+        localStorage.removeItem('test-storage');
+        console.log('localStorage test passed');
+      } catch (storageError) {
+        console.error('localStorage access error:', storageError);
+        setError('Browser storage access is blocked. Please check your privacy settings and try again.');
+        setIsLoading(false);
+        return;
+      }
+      
       await login(email, password);
+      console.log('Login successful');
       
       // After successful login, redirect to the stored path or dashboard
       const redirectPath = localStorage.getItem('auth-redirect');
       if (redirectPath) {
+        console.log('Redirecting to:', redirectPath);
         localStorage.removeItem('auth-redirect'); // Clear it after use
         router.push(redirectPath);
       } else {
+        console.log('Redirecting to dashboard');
         router.push('/dashboard'); // Default redirect
       }
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Failed to login. Please check your credentials.');
+      
+      // Extract error details for more helpful messages
+      let errorMessage = 'Failed to login. Please check your credentials.';
+      
+      if (err.response) {
+        if (err.response.status === 401) {
+          errorMessage = 'Invalid email or password. Please try again.';
+        } else if (err.response.status === 429) {
+          errorMessage = 'Too many login attempts. Please try again later.';
+        } else if (err.response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        }
+        
+        // Log detailed error for debugging
+        console.error('Login error details:', {
+          status: err.response.status,
+          data: err.response.data,
+          message: err.response.data?.message || err.message
+        });
+      } else if (err.request) {
+        // The request was made but no response was received
+        errorMessage = 'No response from server. Please check your connection.';
+        console.error('Login network error:', err.request);
+      } else {
+        // Something happened in setting up the request
+        errorMessage = err.message || 'Login failed. Please try again.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -47,6 +47,29 @@ const nextConfig = {
       },
     ],
   },
+  
+  // Add redirects for legacy routes
+  async redirects() {
+    return [
+      // Redirect old events/programs route to separate pages
+      {
+        source: '/programs-events',
+        destination: '/programs',
+        permanent: true,
+      },
+      {
+        source: '/programs-events/:path*',
+        destination: '/events/:path*',
+        permanent: true,
+      },
+      // Handle any other legacy paths
+      {
+        source: '/program/:slug',
+        destination: '/programs/:slug',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig; 

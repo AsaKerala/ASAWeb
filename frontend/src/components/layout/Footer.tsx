@@ -8,7 +8,8 @@ import Image from 'next/image';
 const quickLinks = [
   { label: 'Home', href: '/' },
   { label: 'About Us', href: '/about' },
-  { label: 'Programs & Events', href: '/programs-events' },
+  { label: 'Programs', href: '/programs' },
+  { label: 'Events', href: '/events' },
   { label: 'Join ASA Kerala', href: '/membership/join' },
   { label: 'Membership', href: '/membership' },
   { label: 'Facilities', href: '/facilities' },

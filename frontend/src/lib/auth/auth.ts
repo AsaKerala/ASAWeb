@@ -65,6 +65,8 @@ export async function loginUser(email: string, password: string): Promise<User> 
     console.log('Sending login request to API...');
     const response = await authApi.login(email, password);
     console.log('Login response received:', { 
+      status: response.status,
+      statusText: response.statusText,
       hasToken: !!response.data.token,
       hasUser: !!response.data.user,
       userData: response.data.user ? { 
@@ -76,19 +78,44 @@ export async function loginUser(email: string, password: string): Promise<User> 
     
     // Check if the token was returned and store it
     if (response.data.token && typeof window !== 'undefined') {
-      localStorage.setItem('payload-token', response.data.token);
-      console.log('Token stored in localStorage with length:', response.data.token.length);
-      
-      // Double-check the token was stored successfully
-      const storedToken = localStorage.getItem('payload-token');
-      console.log('Token verification after storing:', !!storedToken);
+      // Try/catch around localStorage operations to catch potential errors
+      try {
+        localStorage.removeItem('payload-token'); // Clear any existing token first
+        localStorage.setItem('payload-token', response.data.token);
+        console.log('Token stored in localStorage with length:', response.data.token.length);
+        
+        // Double-check the token was stored successfully
+        const storedToken = localStorage.getItem('payload-token');
+        if (!storedToken) {
+          console.error('Failed to store token in localStorage!');
+        } else {
+          console.log('Token verification after storing successful, length:', storedToken.length);
+        }
+      } catch (storageError) {
+        console.error('Error storing token in localStorage:', storageError);
+      }
     } else {
       console.warn('No token received in login response!');
     }
     
     return response.data.user;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login error:', error);
+    
+    // Log more detailed error information
+    if (axios.isAxiosError(error)) {
+      console.error('Login request failed with status:', error.response?.status);
+      console.error('Error response data:', error.response?.data);
+      console.error('Request details:',  {
+        method: error.config?.method,
+        url: error.config?.url,
+        baseURL: error.config?.baseURL,
+        headers: error.config?.headers ? 
+          { ...error.config.headers, Authorization: error.config.headers.Authorization ? 'PRESENT' : 'NONE' } 
+          : 'NONE'
+      });
+    }
+    
     throw error;
   }
 }

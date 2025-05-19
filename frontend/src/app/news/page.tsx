@@ -477,7 +477,7 @@ export default function NewsPage() {
                               : ''}
                           </span>
                           <Link
-                            href={`/programs-events/${event.slug}`}
+                            href={`/events/${event.slug}`}
                             className="flex items-center font-medium text-hinomaru-red hover:text-hinomaru-bright transition-colors"
                           >
                             Event Details
@@ -496,7 +496,7 @@ export default function NewsPage() {
           
           {/* View All Button */}
           <div className="text-center mt-8">
-            <Link href="/programs-events" className="btn-primary inline-block bg-hinomaru-red text-white hover:bg-hinomaru-bright">
+            <Link href="/events" className="btn-primary inline-block bg-hinomaru-red text-white hover:bg-hinomaru-bright">
               View All Events
             </Link>
           </div>
@@ -529,7 +529,7 @@ export default function NewsPage() {
                 const eventDate = getEventDate(event, 'end');
                 return (
                   <div key={event.id} className="rounded-lg overflow-hidden shadow-md bg-white hover:shadow-lg transition group">
-                    <Link href={`/programs-events/${event.slug}`}>
+                    <Link href={`/events/${event.slug}`}>
                       <div className="relative h-48">
                         {event.featuredImage ? (
                           <SafeImage
@@ -570,7 +570,7 @@ export default function NewsPage() {
           
           {/* View All Button */}
           <div className="text-center mt-10">
-            <Link href="/programs-events#past-events" className="btn-outline inline-block text-zinc-900 hover:bg-hinomaru-red hover:text-white border-zinc-900 hover:border-hinomaru-red">
+            <Link href="/events#past-events" className="btn-outline inline-block text-zinc-900 hover:bg-hinomaru-red hover:text-white border-zinc-900 hover:border-hinomaru-red">
               View All Past Events
             </Link>
           </div>

@@ -10,6 +10,7 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Required for authentication cookies
+  timeout: 15000, // 15 second timeout
 });
 
 // Request interceptor for adding auth token
@@ -33,6 +34,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -46,31 +48,46 @@ api.interceptors.response.use(
       // Authentication errors
       if (error.response.status === 401) {
         // Handle unauthorized access
-        console.error('Unauthorized access. Please log in again.');
+        console.error('Unauthorized access. Please log in again.', {
+          url: error.config?.url,
+          method: error.config?.method,
+          status: error.response.status,
+          data: error.response.data
+        });
         
         // Clear the token from localStorage since it's invalid or expired
         if (typeof window !== 'undefined') {
           localStorage.removeItem('payload-token');
+          console.log('Token removed due to 401 unauthorized response');
         }
-        
-        // Instead of redirecting here, we'll let the components handle it
-        // This avoids conflicting redirects and race conditions
       }
       
       // Forbidden errors
       if (error.response.status === 403) {
-        console.error('Access forbidden. You do not have permission to access this resource.');
+        console.error('Access forbidden. You do not have permission to access this resource.', {
+          url: error.config?.url,
+          method: error.config?.method,
+          status: error.response.status
+        });
       }
       
       // Server errors
       if (error.response.status >= 500) {
-        console.error('Server error. Please try again later.');
+        console.error('Server error. Please try again later.', {
+          url: error.config?.url,
+          method: error.config?.method,
+          status: error.response.status,
+          data: error.response.data
+        });
       }
     }
     
     // Network errors
     if (error.request && !error.response) {
-      console.error('Network error. Please check your connection.');
+      console.error('Network error. Please check your connection.', {
+        url: error.config?.url, 
+        method: error.config?.method
+      });
     }
     
     return Promise.reject(error);
@@ -312,12 +329,48 @@ export const programs = {
     }
   },
   getOne: async (slug: string) => {
+    // Normalize the slug by removing trailing hyphens
     const normalizedSlug = normalizeSlug(slug);
-    console.log('Fetching single program with slug:', normalizedSlug);
+    const isSlugNormalized = normalizedSlug !== slug;
+    
+    console.log('Fetching single program with slug:', slug);
+    if (isSlugNormalized) {
+      console.log('Normalized slug:', normalizedSlug);
+    }
+    
+    // Try different approaches to get the program
     try {
-      const response = await api.get(`/api/programs/${normalizedSlug}`);
-      console.log('Program getOne response status:', response.status);
-      return response;
+      // Attempt 1: Try direct API call with normalized slug
+      try {
+        console.log('Attempt 1: Direct API call with normalized slug');
+        const response = await api.get(`/api/programs/${normalizedSlug}`);
+        console.log('Program found via direct API call, status:', response.status);
+        return response;
+      } catch (error: any) {
+        console.error('Direct API call failed:', error.response?.status);
+        
+        // Attempt 2: Try to fetch all programs and find the matching one
+        console.log('Attempt 2: Fetching all programs to find matching slug');
+        const allProgramsResponse = await api.get('/api/programs');
+        
+        if (allProgramsResponse.data && allProgramsResponse.data.docs && allProgramsResponse.data.docs.length > 0) {
+          // Find program with matching normalized slug
+          const matchingProgram = allProgramsResponse.data.docs.find(
+            (program: any) => normalizeSlug(program.slug) === normalizedSlug
+          );
+          
+          if (matchingProgram) {
+            console.log('Program found in list with title:', matchingProgram.title);
+            return { data: matchingProgram, status: 200 };
+          } else {
+            console.error('Program not found in list of all programs');
+            throw new Error('Program not found');
+          }
+        } else {
+          console.error('No programs returned from API or invalid response format');
+          throw error; // Re-throw original error if we couldn't find a match
+        }
+      }
     } catch (error) {
       console.error(`Error fetching program with slug ${normalizedSlug}:`, error);
       throw error;
