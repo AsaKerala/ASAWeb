@@ -259,7 +259,7 @@ export default function Home() {
                 const date = eventDateString ? new Date(eventDateString).toLocaleDateString() : 'TBD';
                 
                 return (
-                  <Link key={index} href={`/programs-events/${event.slug}`} className="inline-flex items-center hover:underline">
+                  <Link key={index} href={`/events/${event.slug}`} className="inline-flex items-center hover:underline">
                     <span className="font-bold mr-2">NEW EVENT:</span>
                     <span>{event.title}</span>
                     <span className="mx-2">•</span>
@@ -278,7 +278,7 @@ export default function Home() {
                 const date = eventDateString ? new Date(eventDateString).toLocaleDateString() : 'TBD';
                 
                 return (
-                  <Link key={`dup-${index}`} href={`/programs-events/${event.slug}`} className="inline-flex items-center hover:underline">
+                  <Link key={`dup-${index}`} href={`/events/${event.slug}`} className="inline-flex items-center hover:underline">
                     <span className="font-bold mr-2">NEW EVENT:</span>
                     <span>{event.title}</span>
                     <span className="mx-2">•</span>
@@ -469,7 +469,7 @@ export default function Home() {
                       
                       {/* Call to action */}
                       <Link 
-                        href={program.slug} 
+                        href={`/programs/${program.slug}`} 
                         className="group-hover:bg-hinomaru-red group-hover:text-white text-hinomaru-red border border-hinomaru-red font-medium rounded-washi py-2 px-4 inline-flex items-center transition-all duration-300"
                       >
                         Learn more 
@@ -553,7 +553,7 @@ export default function Home() {
                           event.location?.isVirtual ? 'Online' :
                           event.location?.city || event.location?.name || 'TBD'}
                       </span>
-                      <Link href={`/programs-events/${event.slug}`} className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
+                      <Link href={`/events/${event.slug}`} className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
                         Details
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -581,7 +581,7 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <Link 
-              href="/programs-events" 
+              href="/events" 
               className="btn-primary"
             >
               View All Events

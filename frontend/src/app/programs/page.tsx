@@ -187,7 +187,7 @@ export default function ProgramsPage() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredPrograms.map((program) => (
-                <Link href={`/program/${program.slug}`} key={program.id} className="group">
+                <Link href={`/programs/${program.slug}`} key={program.id} className="group">
                   <div className="japan-card h-full overflow-hidden flex flex-col transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                     <div className="relative h-48 w-full overflow-hidden bg-gray-100">
                       <SafeImage

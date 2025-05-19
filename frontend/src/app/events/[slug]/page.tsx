@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { eventsApi } from '@/lib/api/events-api';
+import { events } from '@/lib/api';
 import EventDetailComponent from './EventDetailComponent';
 
 // Set dynamic rendering and cache policy
@@ -16,7 +16,8 @@ export async function generateMetadata({ params }: EventDetailPageProps): Promis
   const { slug } = params;
   
   try {
-    const event = await eventsApi.getBySlug(slug);
+    const response = await events.getOne(slug);
+    const event = response.data;
     
     if (!event) {
       return {
@@ -45,7 +46,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   const { slug } = params;
   
   try {
-    const event = await eventsApi.getBySlug(slug);
+    const response = await events.getOne(slug);
+    const event = response.data;
     
     if (!event) {
       return (
