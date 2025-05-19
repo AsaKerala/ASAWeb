@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getAllPrograms } from '@/lib/api';
-import { Program } from '@/types';
+import { Program } from '@/lib/api/types';
 import Link from 'next/link';
 import { SafeImage } from '@/components/common';
 import { 
@@ -13,7 +13,11 @@ import {
   GraduationCap, 
   Clock, 
   Calendar, 
-  ChevronRight
+  ChevronRight,
+  Tag,
+  Video,
+  X,
+  Check
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -26,6 +30,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { formatDate } from '@/lib/utils';
 
 // Program categories
 const PROGRAM_CATEGORIES = [
@@ -37,9 +42,27 @@ const PROGRAM_CATEGORIES = [
   { id: 'special', name: 'Special Programs' },
 ];
 
+// Extended Program type for backward compatibility
+type ExtendedProgram = Program & {
+  category?: string;
+  isFeatured?: boolean;
+  keyFeatures?: {
+    duration?: string;
+    mode?: 'online' | 'offline' | 'hybrid';
+    certification?: boolean | string;
+  } | any;
+  eligibility?: string;
+  certification?: boolean | string;
+  upcomingBatches?: Array<{
+    startDate: string;
+    mode?: string;
+    applicationDeadline?: string;
+  } | any>;
+};
+
 export default function ProgramsPage() {
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
+  const [allPrograms, setAllPrograms] = useState<ExtendedProgram[]>([]);
+  const [filteredPrograms, setFilteredPrograms] = useState<ExtendedProgram[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -63,7 +86,7 @@ export default function ProgramsPage() {
         });
         
         if (response.data && response.data.docs) {
-          setPrograms(response.data.docs);
+          setAllPrograms(response.data.docs);
           setFilteredPrograms(response.data.docs);
         } else {
           setError('No programs found');
@@ -81,7 +104,7 @@ export default function ProgramsPage() {
 
   // Apply filters whenever filter values change
   useEffect(() => {
-    let result = [...programs];
+    let result = [...allPrograms];
     
     // Apply category filter
     if (selectedCategory !== 'all') {
@@ -98,7 +121,7 @@ export default function ProgramsPage() {
     }
     
     setFilteredPrograms(result);
-  }, [programs, selectedCategory, searchQuery]);
+  }, [allPrograms, selectedCategory, searchQuery]);
 
   return (
     <div className="min-h-screen">

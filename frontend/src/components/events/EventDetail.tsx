@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Event } from '@/types';
+import { Event } from '@/lib/api/types';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -11,8 +11,37 @@ import { Calendar, Clock, MapPin, Video, User, Users, Tag } from 'lucide-react';
 import { formatDate, formatTime } from '@/lib/utils';
 import { SafeImage } from '@/components/common';
 
+// Extended Event type for backward compatibility
+type ExtendedEvent = Event & {
+  eventDate?: string;
+  startDate?: string;
+  endDate?: string;
+  startTime?: string;
+  endTime?: string;
+  isFeatured?: boolean;
+  isVirtual?: boolean;
+  eventType?: string;
+  virtualLink?: string;
+  schedule?: any[];
+  speakers?: any[];
+  faqs?: any[];
+  keyFeatures?: Array<{
+    feature: string;
+  } | string>;
+  venue?: string;
+  customLocation?: string;
+  maxAttendees?: number;
+  currentAttendees?: number;
+  eventFees?: {
+    memberPrice?: number;
+    nonMemberPrice?: number;
+    currency?: string;
+    isFree?: boolean;
+  };
+};
+
 interface EventDetailProps {
-  event: Event;
+  event: ExtendedEvent;
 }
 
 export default function EventDetail({ event }: EventDetailProps) {

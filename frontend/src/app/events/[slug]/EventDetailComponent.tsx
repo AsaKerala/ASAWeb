@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { SafeImage } from '@/components/common';
-import { Event } from '@/types';
+import { Event } from '@/lib/api/types';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth';
 
@@ -30,8 +30,80 @@ interface EventDetailComponentProps {
   slug: string;
 }
 
+interface RichTextChild {
+  text?: string;
+  [key: string]: any;
+}
+
+interface RichTextBlock {
+  children?: RichTextChild[];
+  [key: string]: any;
+}
+
+interface KeyFeaturesObject {
+  duration?: string;
+  mode?: 'online' | 'offline' | 'hybrid';
+  customLocation?: string;
+  isVirtual?: boolean;
+  virtualLink?: string;
+  eventDate?: string;
+  startDate?: string;
+  endDate?: string;
+  [key: string]: any;
+}
+
+// Use a type intersection instead of extending Event
+type ExtendedEvent = Event & {
+  // Additional fields that might be present in the data but not in the API types
+  eventType?: string;
+  eventDate?: string;
+  startTime?: string;
+  endTime?: string;
+  maxAttendees?: number;
+  currentAttendees?: number;
+  registrationClosed?: boolean;
+  materials?: Array<string | { url: string; title?: string; }>;
+  downloads?: Array<string | { url: string; title?: string; }>;
+  recordings?: Array<string | { url: string; title?: string; }>;
+  speakers?: any[];
+  faqs?: Array<{ question: string; answer: string; }>;
+  schedule?: any[];
+  address?: string;
+  mapLink?: string;
+  price?: string | number;
+  eventFees?: {
+    memberPrice?: number;
+    nonMemberPrice?: number;
+    currency?: string;
+    hasDiscount?: boolean;
+    discountDetails?: string;
+    isFree?: boolean;
+    price?: number;
+    amount?: number;
+    hasScholarship?: boolean;
+    scholarshipDetails?: string;
+  };
+  // Override the location property to support both string and object types
+  location?: string | {
+    name?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    isVirtual?: boolean;
+    virtualLink?: string;
+  };
+  organizer?: string | {
+    name: string;
+    email?: string;
+    phone?: string;
+    website?: string;
+  };
+};
+
 export default function EventDetailComponent({ initialEvent, slug }: EventDetailComponentProps) {
-  const [event, setEvent] = useState<Event>(initialEvent);
+  // Cast to ExtendedEvent to avoid TS errors
+  const [event, setEvent] = useState<ExtendedEvent>(initialEvent as ExtendedEvent);
   const [activeTab, setActiveTab] = useState('overview');
   const router = useRouter();
   const { isAuthenticated, loginWithRedirect } = useAuth();
@@ -58,11 +130,36 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
 
   // Check if the event date has passed
   const isEventPassed = (): boolean => {
-    if (!event.eventDate) return false;
-    
-    const eventDate = new Date(event.eventDate);
     const now = new Date();
-    return eventDate < now;
+    
+    // Check keyFeatures.eventDate if available
+    if (event.keyFeatures && typeof event.keyFeatures === 'object' && !Array.isArray(event.keyFeatures)) {
+      const keyFeaturesObj = event.keyFeatures as KeyFeaturesObject;
+      
+      if (keyFeaturesObj.eventDate) {
+        return new Date(keyFeaturesObj.eventDate) < now;
+      }
+      
+      if (keyFeaturesObj.endDate) {
+        return new Date(keyFeaturesObj.endDate) < now;
+      }
+      
+      if (keyFeaturesObj.startDate) {
+        return new Date(keyFeaturesObj.startDate) < now;
+      }
+    }
+    
+    // Check legacy fields
+    if (event.endDate) {
+      return new Date(event.endDate) < now;
+    }
+    
+    if (event.startDate) {
+      return new Date(event.startDate) < now;
+    }
+    
+    // If no date is found, return false (consider event as upcoming)
+    return false;
   };
 
   const handleRegisterClick = () => {
@@ -76,16 +173,39 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
     }
   };
 
-  // Determine if registration is possible
+  // Update the canRegister function to use attendees array
   const canRegister = (): boolean => {
+    // First check if the event has passed
     if (isEventPassed()) return false;
-    if (event.registrationClosed) return false;
-    if (event.maxAttendees && event.currentAttendees && event.maxAttendees <= event.currentAttendees) return false;
+    
+    // Registration may be closed in multiple ways:
+    // 1. Direct registration closed flag
+    if ('registrationClosed' in event && event.registrationClosed === true) return false;
+    
+    // 2. Registration deadline passed
+    if (event.registrationDeadline) {
+      const deadlineDate = new Date(event.registrationDeadline);
+      const now = new Date();
+      if (deadlineDate < now) return false;
+    }
+    
+    // 3. Registration required but not open
+    if (event.registrationRequired === false) return false;
+    
+    // 4. Event is full - check capacity and attendees
+    if (event.capacity && event.attendees) {
+      // If we have a capacity limit and it's been reached
+      if (Array.isArray(event.attendees) && event.capacity <= event.attendees.length) {
+        return false;
+      }
+    }
+    
+    // If none of the conditions above are met, registration is possible
     return true;
   };
 
   // Helper function to render Payload CMS richtext content
-  const renderRichText = (content: any) => {
+  const renderRichText = (content: any): React.ReactNode => {
     if (!content) return null;
     
     // If it's already an HTML string, render it directly
@@ -97,12 +217,12 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
     if (typeof content === 'object') {
       // It may be an array of richtext nodes
       if (Array.isArray(content)) {
-        return content.map((block, index) => {
+        return content.map((block: RichTextBlock, index: number) => {
           // Each block might have children array with text
           if (block.children && Array.isArray(block.children)) {
             return (
               <p key={index} className="mb-4">
-                {block.children.map((child, childIndex) => {
+                {block.children.map((child: RichTextChild, childIndex: number) => {
                   if (typeof child === 'string') return child;
                   return child.text || '';
                 }).join(' ')}
@@ -117,7 +237,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
       if (content.children && Array.isArray(content.children)) {
         return (
           <p className="mb-4">
-            {content.children.map((child: any, index: number) => {
+            {content.children.map((child: RichTextChild, index: number) => {
               if (typeof child === 'string') return child;
               return child.text || '';
             }).join(' ')}
@@ -130,28 +250,33 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
     return <p>{process.env.NODE_ENV === 'development' ? JSON.stringify(content) : 'Content not available in proper format.'}</p>;
   };
 
-  // Helper function to get the most appropriate date to display
-  const getEventDateDisplay = (event: Event): string => {
-    // For one-day events, use eventDate
-    if (event.eventDate) {
-      return `${formatDate(new Date(event.eventDate))}`;
-    }
-    
+  // Update the getEventDateDisplay function to use ExtendedEvent
+  const getEventDateDisplay = (event: ExtendedEvent): string => {
     // For events with keyFeatures dates
     if (event.keyFeatures) {
-      if (event.keyFeatures.eventDate) {
-        return `${formatDate(new Date(event.keyFeatures.eventDate))}`;
-      }
-      
-      // For multi-day events, show start and end date
-      if (event.keyFeatures.startDate) {
-        const startDateFormatted = formatDate(new Date(event.keyFeatures.startDate));
-        if (event.keyFeatures.endDate) {
-          const endDateFormatted = formatDate(new Date(event.keyFeatures.endDate));
-          return `${startDateFormatted} - ${endDateFormatted}`;
+      // Check if keyFeatures is an object (not an array)
+      if (typeof event.keyFeatures === 'object' && !Array.isArray(event.keyFeatures)) {
+        const keyFeaturesObj = event.keyFeatures as KeyFeaturesObject;
+        
+        if (keyFeaturesObj.eventDate) {
+          return `${formatDate(new Date(keyFeaturesObj.eventDate))}`;
         }
-        return startDateFormatted;
+        
+        // For multi-day events, show start and end date
+        if (keyFeaturesObj.startDate) {
+          const startDateFormatted = formatDate(new Date(keyFeaturesObj.startDate));
+          if (keyFeaturesObj.endDate) {
+            const endDateFormatted = formatDate(new Date(keyFeaturesObj.endDate));
+            return `${startDateFormatted} - ${endDateFormatted}`;
+          }
+          return startDateFormatted;
+        }
       }
+    }
+    
+    // Check direct fields
+    if (event.eventDate) {
+      return `${formatDate(new Date(event.eventDate))}`;
     }
     
     // For legacy multi-day events
@@ -215,12 +340,22 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                   </span>
                 </div>
               )}
-              {event.location && (
+              {typeof event.location === 'string' ? (
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 mr-2 text-hinomaru-red" />
                   <span>{event.location}</span>
                 </div>
-              )}
+              ) : event.location && typeof event.location === 'object' ? (
+                <div className="flex items-center">
+                  <MapPin className="h-5 w-5 mr-2 text-hinomaru-red" />
+                  <span>
+                    {event.location.name || 
+                     (event.location.address && event.location.city 
+                       ? `${event.location.address}, ${event.location.city}` 
+                       : event.location.city || event.location.address || 'Location details available')}
+                  </span>
+                </div>
+              ) : null}
             </div>
             {event.summary && (
               <p className="text-xl text-zinc-100">
@@ -455,15 +590,23 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                               )}
                               {speaker.socialLinks && Array.isArray(speaker.socialLinks) && speaker.socialLinks.length > 0 && (
                                 <div className="mt-4 flex gap-2">
-                                  {speaker.socialLinks.map((link, i) => (
-                                    <a 
-                                      key={i} 
-                                      href={typeof link === 'string' ? link : link.url} 
-                                      target="_blank" 
+                                  {speaker.socialLinks.map((link: { url: string; platform?: string } | string, i: number) => (
+                                    <a
+                                      key={i}
+                                      href={typeof link === 'string' ? link : link.url}
+                                      target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-zinc-500 hover:text-hinomaru-red"
+                                      className="text-hinomaru-red hover:text-hinomaru-red-dark transition-colors"
                                     >
-                                      <ExternalLink size={16} />
+                                      {typeof link === 'string' ? (
+                                        <ExternalLink className="h-5 w-5" />
+                                      ) : link.platform === 'linkedin' ? (
+                                        <span className="sr-only">LinkedIn</span>
+                                      ) : link.platform === 'twitter' ? (
+                                        <span className="sr-only">Twitter</span>
+                                      ) : (
+                                        <ExternalLink className="h-5 w-5" />
+                                      )}
                                     </a>
                                   ))}
                                 </div>
@@ -538,29 +681,43 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                     </div>
 
                     {/* Location */}
-                    {event.location && (
-                      <div className="flex items-start">
-                        <MapPin className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
-                        <div>
-                          <h3 className="font-medium text-zinc-900">Location</h3>
+                    <div className="flex items-start">
+                      <MapPin className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
+                      <div>
+                        <h3 className="font-medium text-zinc-900">Location</h3>
+                        {typeof event.location === 'string' ? (
                           <p className="text-zinc-700">{event.location}</p>
-                          {event.address && (
-                            <p className="text-sm text-zinc-500">{event.address}</p>
-                          )}
-                          {event.mapLink && (
-                            <a 
-                              href={event.mapLink} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-hinomaru-red text-sm hover:underline inline-flex items-center mt-1"
-                            >
-                              View on Map
-                              <ExternalLink size={12} className="ml-1" />
-                            </a>
-                          )}
-                        </div>
+                        ) : event.location && typeof event.location === 'object' ? (
+                          <>
+                            <p className="text-zinc-700">{event.location.name || 'Event Venue'}</p>
+                            {event.location.address && (
+                              <p className="text-sm text-zinc-500">{event.location.address}</p>
+                            )}
+                            {event.location.city && (
+                              <p className="text-sm text-zinc-500">
+                                {[event.location.city, event.location.state, event.location.zipCode]
+                                  .filter(Boolean)
+                                  .join(', ')}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <p className="text-zinc-700">Location details unavailable</p>
+                        )}
+                        {event.address && (
+                          <p className="text-sm text-zinc-500">{event.address}</p>
+                        )}
+                        {event.mapLink && (
+                          <Link
+                            href={event.mapLink}
+                            target="_blank"
+                            className="mt-2 text-sm text-hinomaru-red hover:underline flex items-center"
+                          >
+                            View on map <ChevronRight className="h-3 w-3 ml-1" />
+                          </Link>
+                        )}
                       </div>
-                    )}
+                    </div>
                     
                     {/* Registration Fees */}
                     <div className="flex items-start">

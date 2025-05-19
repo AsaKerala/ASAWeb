@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { SafeImage } from '@/components/common';
-import { Program } from '@/types';
+import { Program } from '@/lib/api/types';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth';
 
@@ -31,8 +31,84 @@ interface ProgramDetailComponentProps {
   slug: string;
 }
 
+// Add these interfaces for the Payload CMS rich text format
+interface RichTextChild {
+  text?: string;
+  [key: string]: any;
+}
+
+interface RichTextBlock {
+  children?: RichTextChild[];
+  [key: string]: any;
+}
+
+// Create ExtendedProgram type for backward compatibility
+type ExtendedProgram = Program & {
+  upcomingBatches?: Array<{
+    startDate: string;
+    mode?: 'online' | 'offline' | 'hybrid';
+    applicationDeadline?: string;
+    isFull?: boolean;
+    registrationsOpen?: boolean;
+    batchName?: string;
+    name?: string;
+    endDate?: string;
+    capacity?: number;
+  } | string>;
+  keyFeatures?: any;
+  curriculum?: Array<{
+    module: string;
+    description?: string;
+  }>;
+  testimonials?: Array<{
+    quote: string;
+    author: string;
+    title?: string;
+    text?: string;
+    name?: string;
+    position?: string;
+    avatar?: string | {
+      url: string;
+    };
+    image?: string | {
+      url: string;
+    };
+  }>;
+  learningOutcomes?: Array<{
+    outcome: string;
+  }>;
+  eventDate?: string;
+  startDate?: string;
+  endDate?: string;
+  startTime?: string;
+  endTime?: string;
+  faqs?: Array<{
+    question: string;
+    answer: string;
+  }>;
+  programFees?: {
+    memberPrice?: number;
+    nonMemberPrice?: number;
+    hasScholarships?: boolean;
+    scholarshipDetails?: string;
+    currency?: string;
+    hasScholarship?: boolean; // Alias for hasScholarships
+  };
+  applicationProcess?: Array<{
+    step: string;
+    description?: string;
+  }>;
+  price?: number | string;
+  isFree?: boolean;
+  category?: string;
+  eligibility?: string;
+  programDetails?: string;
+  certification?: string | boolean;
+};
+
 export default function ProgramDetailComponent({ initialProgram, slug }: ProgramDetailComponentProps) {
-  const [program, setProgram] = useState<Program>(initialProgram);
+  // Cast to ExtendedProgram to avoid TS errors
+  const [program, setProgram] = useState<ExtendedProgram>(initialProgram as ExtendedProgram);
   const [activeTab, setActiveTab] = useState('overview');
   const router = useRouter();
   const { isAuthenticated, loginWithRedirect } = useAuth();
@@ -110,12 +186,12 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
     if (typeof content === 'object') {
       // It may be an array of richtext nodes
       if (Array.isArray(content)) {
-        return content.map((block, index) => {
+        return content.map((block: RichTextBlock, index: number) => {
           // Each block might have children array with text
           if (block.children && Array.isArray(block.children)) {
             return (
               <p key={index} className="mb-4">
-                {block.children.map((child, childIndex) => {
+                {block.children.map((child: RichTextChild, childIndex: number) => {
                   if (typeof child === 'string') return child;
                   return child.text || '';
                 }).join(' ')}
@@ -130,7 +206,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
       if (content.children && Array.isArray(content.children)) {
         return (
           <p className="mb-4">
-            {content.children.map((child: any, index: number) => {
+            {content.children.map((child: RichTextChild, index: number) => {
               if (typeof child === 'string') return child;
               return child.text || '';
             }).join(' ')}
@@ -141,6 +217,51 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
     
     // Fallback: render as JSON string only in development
     return <p>{process.env.NODE_ENV === 'development' ? JSON.stringify(content) : 'Content not available in proper format.'}</p>;
+  };
+
+  // Implement getEventDateDisplay function
+  const getEventDateDisplay = (program: ExtendedProgram): string => {
+    // First try to get dates from keyFeatures
+    if (program.keyFeatures) {
+      if (typeof program.keyFeatures === 'object') {
+        if ('eventDate' in program.keyFeatures && program.keyFeatures.eventDate) {
+          return formatDate(new Date(program.keyFeatures.eventDate));
+        }
+        
+        if ('startDate' in program.keyFeatures && program.keyFeatures.startDate) {
+          const startDateFormatted = formatDate(new Date(program.keyFeatures.startDate));
+          if ('endDate' in program.keyFeatures && program.keyFeatures.endDate) {
+            const endDateFormatted = formatDate(new Date(program.keyFeatures.endDate));
+            return `${startDateFormatted} - ${endDateFormatted}`;
+          }
+          return startDateFormatted;
+        }
+      }
+    }
+    
+    // Next try program's direct fields
+    if (program.eventDate) {
+      return formatDate(new Date(program.eventDate));
+    }
+    
+    if (program.startDate) {
+      const startDateFormatted = formatDate(new Date(program.startDate));
+      if (program.endDate) {
+        const endDateFormatted = formatDate(new Date(program.endDate));
+        return `${startDateFormatted} - ${endDateFormatted}`;
+      }
+      return startDateFormatted;
+    }
+    
+    // If available, use upcoming batches
+    if (program.upcomingBatches && program.upcomingBatches.length > 0) {
+      const firstBatch = program.upcomingBatches[0];
+      if (typeof firstBatch === 'object' && firstBatch.startDate) {
+        return formatDate(new Date(firstBatch.startDate));
+      }
+    }
+    
+    return 'Dates to be announced';
   };
 
   return (
@@ -156,7 +277,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                   ? program.featuredImage
                   : '/assets/placeholder-image.jpg'
             }
-            alt={program.title}
+            alt={program.title || 'Program image'}
             fill
             className="object-cover"
             fallbackSrc="/assets/placeholder-image.jpg"
@@ -412,7 +533,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                                       }
                                       width={48}
                                       height={48}
-                                      alt={testimonial.name}
+                                      alt={testimonial.name || testimonial.author || 'Testimonial author'}
                                       className="object-cover w-full h-full"
                                       fallbackSrc="/assets/placeholder-user.jpg"
                                     />

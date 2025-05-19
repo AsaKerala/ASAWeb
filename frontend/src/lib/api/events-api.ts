@@ -1,5 +1,5 @@
 import { api } from './index';
-import { Event } from '@/types';
+import { Event } from '@/lib/api/types';
 
 function normalizeSlug(slug: string): string {
   // Remove any leading/trailing spaces and convert to lowercase

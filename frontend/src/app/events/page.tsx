@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { events as eventsApi } from '@/lib/api';
-import { Event } from '@/types';
+import { Event } from '@/lib/api/types';
 import Link from 'next/link';
 import { SafeImage } from '@/components/common';
 import { 
@@ -14,7 +14,9 @@ import {
   Users, 
   Tag, 
   ChevronRight,
-  Video
+  Video,
+  X,
+  Check
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -27,7 +29,9 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatTime } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 // Event types
 const EVENT_TYPES = [
@@ -41,11 +45,34 @@ const EVENT_TYPES = [
   { id: 'other', name: 'Other' },
 ];
 
+// Extended Event type for backward compatibility
+type ExtendedEvent = Event & {
+  eventDate?: string;
+  startDate?: string;
+  endDate?: string;
+  startTime?: string;
+  endTime?: string;
+  location?: string | {
+    name?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    isVirtual?: boolean;
+    virtualLink?: string;
+  };
+  eventType?: string;
+  isFeatured?: boolean;
+  isVirtual?: boolean;
+  customLocation?: string;
+  venue?: string;
+};
+
 export default function EventsPage() {
-  const [allEvents, setAllEvents] = useState<Event[]>([]);
-  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
-  const [pastEvents, setPastEvents] = useState<Event[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [allEvents, setAllEvents] = useState<ExtendedEvent[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = useState<ExtendedEvent[]>([]);
+  const [pastEvents, setPastEvents] = useState<ExtendedEvent[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<ExtendedEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -77,23 +104,33 @@ export default function EventsPage() {
           
           // Separate upcoming and past events
           const now = new Date();
-          const upcoming: Event[] = [];
-          const past: Event[] = [];
+          const upcoming: ExtendedEvent[] = [];
+          const past: ExtendedEvent[] = [];
           
-          events.forEach((event: Event) => {
-            let eventDate = event.eventDate 
-              ? new Date(event.eventDate) 
-              : event.startDate 
-                ? new Date(event.startDate) 
-                : null;
-                
-            if (eventDate && eventDate >= now) {
+          events.forEach((event: ExtendedEvent) => {
+            let eventDate = event.eventDate
+              ? new Date(event.eventDate)
+              : event.startDate
+                ? new Date(event.startDate)
+                : event.keyFeatures && typeof event.keyFeatures === 'object' && !Array.isArray(event.keyFeatures)
+                  ? event.keyFeatures.eventDate
+                    ? new Date(event.keyFeatures.eventDate)
+                    : event.keyFeatures.startDate
+                      ? new Date(event.keyFeatures.startDate)
+                      : now
+                  : now;
+            
+            // For past events, use end date if available for more accuracy
+            const endDate = event.endDate 
+              ? new Date(event.endDate)
+              : event.keyFeatures && typeof event.keyFeatures === 'object' && !Array.isArray(event.keyFeatures) && event.keyFeatures.endDate
+                ? new Date(event.keyFeatures.endDate)
+                : eventDate;
+            
+            if (endDate >= now) {
               upcoming.push(event);
-            } else if (eventDate && eventDate < now) {
-              past.push(event);
             } else {
-              // If no date is specified, treat as upcoming
-              upcoming.push(event);
+              past.push(event);
             }
           });
           
