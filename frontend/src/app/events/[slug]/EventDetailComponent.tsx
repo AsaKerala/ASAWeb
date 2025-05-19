@@ -84,6 +84,89 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
     return true;
   };
 
+  // Helper function to render Payload CMS richtext content
+  const renderRichText = (content: any) => {
+    if (!content) return null;
+    
+    // If it's already an HTML string, render it directly
+    if (typeof content === 'string') {
+      return <div dangerouslySetInnerHTML={{ __html: content }} />;
+    }
+    
+    // If it's a Payload CMS richtext object or array
+    if (typeof content === 'object') {
+      // It may be an array of richtext nodes
+      if (Array.isArray(content)) {
+        return content.map((block, index) => {
+          // Each block might have children array with text
+          if (block.children && Array.isArray(block.children)) {
+            return (
+              <p key={index} className="mb-4">
+                {block.children.map((child, childIndex) => {
+                  if (typeof child === 'string') return child;
+                  return child.text || '';
+                }).join(' ')}
+              </p>
+            );
+          }
+          return null;
+        });
+      }
+      
+      // It may be a single richtext object with a children array
+      if (content.children && Array.isArray(content.children)) {
+        return (
+          <p className="mb-4">
+            {content.children.map((child: any, index: number) => {
+              if (typeof child === 'string') return child;
+              return child.text || '';
+            }).join(' ')}
+          </p>
+        );
+      }
+    }
+    
+    // Fallback: render as JSON string but only in development
+    return <p>{process.env.NODE_ENV === 'development' ? JSON.stringify(content) : 'Content not available in proper format.'}</p>;
+  };
+
+  // Helper function to get the most appropriate date to display
+  const getEventDateDisplay = (event: Event): string => {
+    // For one-day events, use eventDate
+    if (event.eventDate) {
+      return `${formatDate(new Date(event.eventDate))}`;
+    }
+    
+    // For events with keyFeatures dates
+    if (event.keyFeatures) {
+      if (event.keyFeatures.eventDate) {
+        return `${formatDate(new Date(event.keyFeatures.eventDate))}`;
+      }
+      
+      // For multi-day events, show start and end date
+      if (event.keyFeatures.startDate) {
+        const startDateFormatted = formatDate(new Date(event.keyFeatures.startDate));
+        if (event.keyFeatures.endDate) {
+          const endDateFormatted = formatDate(new Date(event.keyFeatures.endDate));
+          return `${startDateFormatted} - ${endDateFormatted}`;
+        }
+        return startDateFormatted;
+      }
+    }
+    
+    // For legacy multi-day events
+    if (event.startDate) {
+      const startDateFormatted = formatDate(new Date(event.startDate));
+      if (event.endDate) {
+        const endDateFormatted = formatDate(new Date(event.endDate));
+        return `${startDateFormatted} - ${endDateFormatted}`;
+      }
+      return startDateFormatted;
+    }
+    
+    return 'Date to be announced';
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50">
       {/* Hero Section with Event Image */}
@@ -119,12 +202,10 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
               {event.title}
             </h1>
             <div className="flex flex-wrap items-center gap-4 text-white mb-4">
-              {event.eventDate && (
-                <div className="flex items-center">
-                  <Calendar className="h-5 w-5 mr-2 text-hinomaru-red" />
-                  <span>{formatDate(new Date(event.eventDate))}</span>
-                </div>
-              )}
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 mr-2 text-hinomaru-red" />
+                <span>{getEventDateDisplay(event)}</span>
+              </div>
               {event.startTime && (
                 <div className="flex items-center">
                   <Clock className="h-5 w-5 mr-2 text-hinomaru-red" />
@@ -206,13 +287,9 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                           dangerouslySetInnerHTML={{ __html: event.content }}
                         />
                       ) : (
-                        typeof event.content === 'object' && event.content !== null ? (
-                          <div className="prose prose-zinc max-w-none">
-                            <p>{JSON.stringify(event.content)}</p>
-                          </div>
-                        ) : (
-                          <p className="text-zinc-700">{event.summary || 'No detailed description available'}</p>
-                        )
+                        <div className="prose prose-zinc max-w-none">
+                          {renderRichText(event.content)}
+                        </div>
                       )
                     ) : (
                       <p className="text-zinc-700">{event.summary || 'No description available'}</p>

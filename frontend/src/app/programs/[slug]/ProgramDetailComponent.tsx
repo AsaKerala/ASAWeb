@@ -92,6 +92,57 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
   // Get the first available batch
   const availableBatch = getAvailableBatch();
 
+  // Helper function to render content that might be in different formats
+  const renderFormattedContent = (content: any) => {
+    if (!content) return null;
+    
+    // If it's a string (possibly HTML)
+    if (typeof content === 'string') {
+      // Check if it appears to be HTML
+      if (content.includes('<') && content.includes('>')) {
+        return <div dangerouslySetInnerHTML={{ __html: content }} />;
+      }
+      // Plain text
+      return <p>{content}</p>;
+    }
+    
+    // If it's a Payload CMS richtext object or array
+    if (typeof content === 'object') {
+      // It may be an array of richtext nodes
+      if (Array.isArray(content)) {
+        return content.map((block, index) => {
+          // Each block might have children array with text
+          if (block.children && Array.isArray(block.children)) {
+            return (
+              <p key={index} className="mb-4">
+                {block.children.map((child, childIndex) => {
+                  if (typeof child === 'string') return child;
+                  return child.text || '';
+                }).join(' ')}
+              </p>
+            );
+          }
+          return null;
+        });
+      }
+      
+      // It may be a single richtext object with a children array
+      if (content.children && Array.isArray(content.children)) {
+        return (
+          <p className="mb-4">
+            {content.children.map((child: any, index: number) => {
+              if (typeof child === 'string') return child;
+              return child.text || '';
+            }).join(' ')}
+          </p>
+        );
+      }
+    }
+    
+    // Fallback: render as JSON string only in development
+    return <p>{process.env.NODE_ENV === 'development' ? JSON.stringify(content) : 'Content not available in proper format.'}</p>;
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50">
       {/* Hero Section with Program Image */}
@@ -213,16 +264,23 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                   {hasTabContent(program.keyFeatures) && (
                     <div className="japan-card mb-8">
                       <h2 className="text-2xl font-bold mb-6 text-zinc-900">Key Features</h2>
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {program.keyFeatures?.map((feature, index) => (
-                          <li key={index} className="flex items-start">
-                            <CheckCircle className="h-5 w-5 mr-2 text-hinomaru-red flex-shrink-0 mt-0.5" />
-                            <span className="text-zinc-700">
-                              {typeof feature === 'string' ? feature : feature.feature}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                        {/* Eligibility Section */}
+                        <div className="bg-white p-6 rounded-lg shadow-md">
+                          <h3 className="text-xl font-bold mb-4 text-hinomaru-red">Eligibility</h3>
+                          <div className="prose prose-zinc max-w-none">
+                            {program.eligibility ? renderFormattedContent(program.eligibility) : <p>Contact us for eligibility details.</p>}
+                          </div>
+                        </div>
+
+                        {/* Program Details Section */}
+                        <div className="bg-white p-6 rounded-lg shadow-md">
+                          <h3 className="text-xl font-bold mb-4 text-hinomaru-red">Program Details</h3>
+                          <div className="prose prose-zinc max-w-none">
+                            {program.programDetails ? renderFormattedContent(program.programDetails) : <p>Contact us for program details.</p>}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -271,24 +329,13 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                   <div className="japan-card mb-8">
                     <h2 className="section-title mb-6">Program Curriculum</h2>
                     
-                    {program.curriculum && Array.isArray(program.curriculum) && program.curriculum.length > 0 ? (
-                      <div className="space-y-8">
-                        {program.curriculum.map((module, index) => (
-                          <div key={index} className="border-b border-gray-100 pb-6 last:border-0 last:pb-0">
-                            <h3 className="text-xl font-bold text-zinc-900 mb-2 flex items-center">
-                              <span className="bg-hinomaru-red text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                                {index + 1}
-                              </span>
-                              {typeof module === 'string' ? module : module.module}
-                            </h3>
-                            {typeof module !== 'string' && module.description && (
-                              <p className="text-zinc-700 pl-11">{module.description}</p>
-                            )}
-                          </div>
-                        ))}
+                    {program.curriculum && (
+                      <div className="mt-12">
+                        <h2 className="text-2xl font-bold mb-6 text-zinc-900">Curriculum</h2>
+                        <div className="prose prose-zinc max-w-none">
+                          {renderFormattedContent(program.curriculum)}
+                        </div>
                       </div>
-                    ) : (
-                      <p className="text-zinc-700">Detailed curriculum information is not available at this time. Please contact us for more details.</p>
                     )}
                   </div>
                 </TabsContent>

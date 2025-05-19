@@ -22,7 +22,7 @@ const nextConfig = {
   
   // Configure allowed image domains
   images: {
-    domains: ['localhost', '127.0.0.1', 'cluster0.ebg70lj.mongodb.net', 'asakeralaweb.vercel.app'],
+    domains: ['localhost', '127.0.0.1', 'cluster0.ebg70lj.mongodb.net', 'asakeralaweb.vercel.app', 'res.cloudinary.com'],
     remotePatterns: [
       {
         protocol: 'http',
@@ -43,6 +43,11 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.amazonaws.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
         pathname: '/**',
       },
     ],

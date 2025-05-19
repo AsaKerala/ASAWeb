@@ -244,6 +244,25 @@ export default function Home() {
     return { day, month, time };
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const scrollBar = document.getElementById('progress-bar');
+      
+      if (scrollBar) {
+        const maxScroll = document.body.scrollHeight - window.innerHeight;
+        const scrollPercent = (scrollTop / maxScroll) * 100;
+        scrollBar.style.width = `${scrollPercent}%`;
+        
+        // Increase the scroll animation speed by reducing the transition duration
+        scrollBar.style.transition = 'width 0.2s ease-out'; // Was likely 0.3s or higher
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* Scrolling Events Banner */}
