@@ -42,28 +42,22 @@ export default function CommitteePage() {
       try {
         setLoading(true);
         
-        // Fetch all active committee members
-        const allCommitteeRes = await committeeMembers.getActive();
-        const allMembers = allCommitteeRes.data.docs || [];
-        
-        // Filter for managing committee members
-        const managingMembers = allMembers.filter((member: CommitteeMember) => 
-          member.committeeType === 'managing-committee' || 
-          ['president', 'vice-president', 'secretary', 'joint-secretary', 'treasurer'].includes(member.position)
-        );
+        // Fetch managing committee members
+        const managingCommitteeRes = await committeeMembers.getManagingCommittee();
+        const managingMembers = managingCommitteeRes.data.docs || [];
         setManagingCommittee(managingMembers.length > 0 ? managingMembers : []);
         
-        // Filter for governing council members
-        const councilMembers = allMembers.filter((member: CommitteeMember) => 
-          member.committeeType === 'governing-council'
-        );
+        // Fetch governing council members with increased limit
+        const governingCouncilRes = await committeeMembers.getGoverningCouncil();
+        const councilMembers = governingCouncilRes.data.docs || [];
         setGoverningCouncil(councilMembers.length > 0 ? councilMembers : []);
         
         // Process subcommittee data and group by type
         const subcommitteeData: SubcommitteeData = {};
-        const subcommitteeMembers = allMembers.filter((member: CommitteeMember) => 
-          member.committeeType === 'subcommittee'
-        );
+        
+        // Fetch subcommittee members
+        const subcommitteesRes = await committeeMembers.getByType('subcommittee');
+        const subcommitteeMembers = subcommitteesRes.data.docs || [];
         
         subcommitteeMembers.forEach((member: CommitteeMember) => {
           if (!member.subcommitteeType) return;
@@ -431,14 +425,14 @@ export default function CommitteePage() {
                               ) : (
                                 <span className="text-gray-500 text-xs">Photo</span>
                               )}
-                    </div>
+                            </div>
                             <div>
                               <p className="font-medium">{member.name}</p>
                               <p className="text-sm text-hinomaru-red">{formatPosition(member.position)}</p>
-                    </div>
-                  </div>
+                            </div>
+                          </div>
                         ))}
-                  </div>
+                      </div>
                     </div>
                   ))}
                 </div>

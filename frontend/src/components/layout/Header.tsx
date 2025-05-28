@@ -49,7 +49,6 @@ const menuItems = [
     link: '/facilities',
     submenu: [
       { label: 'Nippon Kerala Centre', link: '/facilities' },
-      { label: 'Book a Room', link: '/facilities/book-room' },
       { label: 'Book an Event', link: '/facilities/book-event' }
     ]
   },

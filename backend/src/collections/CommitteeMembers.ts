@@ -47,18 +47,11 @@ const CommitteeMembers: CollectionConfig = {
     },
     {
       name: 'position',
-      type: 'select',
+      type: 'text',
       required: true,
-      options: [
-        { label: 'President', value: 'president' },
-        { label: 'Vice President', value: 'vice-president' },
-        { label: 'Secretary', value: 'secretary' },
-        { label: 'Joint Secretary', value: 'joint-secretary' },
-        { label: 'Treasurer', value: 'treasurer' },
-        { label: 'Committee Member', value: 'committee-member' },
-        { label: 'Chairperson', value: 'chairperson' },
-        { label: 'Coordinator', value: 'coordinator' },
-      ],
+      admin: {
+        description: 'Enter the position (e.g., President, Vice President, Secretary, etc.)',
+      },
     },
     {
       name: 'photo',

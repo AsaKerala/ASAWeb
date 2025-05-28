@@ -42,7 +42,7 @@ export default function AboutPage() {
     const fetchCommitteeMembers = async () => {
       try {
         setLoading(true);
-        const response = await committeeMembers.getActive();
+        const response = await committeeMembers.getManagingCommittee();
         setCommitteeData(response.data.docs);
         setLoading(false);
       } catch (err) {

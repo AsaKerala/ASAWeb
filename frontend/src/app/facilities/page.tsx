@@ -392,9 +392,7 @@ export default function FacilitiesPage() {
                   <li>In-room tea/coffee facilities</li>
                 </ul>
                 <div className="pt-4">
-                  <Link href="/facilities/book-room" className="btn-primary inline-block">
-                    Book a Room
-                  </Link>
+                  {/* Room booking functionality removed */}
                 </div>
               </div>
             </div>
@@ -564,9 +562,7 @@ export default function FacilitiesPage() {
             with authentic Japanese architectural elements.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/facilities/book-room" className="btn-white">
-              Book a Room
-            </Link>
+            {/* Room booking functionality removed */}
             <Link href="/facilities/book-event" className="btn-outline-white">
               Plan an Event
             </Link>

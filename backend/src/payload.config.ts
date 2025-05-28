@@ -17,7 +17,6 @@ import EventCategories from './collections/EventCategories';
 import EventRegistrations from './collections/EventRegistrations';
 import CommitteeMembers from './collections/CommitteeMembers';
 import Gallery from './collections/Gallery';
-import RoomBookings from './collections/RoomBookings';
 import EventBookings from './collections/EventBookings';
 import { ActivityLogs } from './collections/ActivityLogs';
 import ContactForm from './collections/ContactForm';
@@ -60,7 +59,6 @@ export default buildConfig({
     EventRegistrations,
     CommitteeMembers,
     Gallery,
-    RoomBookings,
     EventBookings,
     ActivityLogs,
     ContactForm,

@@ -6,7 +6,7 @@ const YouTubeVideos: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'youtubeID', 'category', 'featured'],
-    group: 'Media Content',
+    group: 'Media',
   },
   access: {
     read: () => true,

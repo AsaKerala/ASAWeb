@@ -434,7 +434,8 @@ export const committeeMembers = {
           committeeType: { equals: 'governing-council' },
           active: { equals: true } 
         },
-        sort: 'order'
+        sort: 'order',
+        limit: 100
       } 
     });
   },
