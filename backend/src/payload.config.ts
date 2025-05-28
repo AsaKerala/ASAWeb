@@ -24,11 +24,6 @@ import Testimonials from './collections/Testimonials';
 import MembershipApplication from './collections/MembershipApplication';
 import YouTubeVideos from './collections/YouTubeVideos';
 
-// Import globals
-import SiteSettings from './globals/SiteSettings';
-import MainMenu from './globals/MainMenu';
-import Footer from './globals/Footer';
-
 // Import custom endpoints
 import { registerForEvent, cancelEventRegistration, getUserRegistrations, getEventRegistrations } from './endpoints/eventRegistration';
 import checkAdminEndpoint from './endpoints/checkAdmin';
@@ -65,11 +60,6 @@ export default buildConfig({
     Testimonials,
     MembershipApplication,
     YouTubeVideos,
-  ],
-  globals: [
-    SiteSettings,
-    MainMenu,
-    Footer,
   ],
   typescript: {
     outputFile: path.resolve(__dirname, 'payload-types.ts'),

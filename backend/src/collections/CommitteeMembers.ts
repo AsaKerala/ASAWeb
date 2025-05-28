@@ -50,7 +50,7 @@ const CommitteeMembers: CollectionConfig = {
       type: 'text',
       required: true,
       admin: {
-        description: 'Enter the position (e.g., President, Vice President, Secretary, etc.)',
+        description: 'Enter the position (e.g., President, Vice President, Secretary, Joint Secretary, Treasurer). Standard positions should follow this exact naming for proper ordering.',
       },
     },
     {
@@ -86,7 +86,7 @@ const CommitteeMembers: CollectionConfig = {
       label: 'Display Order',
       defaultValue: 99,
       admin: {
-        description: 'Lower numbers will be displayed first (e.g., 1 for President, 2 for Vice President, etc.)',
+        description: 'Standard order for managing committee: 1 for President, 2 for Vice President, 3 for Secretary, 4 for Joint Secretary, 5 for Treasurer. Lower numbers will be displayed first.',
       },
     },
     {
