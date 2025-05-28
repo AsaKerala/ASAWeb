@@ -81,11 +81,11 @@ export async function loginUser(email: string, password: string): Promise<User> 
       // Try/catch around localStorage operations to catch potential errors
       try {
         localStorage.removeItem('payload-token'); // Clear any existing token first
-        localStorage.setItem('payload-token', response.data.token);
-        console.log('Token stored in localStorage with length:', response.data.token.length);
-        
-        // Double-check the token was stored successfully
-        const storedToken = localStorage.getItem('payload-token');
+      localStorage.setItem('payload-token', response.data.token);
+      console.log('Token stored in localStorage with length:', response.data.token.length);
+      
+      // Double-check the token was stored successfully
+      const storedToken = localStorage.getItem('payload-token');
         if (!storedToken) {
           console.error('Failed to store token in localStorage!');
         } else {

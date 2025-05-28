@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { committeeMembers } from '@/lib/api';
+import { committeeMembers, pastPresidents } from '@/lib/api';
 import SafeImage from '@/components/common/SafeImage';
 
 interface CommitteeMember {
@@ -33,6 +33,7 @@ export default function CommitteePage() {
   const [managingCommittee, setManagingCommittee] = useState<CommitteeMember[]>([]);
   const [governingCouncil, setGoverningCouncil] = useState<CommitteeMember[]>([]);
   const [subcommittees, setSubcommittees] = useState<SubcommitteeData>({});
+  const [pastPresidentsList, setPastPresidentsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
@@ -219,49 +220,25 @@ export default function CommitteePage() {
     }
   }, [loading, managingCommittee.length, governingCouncil.length]);
   
-  // Past presidents (Arranged by term period)
-  const pastPresidents = [
-    { 
-      name: '[Past President 1]', 
-      period: '2020-2022', 
-      photo: null 
-    },
-    { 
-      name: '[Past President 2]', 
-      period: '2018-2020', 
-      photo: null 
-    },
-    { 
-      name: '[Past President 3]', 
-      period: '2016-2018', 
-      photo: null 
-    },
-    { 
-      name: '[Past President 4]', 
-      period: '2014-2016', 
-      photo: null 
-    },
-    { 
-      name: '[Past President 5]', 
-      period: '2012-2014', 
-      photo: null 
-    },
-    { 
-      name: '[Past President 6]', 
-      period: '2010-2012', 
-      photo: null 
-    },
-    { 
-      name: '[Past President 7]', 
-      period: '2008-2010', 
-      photo: null 
-    },
-    { 
-      name: '[Past President 8]', 
-      period: '2006-2008', 
-      photo: null 
-    },
-  ];
+  // Fetch past presidents when activePeriod is 'past'
+  useEffect(() => {
+    const fetchPastPresidents = async () => {
+      try {
+        setLoading(true);
+        const response = await pastPresidents.getAll();
+        setPastPresidentsList(response.data.docs);
+        setLoading(false);
+      } catch (err) {
+        console.error('Failed to fetch past presidents:', err);
+        setError('Failed to load past presidents. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    if (activePeriod === 'past') {
+      fetchPastPresidents();
+    }
+  }, [activePeriod]);
   
   // Helper function to format position title
   const formatPosition = (position: string): string => {
@@ -453,26 +430,35 @@ export default function CommitteePage() {
             
             <div className="max-w-5xl mx-auto">
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {pastPresidents.map((president, index) => (
-                  <div key={index} className="japan-card text-center p-6">
-                    <div className="w-32 h-32 rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center overflow-hidden">
-                      {president.photo ? (
-                        <SafeImage
-                          src={president.photo}
-                          alt={president.name}
-                          width={128}
-                          height={128}
-                          className="object-cover w-full h-full"
-                          fallbackSrc="/assets/placeholder-user.png"
-                        />
-                      ) : (
-                        <span className="text-gray-500 text-sm">Photo</span>
+                {pastPresidentsList.length > 0 ? (
+                  pastPresidentsList.map((president, index) => (
+                    <div key={president.id} className="japan-card text-center p-6">
+                      <div className="w-32 h-32 rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center overflow-hidden">
+                        {president.photo ? (
+                          <SafeImage
+                            src={president.photo.url}
+                            alt={president.name}
+                            width={128}
+                            height={128}
+                            className="object-cover w-full h-full"
+                            fallbackSrc="/assets/placeholder-user.png"
+                          />
+                        ) : (
+                          <span className="text-gray-500 text-sm">Photo</span>
+                        )}
+                      </div>
+                      <h3 className="text-xl font-bold text-zinc-900 mb-1">{president.name}</h3>
+                      <p className="text-hinomaru-red">{president.term}</p>
+                      {president.achievements && (
+                        <p className="text-zinc-700 text-sm mt-2">{president.achievements}</p>
                       )}
                     </div>
-                    <h3 className="text-xl font-bold text-zinc-900 mb-1">{president.name}</h3>
-                    <p className="text-hinomaru-red">{president.period}</p>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-8">
+                    <p>No past presidents information is available at the moment.</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>

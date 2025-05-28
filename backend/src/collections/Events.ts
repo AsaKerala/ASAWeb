@@ -426,19 +426,19 @@ const Events: CollectionConfig = {
       type: 'relationship',
       relationTo: 'events',
       hasMany: true,
-      admin: {
+          admin: {
         description: 'Other events related to this one'
-      }
-    },
+          }
+        },
     // Related Programs
-    {
+        {
       name: 'relatedPrograms',
       type: 'relationship',
       relationTo: 'programs',
       hasMany: true,
-      admin: {
+          admin: {
         description: 'Programs related to this event'
-      }
+        }
     },
     // Event Resources
     {

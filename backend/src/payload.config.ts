@@ -23,6 +23,7 @@ import ContactForm from './collections/ContactForm';
 import Testimonials from './collections/Testimonials';
 import MembershipApplication from './collections/MembershipApplication';
 import YouTubeVideos from './collections/YouTubeVideos';
+import PastPresidents from './collections/PastPresidents';
 
 // Import custom endpoints
 import { registerForEvent, cancelEventRegistration, getUserRegistrations, getEventRegistrations } from './endpoints/eventRegistration';
@@ -60,6 +61,7 @@ export default buildConfig({
     Testimonials,
     MembershipApplication,
     YouTubeVideos,
+    PastPresidents,
   ],
   typescript: {
     outputFile: path.resolve(__dirname, 'payload-types.ts'),

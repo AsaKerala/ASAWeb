@@ -427,11 +427,11 @@ export default function Home() {
               <li className="flex items-start">
                 <span className="text-hinomaru-red mr-2">•</span>
                 <span>Strengthen Indo-Japanese relationships through cultural and business collaborations.</span>
-              </li>
+          </li>
               <li className="flex items-start">
                 <span className="text-hinomaru-red mr-2">•</span>
                 <span>Transfer learnings and best practices from Japan and India to the rest of the world, particularly other developing countries.</span>
-              </li>
+          </li>
             </ul>
           </div>
         </div>

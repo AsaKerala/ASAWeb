@@ -464,6 +464,18 @@ export const committeeMembers = {
   },
 };
 
+// Past Presidents endpoints
+export const pastPresidents = {
+  getAll: async (params?: any) => {
+    return api.get('/api/past-presidents', { 
+      params: { 
+        sort: 'order',
+        ...params
+      } 
+    });
+  },
+};
+
 // Member endpoints
 export const members = {
   updateProfile: async (data: any) => {
@@ -570,6 +582,7 @@ export default {
   programs,
   facilities,
   committeeMembers,
+  pastPresidents,
   members,
   globals,
   activityLogs,
