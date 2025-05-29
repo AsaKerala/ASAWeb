@@ -92,10 +92,10 @@ export default function FacilitiesPage() {
       } catch (error) {
         console.error('Error fetching gallery images:', error);
         
-        // Fallback to sample images if API fails
-        setCarouselImages(sampleCarouselImages);
-        setGalleryImages(sampleGalleryImages);
-        setFilteredImages(sampleGalleryImages);
+        // Show empty states instead of sample images
+        setCarouselImages([]);
+        setGalleryImages([]);
+        setFilteredImages([]);
         setHasMore(false);
       } finally {
         setIsLoading(false);
@@ -173,7 +173,13 @@ export default function FacilitiesPage() {
     // Helper function to check total documents
     const checkTotalDocs = async () => {
       try {
-        const response = await galleryApi.getAll({ limit: 1 });
+        const response = await galleryApi.getAll({ 
+          limit: 1,
+          where: {
+            inGallery: { equals: true },
+            mediaType: { equals: 'file' }
+          }
+        });
         return response.data?.totalDocs || 0;
       } catch (error) {
         console.error('Error checking total docs:', error);
@@ -194,196 +200,6 @@ export default function FacilitiesPage() {
     
     return () => clearInterval(interval);
   }, [carouselImages.length]);
-  
-  // Sample carousel images as fallback
-  const sampleCarouselImages = [
-    {
-      id: '1',
-      title: 'Nippon Kerala Centre',
-      image: {
-        url: '/assets/facilities/nkc-exterior-1.jpg',
-        alt: 'NKC Main Building Exterior',
-      },
-      caption: 'A Japanese architectural marvel in Kerala',
-      category: 'exterior',
-      featured: true,
-    },
-    {
-      id: '2',
-      title: 'Golden Jubilee Hall',
-      image: {
-        url: '/assets/facilities/golden-jubilee-hall.jpg',
-        alt: 'Golden Jubilee Hall',
-      },
-      caption: 'Soon to be renamed Hozumi Goichi Sensei Memorial Hall',
-      category: 'training',
-      featured: true,
-    },
-    {
-      id: '3',
-      title: 'Comfortable Accommodations',
-      image: {
-        url: '/assets/facilities/twin-room-suite.jpg',
-        alt: 'Twin Room Suite',
-      },
-      caption: '20 fully equipped twin rooms with modern amenities',
-      category: 'rooms',
-      featured: true,
-    },
-    {
-      id: '4',
-      title: 'Japanese Zen Garden',
-      image: {
-        url: '/assets/facilities/zen-garden.jpg',
-        alt: 'Japanese Zen Garden',
-      },
-      caption: 'Experience tranquility in our authentic Japanese garden',
-      category: 'japanese',
-      featured: true,
-    },
-  ];
-  
-  // Sample gallery images as fallback
-  const sampleGalleryImages = [
-    // Exterior
-    {
-      id: '1',
-      title: 'NKC Main Building',
-      image: {
-        url: '/assets/facilities/nkc-exterior-1.jpg',
-        alt: 'NKC Main Building',
-      },
-      caption: 'Nippon Kerala Centre - Main Building',
-      category: 'exterior',
-      featured: false,
-    },
-    {
-      id: '2',
-      title: 'NKC Entrance',
-      image: {
-        url: '/assets/facilities/nkc-exterior-2.jpg',
-        alt: 'NKC Entrance',
-      },
-      caption: 'Main Entrance with Torii Gate',
-      category: 'exterior',
-      featured: false,
-    },
-    // Accommodation
-    {
-      id: '3',
-      title: 'Twin Room',
-      image: {
-        url: '/assets/facilities/twin-room-suite.jpg',
-        alt: 'Twin Room Suite',
-      },
-      caption: 'Comfortable twin rooms with modern amenities',
-      category: 'rooms',
-      featured: false,
-    },
-    {
-      id: '4',
-      title: 'Luxury Suite',
-      image: {
-        url: '/assets/facilities/luxury-suite.jpg',
-        alt: 'Luxury Suite',
-      },
-      caption: 'Luxury suite with Japanese-inspired décor',
-      category: 'rooms',
-      featured: false,
-    },
-    // Training
-    {
-      id: '5',
-      title: 'Golden Jubilee Hall',
-      image: {
-        url: '/assets/facilities/golden-jubilee-hall.jpg',
-        alt: 'Golden Jubilee Hall',
-      },
-      caption: 'Our main auditorium for large gatherings',
-      category: 'training',
-      featured: false,
-    },
-    {
-      id: '6',
-      title: 'Nishimura Hall',
-      image: {
-        url: '/assets/facilities/nishimura-hall.jpg',
-        alt: 'Nishimura Hall',
-      },
-      caption: 'Seminar hall for workshops and meetings',
-      category: 'training',
-      featured: false,
-    },
-    {
-      id: '7',
-      title: 'Classroom',
-      image: {
-        url: '/assets/facilities/classroom.jpg',
-        alt: 'Modern Classroom',
-      },
-      caption: 'Modern classroom with AV equipment',
-      category: 'training',
-      featured: false,
-    },
-    // Japanese Elements
-    {
-      id: '8',
-      title: 'Zen Garden',
-      image: {
-        url: '/assets/facilities/zen-garden.jpg',
-        alt: 'Japanese Zen Garden',
-      },
-      caption: 'Authentic Japanese Zen garden for relaxation',
-      category: 'japanese',
-      featured: false,
-    },
-    {
-      id: '9',
-      title: 'Torii Gate',
-      image: {
-        url: '/assets/facilities/torii-gate.jpg',
-        alt: 'Torii Gate',
-      },
-      caption: 'Traditional Japanese Torii gate at entrance',
-      category: 'japanese',
-      featured: false,
-    },
-    // Facilities
-    {
-      id: '10',
-      title: 'Dining Hall',
-      image: {
-        url: '/assets/facilities/dining-hall.jpg',
-        alt: 'Dining Hall',
-      },
-      caption: 'Spacious dining hall for guests',
-      category: 'facilities',
-      featured: false,
-    },
-    {
-      id: '11',
-      title: 'Reception Area',
-      image: {
-        url: '/assets/facilities/reception.jpg',
-        alt: 'Reception Area',
-      },
-      caption: 'Welcoming reception area',
-      category: 'facilities',
-      featured: false,
-    },
-    // Sustainability
-    {
-      id: '12',
-      title: 'Solar Panels',
-      image: {
-        url: '/assets/facilities/solar-panels.jpg',
-        alt: 'Solar Panels',
-      },
-      caption: '100% solar-powered facility',
-      category: 'sustainability',
-      featured: false,
-    },
-  ];
   
   // Amenity groups for better organization
   const amenityGroups = [
@@ -539,34 +355,61 @@ export default function FacilitiesPage() {
 
       {/* Hero Image Carousel */}
       <section className="relative bg-black h-[500px] md:h-[600px] overflow-hidden">
-        {carouselImages.map((image, index) => (
-          <div 
-            key={image.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
-          >
-            {image.image?.url ? (
-              <Image
-                src={image.image.url}
-                alt={image.image?.alt || image.title}
-                fill
-                className="object-cover"
-                priority={index === 0}
-                unoptimized={true}
-              />
-            ) : (
-              <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
-                <span className="text-zinc-300 text-xl">{image.image?.alt || image.title}</span>
+        {carouselImages.length > 0 ? (
+          <>
+            {carouselImages.map((image, index) => (
+              <div 
+                key={image.id}
+                className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+              >
+                {image.image?.url ? (
+                  <Image
+                    src={image.image.url}
+                    alt={image.image?.alt || image.title}
+                    fill
+                    className="object-cover"
+                    priority={index === 0}
+                    unoptimized={true}
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
+                    <span className="text-zinc-300 text-xl">{image.image?.alt || image.title}</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/40"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 bg-gradient-to-t from-black/80 to-transparent">
+                  <div className="container-custom">
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">{image.title}</h2>
+                    <p className="text-lg md:text-xl text-zinc-100">{image.caption}</p>
+                  </div>
+                </div>
               </div>
-            )}
-            <div className="absolute inset-0 bg-black/40"></div>
-            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 bg-gradient-to-t from-black/80 to-transparent">
-              <div className="container-custom">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">{image.title}</h2>
-                <p className="text-lg md:text-xl text-zinc-100">{image.caption}</p>
-              </div>
+            ))}
+            
+            {/* Carousel Indicators */}
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
+              {carouselImages.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-colors ${
+                    index === currentSlide ? 'bg-white' : 'bg-white/40'
+                  }`}
+                  onClick={() => setCurrentSlide(index)}
+                />
+              ))}
             </div>
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-r from-hinomaru-red to-sakura-700 flex flex-col items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mt-6">Welcome to Nippon Kerala Centre</h2>
+            <p className="text-lg md:text-xl text-white/90 mt-2 text-center max-w-2xl">
+              Experience world-class facilities with Japanese architecture and aesthetics
+            </p>
           </div>
-        ))}
+        )}
         
         {/* Book Now Button - Moved to bottom center */}
         <div className="absolute bottom-24 md:bottom-32 left-1/2 transform -translate-x-1/2 z-20">
@@ -583,19 +426,6 @@ export default function FacilitiesPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </a>
-        </div>
-        
-        {/* Carousel Indicators */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
-          {carouselImages.map((_, index) => (
-            <button
-              key={index}
-              className={`w-3 h-3 rounded-full transition-colors ${
-                index === currentSlide ? 'bg-white' : 'bg-white/40'
-              }`}
-              onClick={() => setCurrentSlide(index)}
-            />
-          ))}
         </div>
       </section>
 
@@ -778,32 +608,31 @@ export default function FacilitiesPage() {
           </p>
           
           {/* Gallery preview - just show a few images as a teaser */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            <div className="aspect-video relative rounded-xl overflow-hidden shadow-lg">
-              <Image
-                src="/assets/facilities/nkc-exterior-1.jpg"
-                alt="NKC Building Exterior"
-                fill
-                className="object-cover"
-              />
+          {galleryImages.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {galleryImages.slice(0, 3).map((image) => (
+                <div key={image.id} className="aspect-video relative rounded-xl overflow-hidden shadow-lg">
+                  <Image
+                    src={image.image.url}
+                    alt={image.image.alt || image.title}
+                    fill
+                    className="object-cover"
+                    unoptimized={true}
+                  />
+                </div>
+              ))}
             </div>
-            <div className="aspect-video relative rounded-xl overflow-hidden shadow-lg">
-              <Image
-                src="/assets/facilities/golden-jubilee-hall.jpg"
-                alt="Golden Jubilee Hall"
-                fill
-                className="object-cover"
-              />
+          ) : (
+            <div className="text-center py-12 bg-white rounded-xl shadow-md mb-12">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <h3 className="mt-4 text-xl font-medium text-zinc-700">Photo Gallery Coming Soon</h3>
+              <p className="mt-2 text-zinc-500">
+                Our gallery is currently being updated with new images.
+              </p>
             </div>
-            <div className="aspect-video relative rounded-xl overflow-hidden shadow-lg">
-              <Image
-                src="/assets/facilities/zen-garden.jpg"
-                alt="Japanese Zen Garden"
-                fill
-                className="object-cover"
-              />
-            </div>
-          </div>
+          )}
           
           {/* View Gallery Button */}
           <div className="text-center">
