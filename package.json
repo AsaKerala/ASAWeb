@@ -27,5 +27,9 @@
   "license": "MIT",
   "dependencies": {
     "date-fns": "^4.1.0"
+  },
+  "devDependencies": {
+    "axios": "^1.9.0",
+    "form-data": "^4.0.2"
   }
 }

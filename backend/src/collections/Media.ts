@@ -5,7 +5,7 @@ const Media: CollectionConfig = {
   slug: 'media',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'category', 'mediaType'],
+    defaultColumns: ['title', 'category', 'mediaType', 'inGallery'],
     group: 'Media',
   },
   access: {
@@ -100,85 +100,47 @@ const Media: CollectionConfig = {
       name: 'category',
       type: 'select',
       options: [
-        {
-          label: 'Event',
-          value: 'event',
-        },
-        {
-          label: 'Profile',
-          value: 'profile',
-        },
-        {
-          label: 'Facility',
-          value: 'facility',
-        },
-        {
-          label: 'News',
-          value: 'news',
-        },
-        {
-          label: 'Program',
-          value: 'program',
-        },
-        {
-          label: 'Document',
-          value: 'document',
-        },
-        {
-          label: 'Certificate',
-          value: 'certificate',
-        },
-        {
-          label: 'Media Coverage',
-          value: 'media-coverage',
-        },
-        {
-          label: 'Other',
-          value: 'other',
-        },
+        { label: 'Exterior', value: 'exterior' },
+        { label: 'Accommodation', value: 'rooms' },
+        { label: 'Training Halls', value: 'training' },
+        { label: 'Japanese Elements', value: 'japanese' },
+        { label: 'Facilities', value: 'facilities' },
+        { label: 'Sustainability', value: 'sustainability' },
+        { label: 'Other', value: 'other' },
       ],
-    },
-    {
-      name: 'youtubeID',
-      type: 'text',
-      label: 'YouTube Video ID',
+      defaultValue: 'other',
       admin: {
-        description: 'Enter just the video ID (e.g., "dQw4w9WgXcQ" from https://www.youtube.com/watch?v=dQw4w9WgXcQ)',
-        condition: (data) => data?.mediaType === 'youtube',
-      },
-      validate: (value, { data }) => {
-        if (data.mediaType === 'youtube' && !value && !data.youtubeURL) {
-          return 'Either YouTube ID or URL is required for YouTube videos';
-        }
-        return true;
+        position: 'sidebar',
       },
     },
     {
-      name: 'youtubeURL',
-      type: 'text',
-      label: 'YouTube Video URL',
+      name: 'inGallery',
+      type: 'checkbox',
+      label: 'Show in Gallery',
+      defaultValue: false,
       admin: {
-        description: 'Full YouTube URL (https://www.youtube.com/watch?v=VIDEO_ID)',
-        condition: (data) => data?.mediaType === 'youtube',
+        description: 'Include this image in the gallery section of the website',
+        position: 'sidebar',
       },
-      hooks: {
-        beforeValidate: [
-          ({ value, data }) => {
-            if (data?.mediaType !== 'youtube' || !value) return value;
-            
-            // Extract YouTube ID from URL if provided
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = value.match(regExp);
-            const videoId = (match && match[2].length === 11) ? match[2] : null;
-            
-            if (videoId && !data.youtubeID) {
-              // Also update the youtubeID field
-              data.youtubeID = videoId;
-            }
-            
-            return value;
-          },
-        ],
+    },
+    {
+      name: 'inHeroCarousel',
+      type: 'checkbox',
+      label: 'Show in Hero Carousel',
+      defaultValue: false,
+      admin: {
+        description: 'Include this image in the hero carousel on the homepage',
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      label: 'Featured Media',
+      defaultValue: false,
+      admin: {
+        description: 'Feature this image in highlighted sections',
+        position: 'sidebar',
       },
     },
     {
@@ -205,17 +167,12 @@ const Media: CollectionConfig = {
       },
     },
     {
-      name: 'featured',
-      type: 'checkbox',
-      label: 'Featured Media',
-      defaultValue: false,
-    },
-    {
       name: 'displayOrder',
       type: 'number',
       label: 'Display Order',
       admin: {
         description: 'Lower numbers will be displayed first',
+        position: 'sidebar',
       },
       defaultValue: 999,
     },
