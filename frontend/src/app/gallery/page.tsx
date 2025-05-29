@@ -48,11 +48,7 @@ export default function GalleryPage() {
         // Initial fetch of gallery images with pagination
         const allImagesResponse = await galleryApi.getAll({ 
           limit: imagesPerPage,
-          page: 1,
-          where: {
-            inGallery: { equals: true },
-            mediaType: { equals: 'file' }
-          }
+          page: 1
         });
         const allImagesDocs = allImagesResponse.data?.docs || [];
         const totalDocs = allImagesResponse.data?.totalDocs || 0;
@@ -78,9 +74,9 @@ export default function GalleryPage() {
       } catch (error) {
         console.error('Error fetching gallery images:', error);
         
-        // Show empty state instead of using sample images
-        setGalleryImages([]);
-        setFilteredImages([]);
+        // Fallback to sample images if API fails
+        setGalleryImages(sampleGalleryImages);
+        setFilteredImages(sampleGalleryImages);
         setHasMore(false);
       } finally {
         setIsLoading(false);
@@ -161,8 +157,7 @@ export default function GalleryPage() {
         const response = await galleryApi.getAll({ 
           limit: 1,
           where: {
-            inGallery: { equals: true },
-            mediaType: { equals: 'file' }
+            inGallery: { equals: true }
           }
         });
         return response.data?.totalDocs || 0;
@@ -174,6 +169,148 @@ export default function GalleryPage() {
     
     filterImages();
   }, [activeGalleryTab, galleryImages, imagesPerPage]);
+  
+  // Sample gallery images as fallback
+  const sampleGalleryImages = [
+    // Exterior
+    {
+      id: '1',
+      title: 'NKC Main Building',
+      image: {
+        url: '/assets/facilities/nkc-exterior-1.jpg',
+        alt: 'NKC Main Building',
+      },
+      caption: 'Nippon Kerala Centre - Main Building',
+      category: 'exterior',
+      featured: false,
+    },
+    {
+      id: '2',
+      title: 'NKC Entrance',
+      image: {
+        url: '/assets/facilities/nkc-exterior-2.jpg',
+        alt: 'NKC Entrance',
+      },
+      caption: 'Main Entrance with Torii Gate',
+      category: 'exterior',
+      featured: false,
+    },
+    // Accommodation
+    {
+      id: '3',
+      title: 'Twin Room',
+      image: {
+        url: '/assets/facilities/twin-room-suite.jpg',
+        alt: 'Twin Room Suite',
+      },
+      caption: 'Comfortable twin rooms with modern amenities',
+      category: 'rooms',
+      featured: false,
+    },
+    {
+      id: '4',
+      title: 'Luxury Suite',
+      image: {
+        url: '/assets/facilities/luxury-suite.jpg',
+        alt: 'Luxury Suite',
+      },
+      caption: 'Luxury suite with Japanese-inspired décor',
+      category: 'rooms',
+      featured: false,
+    },
+    // Training
+    {
+      id: '5',
+      title: 'Golden Jubilee Hall',
+      image: {
+        url: '/assets/facilities/golden-jubilee-hall.jpg',
+        alt: 'Golden Jubilee Hall',
+      },
+      caption: 'Our main auditorium for large gatherings',
+      category: 'training',
+      featured: false,
+    },
+    {
+      id: '6',
+      title: 'Nishimura Hall',
+      image: {
+        url: '/assets/facilities/nishimura-hall.jpg',
+        alt: 'Nishimura Hall',
+      },
+      caption: 'Seminar hall for workshops and meetings',
+      category: 'training',
+      featured: false,
+    },
+    {
+      id: '7',
+      title: 'Classroom',
+      image: {
+        url: '/assets/facilities/classroom.jpg',
+        alt: 'Modern Classroom',
+      },
+      caption: 'Modern classroom with AV equipment',
+      category: 'training',
+      featured: false,
+    },
+    // Japanese Elements
+    {
+      id: '8',
+      title: 'Zen Garden',
+      image: {
+        url: '/assets/facilities/zen-garden.jpg',
+        alt: 'Japanese Zen Garden',
+      },
+      caption: 'Authentic Japanese Zen garden for relaxation',
+      category: 'japanese',
+      featured: false,
+    },
+    {
+      id: '9',
+      title: 'Torii Gate',
+      image: {
+        url: '/assets/facilities/torii-gate.jpg',
+        alt: 'Torii Gate',
+      },
+      caption: 'Traditional Japanese Torii gate at entrance',
+      category: 'japanese',
+      featured: false,
+    },
+    // Facilities
+    {
+      id: '10',
+      title: 'Dining Hall',
+      image: {
+        url: '/assets/facilities/dining-hall.jpg',
+        alt: 'Dining Hall',
+      },
+      caption: 'Spacious dining hall for guests',
+      category: 'facilities',
+      featured: false,
+    },
+    {
+      id: '11',
+      title: 'Reception Area',
+      image: {
+        url: '/assets/facilities/reception.jpg',
+        alt: 'Reception Area',
+      },
+      caption: 'Welcoming reception area',
+      category: 'facilities',
+      featured: false,
+    },
+    // Sustainability
+    {
+      id: '12',
+      title: 'Solar Panels',
+      image: {
+        url: '/assets/facilities/solar-panels.jpg',
+        alt: 'Solar Panels',
+      },
+      caption: '100% solar-powered facility',
+      category: 'sustainability',
+      featured: false,
+    },
+  ];
   
   // Load more images function
   const loadMoreImages = async () => {
@@ -191,7 +328,6 @@ export default function GalleryPage() {
         page: nextPage,
         where: {
           inGallery: { equals: true },
-          mediaType: { equals: 'file' },
           ...categoryFilter
         }
       });
@@ -279,7 +415,7 @@ export default function GalleryPage() {
               <div className="inline-block w-12 h-12 border-4 border-hinomaru-red/20 border-t-hinomaru-red rounded-full animate-spin"></div>
               <p className="mt-4 text-zinc-600">Loading gallery images...</p>
             </div>
-          ) : filteredImages.length > 0 ? (
+          ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredImages.map((image) => (
                 <div key={image.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
@@ -303,18 +439,6 @@ export default function GalleryPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-white rounded-xl shadow-md">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <h3 className="mt-4 text-xl font-medium text-zinc-700">No Images Found</h3>
-              <p className="mt-2 text-zinc-500">
-                {activeGalleryTab !== 'all' 
-                  ? `No images available in the "${categories.find(c => c.id === activeGalleryTab)?.name || activeGalleryTab}" category.` 
-                  : "No gallery images available yet."}
-              </p>
             </div>
           )}
           
