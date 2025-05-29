@@ -134,12 +134,12 @@ const Media: CollectionConfig = {
       },
     },
     {
-      name: 'featured',
+      name: 'inFacilitiesCarousel',
       type: 'checkbox',
-      label: 'Featured Media',
+      label: 'Show in Facilities Carousel',
       defaultValue: false,
       admin: {
-        description: 'Feature this image in highlighted sections',
+        description: 'Include this image in the facilities page main carousel',
         position: 'sidebar',
       },
     },

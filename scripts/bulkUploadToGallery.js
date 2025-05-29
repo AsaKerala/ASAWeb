@@ -75,7 +75,7 @@ async function uploadToMedia(filePath, fileName, token) {
     formData.append('mediaType', 'file'); // Explicitly set mediaType to 'file' (not 'youtube')
     formData.append('inGallery', 'true'); // Always add to gallery
     formData.append('inHeroCarousel', ADD_TO_HERO || isFeatured ? 'true' : 'false');
-    formData.append('featured', isFeatured ? 'true' : 'false');
+    formData.append('inFacilitiesCarousel', isFeatured ? 'true' : 'false');
     formData.append('category', DEFAULT_CATEGORY);
     
     // Add caption if available (using title as default caption)

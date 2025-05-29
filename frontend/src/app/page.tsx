@@ -196,13 +196,15 @@ export default function Home() {
         // Use up to 5 events for the scrolling banner
         setScrollEvents(fetchedEvents.slice(0, 5));
 
-        // Fetch featured images for the carousel
-        const featuredResponse = await galleryApi.getFeatured(4);
-        const featured = featuredResponse.data?.docs || [];
+        // Fetch hero carousel images
+        const carouselResponse = await galleryApi.getHeroImages(4);
+        const carouselDocs = carouselResponse.data?.docs || [];
         
-        if (featured.length > 0) {
-          setCarouselImages(featured);
+        if (carouselDocs.length > 0) {
+          console.log('Hero carousel images:', carouselDocs);
+          setCarouselImages(carouselDocs);
         } else {
+          console.warn('No hero carousel images found, using fallback images');
           // Fallback to sample images if no featured images available
           setCarouselImages(sampleCarouselImages);
         }

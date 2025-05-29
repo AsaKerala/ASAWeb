@@ -26,7 +26,7 @@ module.exports = {
   // Add all images to the hero carousel
   ADD_TO_HERO: false,
   
-  // List of specific images to mark as featured and add to hero carousel
+  // List of specific images to add to facilities page carousel
   // Format: ['image1.jpg', 'image2.jpg']
   FEATURED_IMAGES: [],
   

@@ -16,6 +16,7 @@ export const galleryApi = {
           mediaType: { equals: 'file' }
         },
         sort: 'displayOrder',
+        limit: 50, // Default to a higher limit
         ...params
       };
       
@@ -37,7 +38,7 @@ export const galleryApi = {
           where: {
             inGallery: { equals: true },
             mediaType: { equals: 'file' },
-            featured: { equals: true }
+            inFacilitiesCarousel: { equals: true }
           },
           sort: 'displayOrder',
           limit
