@@ -106,6 +106,7 @@ const Media: CollectionConfig = {
         { label: 'Japanese Elements', value: 'japanese' },
         { label: 'Facilities', value: 'facilities' },
         { label: 'Sustainability', value: 'sustainability' },
+        { label: 'Event', value: 'event' },
         { label: 'Other', value: 'other' },
       ],
       defaultValue: 'other',

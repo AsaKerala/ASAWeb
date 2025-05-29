@@ -53,6 +53,10 @@ const menuItems = [
     ]
   },
   { 
+    label: 'Gallery', 
+    link: '/gallery',
+  },
+  { 
     label: 'News & Updates', 
     link: '/news',
   },
@@ -186,6 +190,8 @@ export default function Header() {
                         onClick={() => {
                           if (item.label === 'Members Section') {
                             router.push(getMembersSectionLink());
+                          } else if (item.label === 'Facilities') {
+                            router.push('/facilities');
                           }
                         }}
                       >
@@ -485,7 +491,16 @@ export default function Header() {
                 <li key={index}>
                   {item.submenu ? (
                     <details className="text-white">
-                      <summary className="list-none flex justify-between items-center cursor-pointer mb-2">
+                      <summary 
+                        className="list-none flex justify-between items-center cursor-pointer mb-2"
+                        onClick={(e) => {
+                          // Don't prevent default to allow the details to toggle
+                          // But also navigate for specific items
+                          if (item.label === 'Facilities') {
+                            router.push('/facilities');
+                          }
+                        }}
+                      >
                         <span className="text-lg font-medium hover:text-sakura-200 transition-colors">
                           {item.label}
                         </span>

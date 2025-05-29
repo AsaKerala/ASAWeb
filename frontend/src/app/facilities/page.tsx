@@ -772,85 +772,51 @@ export default function FacilitiesPage() {
       <section className="py-16 bg-zinc-100">
         <div className="container-custom">
           <h2 className="section-title-centered text-3xl font-bold text-zinc-900 mb-8">Photo Gallery</h2>
-          <p className="text-center text-zinc-700 max-w-3xl mx-auto mb-12">
+          <p className="text-center text-zinc-700 max-w-3xl mx-auto mb-10">
             Explore our facility through an extensive gallery showcasing NKC's architecture, 
             training spaces, and serene environment.
           </p>
           
-          {/* Gallery Navigation Tabs */}
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            {categories.map(category => (
-              <button
-                key={category.id}
-                className={`px-4 py-2 rounded-full transition ${
-                  activeGalleryTab === category.id 
-                    ? 'bg-hinomaru-red text-white' 
-                    : 'bg-white text-zinc-700 hover:bg-zinc-100'
-                }`}
-                onClick={() => setActiveGalleryTab(category.id)}
-              >
-                {category.name}
-              </button>
-            ))}
+          {/* Gallery preview - just show a few images as a teaser */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div className="aspect-video relative rounded-xl overflow-hidden shadow-lg">
+              <Image
+                src="/assets/facilities/nkc-exterior-1.jpg"
+                alt="NKC Building Exterior"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="aspect-video relative rounded-xl overflow-hidden shadow-lg">
+              <Image
+                src="/assets/facilities/golden-jubilee-hall.jpg"
+                alt="Golden Jubilee Hall"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="aspect-video relative rounded-xl overflow-hidden shadow-lg">
+              <Image
+                src="/assets/facilities/zen-garden.jpg"
+                alt="Japanese Zen Garden"
+                fill
+                className="object-cover"
+              />
+            </div>
           </div>
           
-          {/* Gallery Grid */}
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="inline-block w-12 h-12 border-4 border-hinomaru-red/20 border-t-hinomaru-red rounded-full animate-spin"></div>
-              <p className="mt-4 text-zinc-600">Loading gallery images...</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredImages.map((image) => (
-                <div key={image.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                  <div className="h-48 relative">
-                    {image.image?.url ? (
-                      <Image
-                        src={image.image.url}
-                        alt={image.image?.alt || image.title}
-                        fill
-                        className="object-cover"
-                        unoptimized={true}
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-zinc-200 flex items-center justify-center">
-                        <span className="text-zinc-500">{image.title}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <p className="text-zinc-700 text-sm">{image.caption || image.title}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {/* Load More Button */}
-          {hasMore && (
-            <div className="text-center mt-10">
-              <button
-                onClick={loadMoreImages}
-                disabled={loadingMore}
-                className="px-6 py-3 bg-hinomaru-red text-white rounded-washi hover:bg-sakura-700 transition duration-300 flex items-center gap-2 mx-auto disabled:opacity-50"
-              >
-                {loadingMore ? (
-                  <>
-                    <span className="inline-block w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                    <span>Loading...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Load More</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </>
-                )}
-              </button>
-            </div>
-          )}
+          {/* View Gallery Button */}
+          <div className="text-center">
+            <Link
+              href="/gallery"
+              className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg"
+            >
+              <span>View Full Gallery</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H3a1 1 0 110-2h9.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </section>
 
