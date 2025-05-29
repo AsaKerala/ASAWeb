@@ -9,7 +9,17 @@ export const galleryApi = {
    */
   getAll: async (params?: any) => {
     try {
-      const response = await api.get('/api/gallery', { params });
+      // Create base parameters to filter for gallery images
+      const baseParams = {
+        where: {
+          inGallery: { equals: true },
+          mediaType: { equals: 'file' }
+        },
+        sort: 'displayOrder',
+        ...params
+      };
+      
+      const response = await api.get('/api/media', { params: baseParams });
       return response;
     } catch (error) {
       console.error('Error fetching gallery images:', error);
@@ -22,9 +32,11 @@ export const galleryApi = {
    */
   getFeatured: async (limit = 5) => {
     try {
-      const response = await api.get('/api/gallery', {
+      const response = await api.get('/api/media', {
         params: {
           where: {
+            inGallery: { equals: true },
+            mediaType: { equals: 'file' },
             featured: { equals: true }
           },
           sort: 'displayOrder',
@@ -45,6 +57,8 @@ export const galleryApi = {
     try {
       const params: any = {
         where: {
+          inGallery: { equals: true },
+          mediaType: { equals: 'file' },
           category: { equals: category }
         },
         sort: 'displayOrder'
@@ -54,10 +68,32 @@ export const galleryApi = {
         params.limit = limit;
       }
       
-      const response = await api.get('/api/gallery', { params });
+      const response = await api.get('/api/media', { params });
       return response;
     } catch (error) {
       console.error(`Error fetching gallery images for category ${category}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get hero carousel images
+   */
+  getHeroImages: async (limit = 5) => {
+    try {
+      const response = await api.get('/api/media', { 
+        params: { 
+          where: { 
+            inHeroCarousel: { equals: true },
+            mediaType: { equals: 'file' }
+          },
+          sort: 'displayOrder',
+          limit
+        } 
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching hero carousel images:', error);
       throw error;
     }
   },

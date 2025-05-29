@@ -8,6 +8,7 @@ dist
 build
 .next
 out
+scripts/bulk-upload-config.js
 
 # Local env files
 .env
@@ -37,9 +38,6 @@ Thumbs.db
 # Upload directory content (keep the directory itself)
 backend/uploads/*
 !backend/uploads/.gitkeep
-
-# Make sure scripts directory is tracked
-!scripts/*.js
 
 # Docker volumes
 docker-volumes/ 
