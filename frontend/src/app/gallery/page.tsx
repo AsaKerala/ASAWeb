@@ -48,7 +48,11 @@ export default function GalleryPage() {
         // Initial fetch of gallery images with pagination
         const allImagesResponse = await galleryApi.getAll({ 
           limit: imagesPerPage,
-          page: 1
+          page: 1,
+          where: {
+            inGallery: { equals: true },
+            mediaType: { equals: 'file' }
+          }
         });
         const allImagesDocs = allImagesResponse.data?.docs || [];
         const totalDocs = allImagesResponse.data?.totalDocs || 0;
@@ -154,7 +158,13 @@ export default function GalleryPage() {
     // Helper function to check total documents
     const checkTotalDocs = async () => {
       try {
-        const response = await galleryApi.getAll({ limit: 1 });
+        const response = await galleryApi.getAll({ 
+          limit: 1,
+          where: {
+            inGallery: { equals: true },
+            mediaType: { equals: 'file' }
+          }
+        });
         return response.data?.totalDocs || 0;
       } catch (error) {
         console.error('Error checking total docs:', error);
@@ -322,6 +332,8 @@ export default function GalleryPage() {
         limit: imagesPerPage,
         page: nextPage,
         where: {
+          inGallery: { equals: true },
+          mediaType: { equals: 'file' },
           ...categoryFilter
         }
       });
