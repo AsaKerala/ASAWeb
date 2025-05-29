@@ -202,7 +202,21 @@ export default function Home() {
         
         if (carouselDocs.length > 0) {
           console.log('Hero carousel images:', carouselDocs);
-          setCarouselImages(carouselDocs);
+          
+          // Map API response to the expected format
+          const mappedImages = carouselDocs.map((doc: any) => ({
+            id: doc.id,
+            title: doc.title,
+            image: {
+              url: doc.url, // Direct URL from Cloudinary
+              alt: doc.alt || doc.title
+            },
+            caption: doc.caption,
+            category: doc.category,
+            featured: doc.featured || false
+          }));
+          
+          setCarouselImages(mappedImages);
         } else {
           console.warn('No hero carousel images found, using fallback images');
           // Fallback to sample images if no featured images available

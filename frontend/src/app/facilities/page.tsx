@@ -48,22 +48,47 @@ export default function FacilitiesPage() {
         
         // Fetch featured images for the carousel
         const featuredResponse = await galleryApi.getFeatured(4);
-        const featured = featuredResponse.data?.docs || [];
+        const featuredDocs = featuredResponse.data?.docs || [];
         
         // Initial fetch of gallery images with pagination
         const allImagesResponse = await galleryApi.getAll({ 
           limit: imagesPerPage,
           page: 1
         });
-        const allImages = allImagesResponse.data?.docs || [];
+        const allImagesDocs = allImagesResponse.data?.docs || [];
         const totalDocs = allImagesResponse.data?.totalDocs || 0;
         
-        console.log(`Facilities page - fetched ${allImages.length}/${totalDocs} gallery images`);
+        console.log(`Facilities page - fetched ${allImagesDocs.length}/${totalDocs} gallery images`);
         
-        setCarouselImages(featured);
-        setGalleryImages(allImages);
-        setFilteredImages(allImages);
-        setHasMore(allImages.length < totalDocs);
+        // Map API response to the expected format
+        const mappedFeatured = featuredDocs.map((doc: any) => ({
+          id: doc.id,
+          title: doc.title,
+          image: {
+            url: doc.url,
+            alt: doc.alt || doc.title
+          },
+          caption: doc.caption,
+          category: doc.category,
+          featured: doc.inFacilitiesCarousel || doc.featured || false
+        }));
+        
+        const mappedAllImages = allImagesDocs.map((doc: any) => ({
+          id: doc.id,
+          title: doc.title,
+          image: {
+            url: doc.url,
+            alt: doc.alt || doc.title
+          },
+          caption: doc.caption,
+          category: doc.category,
+          featured: doc.inFacilitiesCarousel || doc.featured || false
+        }));
+        
+        setCarouselImages(mappedFeatured);
+        setGalleryImages(mappedAllImages);
+        setFilteredImages(mappedAllImages);
+        setHasMore(allImagesDocs.length < totalDocs);
       } catch (error) {
         console.error('Error fetching gallery images:', error);
         
@@ -101,12 +126,25 @@ export default function FacilitiesPage() {
           try {
             setIsLoading(true);
             const categoryResponse = await galleryApi.getByCategory(activeGalleryTab, imagesPerPage);
-            const categoryImages = categoryResponse.data?.docs || [];
+            const categoryImagesDocs = categoryResponse.data?.docs || [];
             const totalCategoryDocs = categoryResponse.data?.totalDocs || 0;
             
-            if (categoryImages.length > 0) {
-              setFilteredImages(categoryImages);
-              setHasMore(categoryImages.length < totalCategoryDocs);
+            if (categoryImagesDocs.length > 0) {
+              // Map API response to the expected format
+              const mappedCategoryImages = categoryImagesDocs.map((doc: any) => ({
+                id: doc.id,
+                title: doc.title,
+                image: {
+                  url: doc.url,
+                  alt: doc.alt || doc.title
+                },
+                caption: doc.caption,
+                category: doc.category,
+                featured: doc.inFacilitiesCarousel || doc.featured || false
+              }));
+              
+              setFilteredImages(mappedCategoryImages);
+              setHasMore(categoryImagesDocs.length < totalCategoryDocs);
             } else {
               setHasMore(false);
             }
@@ -442,18 +480,31 @@ export default function FacilitiesPage() {
         }
       });
       
-      const newImages = response.data?.docs || [];
+      const newImagesDocs = response.data?.docs || [];
       const totalDocs = response.data?.totalDocs || 0;
       
-      console.log(`Loaded page ${nextPage}: ${newImages.length} more images`);
+      console.log(`Loaded page ${nextPage}: ${newImagesDocs.length} more images`);
       
-      if (newImages.length > 0) {
+      if (newImagesDocs.length > 0) {
+        // Map API response to the expected format
+        const mappedNewImages = newImagesDocs.map((doc: any) => ({
+          id: doc.id,
+          title: doc.title,
+          image: {
+            url: doc.url,
+            alt: doc.alt || doc.title
+          },
+          caption: doc.caption,
+          category: doc.category,
+          featured: doc.inFacilitiesCarousel || doc.featured || false
+        }));
+        
         // If we're filtering by category, only update the filtered images
         if (activeGalleryTab !== 'all') {
-          setFilteredImages(prev => [...prev, ...newImages]);
+          setFilteredImages(prev => [...prev, ...mappedNewImages]);
         } else {
           // Otherwise update both the full gallery and filtered images
-          const updatedGalleryImages = [...galleryImages, ...newImages];
+          const updatedGalleryImages = [...galleryImages, ...mappedNewImages];
           setGalleryImages(updatedGalleryImages);
           setFilteredImages(updatedGalleryImages);
         }
@@ -461,7 +512,7 @@ export default function FacilitiesPage() {
         setPage(nextPage);
         
         // Check if we have more images to load
-        const loadedCount = galleryImages.length + newImages.length;
+        const loadedCount = galleryImages.length + newImagesDocs.length;
         setHasMore(loadedCount < totalDocs);
       } else {
         setHasMore(false);
