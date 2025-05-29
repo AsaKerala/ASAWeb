@@ -351,12 +351,28 @@ export default function GalleryPage() {
           featured: doc.inFacilitiesCarousel || doc.featured || false
         }));
         
+        // Filter out any duplicate images that we already have
+        const existingIds = new Set(galleryImages.map(img => img.id));
+        const uniqueNewImages = mappedNewImages.filter((img: GalleryImage) => !existingIds.has(img.id));
+        
+        if (uniqueNewImages.length === 0) {
+          console.log('No new unique images to add');
+          setHasMore(false);
+          setLoadingMore(false);
+          return;
+        }
+        
+        console.log(`Adding ${uniqueNewImages.length} unique new images`);
+        
         // If we're filtering by category, only update the filtered images
         if (activeGalleryTab !== 'all') {
-          setFilteredImages(prev => [...prev, ...mappedNewImages]);
+          // Also filter duplicates in filtered images
+          const existingFilteredIds = new Set(filteredImages.map(img => img.id));
+          const uniqueNewFilteredImages = uniqueNewImages.filter((img: GalleryImage) => !existingFilteredIds.has(img.id));
+          setFilteredImages(prev => [...prev, ...uniqueNewFilteredImages]);
         } else {
           // Otherwise update both the full gallery and filtered images
-          const updatedGalleryImages = [...galleryImages, ...mappedNewImages];
+          const updatedGalleryImages = [...galleryImages, ...uniqueNewImages];
           setGalleryImages(updatedGalleryImages);
           setFilteredImages(updatedGalleryImages);
         }
@@ -364,7 +380,7 @@ export default function GalleryPage() {
         setPage(nextPage);
         
         // Check if we have more images to load
-        const loadedCount = galleryImages.length + newImagesDocs.length;
+        const loadedCount = galleryImages.length + uniqueNewImages.length;
         setHasMore(loadedCount < totalDocs);
       } else {
         setHasMore(false);
