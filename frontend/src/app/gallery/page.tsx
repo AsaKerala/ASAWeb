@@ -25,6 +25,7 @@ export default function GalleryPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const imagesPerPage = 25;
   
   // Categories for filtering
@@ -392,6 +393,18 @@ export default function GalleryPage() {
     }
   };
 
+  // Function to open the image modal
+  const openImageModal = (image: GalleryImage) => {
+    setSelectedImage(image);
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+  };
+
+  // Function to close the image modal
+  const closeImageModal = () => {
+    setSelectedImage(null);
+    document.body.style.overflow = ''; // Re-enable scrolling
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50">
       {/* Banner Section */}
@@ -434,7 +447,11 @@ export default function GalleryPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredImages.map((image) => (
-                <div key={image.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                <div 
+                  key={image.id} 
+                  className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => openImageModal(image)}
+                >
                   <div className="h-48 relative">
                     {image.image?.url ? (
                       <Image
@@ -484,6 +501,44 @@ export default function GalleryPage() {
           )}
         </div>
       </section>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={closeImageModal}
+        >
+          <div 
+            className="relative max-w-4xl max-h-[90vh] bg-white rounded-xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image
+          >
+            <div className="relative h-[80vh] w-full">
+              <Image
+                src={selectedImage.image.url}
+                alt={selectedImage.image?.alt || selectedImage.title}
+                fill
+                className="object-contain"
+                unoptimized={true}
+              />
+            </div>
+            <div className="p-4 bg-white">
+              <h3 className="text-lg font-medium text-zinc-900">{selectedImage.title}</h3>
+              {selectedImage.caption && (
+                <p className="text-zinc-700 mt-1">{selectedImage.caption}</p>
+              )}
+            </div>
+            {/* Close Button */}
+            <button 
+              className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+              onClick={closeImageModal}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

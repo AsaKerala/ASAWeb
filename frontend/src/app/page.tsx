@@ -327,7 +327,7 @@ export default function Home() {
       )}
 
       {/* Hero Banner Section with Carousel */}
-      <section id="banner" className="relative h-[600px] md:h-[650px] lg:h-[700px] overflow-hidden">
+      <section id="banner" className="relative h-[450px] md:h-[500px] lg:h-[550px] overflow-hidden">
         {/* Carousel Images */}
         {carouselImages.map((image, index) => (
           <div 
