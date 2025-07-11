@@ -36,7 +36,7 @@ export const RichTextRenderer: React.FC<RichTextRendererProps> = ({ content, cla
   const renderTextNode = (node: RichTextChild, index: number): React.ReactNode => {
     if (typeof node === 'string') return node;
     
-    let textContent = node.text || '';
+    let textContent: React.ReactNode = node.text || '';
     
     // Apply text formatting
     if (node.bold) textContent = <strong key={index}>{textContent}</strong>;
