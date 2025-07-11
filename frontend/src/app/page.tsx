@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { events as eventsApi, programs as programsApi, galleryApi } from '@/lib/api';
 import { SafeImage } from '@/components/common';
+import { Badge } from '@/components/ui/badge';
 
 // Define types for our data
 interface Event {
@@ -42,6 +43,10 @@ interface Program {
   slug: string;
   summary: string;
   category: string;
+  featuredImage?: {
+    url: string;
+    alt?: string;
+  } | string;
 }
 
 interface GalleryImage {
@@ -208,14 +213,13 @@ export default function Home() {
         
         let fetchedPrograms = programsResponse.data.docs || [];
         
-        // Combine hardcoded programs with real featured programs
-        // If we have real featured programs, use them, otherwise fall back to hardcoded
+        // Set featured programs (these will be displayed in the new featured section)
         if (fetchedPrograms.length > 0) {
           console.log('Using real featured programs:', fetchedPrograms.length);
           setFeaturedPrograms(fetchedPrograms);
         } else {
-          console.log('No featured programs found, using hardcoded programs');
-          setFeaturedPrograms(hardcodedPrograms);
+          console.log('No featured programs found');
+          setFeaturedPrograms([]);
         }
 
         // Fetch hero carousel images
@@ -249,8 +253,8 @@ export default function Home() {
         setError('Failed to load events. Please try again later.');
         setUpcomingEvents([]);
         setCarouselImages(sampleCarouselImages);
-        // On error, use hardcoded programs as fallback
-        setFeaturedPrograms(hardcodedPrograms);
+        // On error, set empty featured programs
+        setFeaturedPrograms([]);
       } finally {
         setIsLoading(false);
       }
@@ -475,76 +479,202 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Programs Section */}
+      {/* Programs Section (General Types) */}
       <section className="py-20 bg-zen-50">
         <div className="container-custom">
           <div className="text-center mb-16">
-            <h2 className="section-title text-center">Featured Programs</h2>
+            <h2 className="section-title text-center">Programs</h2>
             <div className="flex justify-center mb-8">
               <div className="w-20 h-1 bg-hinomaru-red"></div>
             </div>
+            <p className="text-lg text-zen-700 max-w-2xl mx-auto">
+              Explore our wide range of technical, management, and cultural programs designed to enhance your skills and understanding of Japanese methodologies.
+            </p>
           </div>
 
-          {/* For Featured Programs, always show the data since it's hardcoded */}
-          <div className="relative">
-            {/* Grid display for the programs instead of timeline format */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredPrograms.map((program) => (
+          {/* Grid display for the general program types */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {hardcodedPrograms.map((program) => (
+              <div 
+                key={program.id}
+                className="featured-program-item group relative mb-8 transition-all duration-500 hover:scale-105"
+              >
+                {/* Mobile decorative element - left accent */}
+                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-hinomaru-red to-sakura-300 rounded-full"></div>
+                
+                <div className="bg-white rounded-washi shadow-lg p-6 pl-8 overflow-hidden border-t-4 border-hinomaru-red hover:shadow-xl transition-all duration-300">
+                  <div className="relative z-10">
+                    {/* Program category tag */}
+                    <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-sakura-100 text-hinomaru-red mb-3">
+                      {program.category || 'Program'}
+                    </span>
+                    
+                    {/* Icon background - decorative */}
+                    <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 w-24 h-24 rounded-full bg-sakura-50 opacity-20"></div>
+                    
+                    {/* Program icon */}
+                    <div className="mb-4 text-hinomaru-red relative z-10">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                    
+                    {/* Program title */}
+                    <h3 className="text-xl font-bold mb-3 text-zen-900 group-hover:text-hinomaru-red transition-colors duration-300">
+                      {program.title}
+                    </h3>
+                    
+                    {/* Program summary */}
+                    <p className="text-zen-700 mb-4">
+                      {program.summary}
+                    </p>
+                    
+                    {/* Call to action */}
+                    <Link 
+                      href={`/programs/${program.slug}`} 
+                      className="group-hover:bg-hinomaru-red group-hover:text-white text-hinomaru-red border border-hinomaru-red font-medium rounded-washi py-2 px-4 inline-flex items-center transition-all duration-300"
+                    >
+                      Learn more 
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </Link>
+                  </div>
+                  
+                  {/* Decorative shape */}
+                  <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-sakura-50 rounded-tl-xl transform rotate-45 opacity-50"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link 
+              href="/programs" 
+              className="btn-primary"
+            >
+              View All Programs
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Programs Section (Individual Programs) */}
+      {featuredPrograms.length > 0 && (
+        <section className="py-20 bg-white">
+          <div className="container-custom">
+            <div className="text-center mb-16">
+              <h2 className="section-title text-center">Featured Programs</h2>
+              <div className="flex justify-center mb-8">
+                <div className="w-20 h-1 bg-hinomaru-red"></div>
+              </div>
+              <p className="text-lg text-zen-700 max-w-2xl mx-auto">
+                Discover our highlighted programs designed to provide exceptional learning experiences and career advancement opportunities.
+              </p>
+            </div>
+
+            <div className="space-y-12">
+              {featuredPrograms.map((program, index) => (
                 <div 
                   key={program.id}
-                  className="featured-program-item group relative mb-8 transition-all duration-500 hover:scale-105"
+                  className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-8 lg:gap-12 items-center`}
                 >
-                  {/* Mobile decorative element - left accent */}
-                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-hinomaru-red to-sakura-300 rounded-full"></div>
-                  
-                  <div className="bg-white rounded-washi shadow-lg p-6 pl-8 overflow-hidden border-t-4 border-hinomaru-red hover:shadow-xl transition-all duration-300">
-                    <div className="relative z-10">
-                      {/* Program category tag */}
-                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-sakura-100 text-hinomaru-red mb-3">
-                        {program.category || 'Program'}
-                      </span>
-                      
-                      {/* Icon background - decorative */}
-                      <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 w-24 h-24 rounded-full bg-sakura-50 opacity-20"></div>
-                      
-                      {/* Program icon */}
-                      <div className="mb-4 text-hinomaru-red relative z-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                      </div>
-                      
-                      {/* Program title */}
-                      <h3 className="text-xl font-bold mb-3 text-zen-900 group-hover:text-hinomaru-red transition-colors duration-300">
+                  {/* Content Side */}
+                  <div className="flex-1 space-y-6">
+                    <div>
+                      <Badge className="mb-4 bg-hinomaru-red text-white">
+                        Featured Program
+                      </Badge>
+                      <h3 className="text-3xl font-bold text-zen-900 mb-4">
                         {program.title}
                       </h3>
-                      
-                      {/* Program summary */}
-                      <p className="text-zen-700 mb-4">
-                        {program.summary}
+                      <p className="text-lg text-zen-700 leading-relaxed">
+                        {program.summary || 'Discover this comprehensive program offered by ASA Kerala.'}
                       </p>
-                      
-                      {/* Call to action */}
-                      <Link 
-                        href={`/programs/${program.slug}`} 
-                        className="group-hover:bg-hinomaru-red group-hover:text-white text-hinomaru-red border border-hinomaru-red font-medium rounded-washi py-2 px-4 inline-flex items-center transition-all duration-300"
+                    </div>
+
+                    {/* Program highlights */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {program.category && (
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-sakura-100 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-hinomaru-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="font-medium text-zen-900">Category</p>
+                            <p className="text-sm text-zen-600">{program.category}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-sakura-100 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-hinomaru-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-medium text-zen-900">Status</p>
+                          <p className="text-sm text-zen-600">Open for Applications</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Link
+                        href={`/programs/${program.slug}`}
+                        className="btn-primary inline-flex items-center justify-center"
                       >
-                        Learn more 
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                        Learn More
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
                       </Link>
+                      <Link
+                        href={`/programs/${program.slug}#application`}
+                        className="btn-secondary inline-flex items-center justify-center"
+                      >
+                        Apply Now
+                      </Link>
                     </div>
-                    
-                    {/* Decorative shape */}
-                    <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-sakura-50 rounded-tl-xl transform rotate-45 opacity-50"></div>
+                  </div>
+
+                  {/* Image Side */}
+                  <div className="flex-1 max-w-lg">
+                    <div className="relative h-80 rounded-washi overflow-hidden shadow-xl">
+                      <SafeImage
+                        src={
+                          typeof program.featuredImage === 'object' && program.featuredImage?.url 
+                            ? program.featuredImage.url 
+                            : typeof program.featuredImage === 'string' 
+                              ? program.featuredImage
+                              : '/assets/placeholder-image.jpg'
+                        }
+                        alt={program.title}
+                        fill
+                        className="object-cover"
+                        fallbackSrc="/assets/placeholder-image.jpg"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
+
+            <div className="text-center mt-16">
+              <Link 
+                href="/programs" 
+                className="btn-secondary"
+              >
+                Explore All Featured Programs
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Upcoming Events Section */}
       <section className="py-20 bg-white">
