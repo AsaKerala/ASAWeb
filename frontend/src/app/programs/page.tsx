@@ -35,11 +35,13 @@ import { formatDate } from '@/lib/utils';
 // Program categories
 const PROGRAM_CATEGORIES = [
   { id: 'all', name: 'All Programs' },
-  { id: 'technical', name: 'Technical Training' },
-  { id: 'management', name: 'Management Training' },
-  { id: 'cultural', name: 'Cultural Programs' },
-  { id: 'language', name: 'Language Courses' },
-  { id: 'special', name: 'Special Programs' },
+  { id: 'training-japan', name: 'Training Programs in Japan' },
+  { id: 'training-india', name: 'Training Programs in India' },
+  { id: 'language-training', name: 'Language Training' },
+  { id: 'internships', name: 'Internships' },
+  { id: 'skill-development', name: 'Skill Development' },
+  { id: 'wnf-programs', name: 'WNF Programs' },
+  { id: 'other', name: 'Other' },
 ];
 
 // Extended Program type for backward compatibility

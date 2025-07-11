@@ -63,42 +63,42 @@ const hardcodedPrograms = [
     title: 'Training Programs in Japan',
     summary: 'Learn about the latest industrial and management techniques from top Japanese experts.',
     category: 'Training',
-    slug: '/programs#training-programs'
+    slug: 'training-japan'
   },
   {
     id: '2',
     title: 'Internships & Employment',
     summary: 'Access internship opportunities and job placements in Japanese companies in India and abroad.',
     category: 'Internship',
-    slug: '/programs#internships'
+    slug: 'internships'
   },
   {
     id: '3',
     title: 'Japanese Language Training',
     summary: 'Learn Japanese language with our certified instructors and enhance your career prospects.',
     category: 'Language',
-    slug: '/programs#language-training'
+    slug: 'language-training'
   },
   {
     id: '4',
     title: 'Skill Development',
     summary: 'Upgrade your skills with specialized courses focused on Japanese management and technical expertise.',
     category: 'Networking',
-    slug: '/programs#skill-development'
+    slug: 'skill-development'
   },
   {
     id: '5',
     title: 'Business Networking',
     summary: 'Connect with Japanese businesses and professionals through our extensive network and events.',
     category: 'Networking',
-    slug: '/programs#training-programs'
+    slug: 'training-japan'
   },
   {
     id: '6',
     title: 'Cultural Exchange',
     summary: 'Participate in cultural exchange activities to deepen understanding between India and Japan.',
     category: 'Networking',
-    slug: '/programs#training-programs'
+    slug: 'training-japan'
   }
 ];
 
@@ -152,7 +152,7 @@ const sampleCarouselImages = [
 
 export default function Home() {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
-  const [featuredPrograms, setFeaturedPrograms] = useState<Program[]>(hardcodedPrograms);
+  const [featuredPrograms, setFeaturedPrograms] = useState<Program[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [carouselImages, setCarouselImages] = useState<GalleryImage[]>([]);
@@ -196,6 +196,28 @@ export default function Home() {
         // Use up to 5 events for the scrolling banner
         setScrollEvents(fetchedEvents.slice(0, 5));
 
+        // Fetch featured programs from API
+        const programsResponse = await programsApi.getAll({
+          where: {
+            status: { equals: 'published' },
+            isFeatured: { equals: true }
+          },
+          limit: 6,
+          sort: '-createdAt'
+        });
+        
+        let fetchedPrograms = programsResponse.data.docs || [];
+        
+        // Combine hardcoded programs with real featured programs
+        // If we have real featured programs, use them, otherwise fall back to hardcoded
+        if (fetchedPrograms.length > 0) {
+          console.log('Using real featured programs:', fetchedPrograms.length);
+          setFeaturedPrograms(fetchedPrograms);
+        } else {
+          console.log('No featured programs found, using hardcoded programs');
+          setFeaturedPrograms(hardcodedPrograms);
+        }
+
         // Fetch hero carousel images
         const carouselResponse = await galleryApi.getHeroImages(4);
         const carouselDocs = carouselResponse.data?.docs || [];
@@ -227,9 +249,9 @@ export default function Home() {
         setError('Failed to load events. Please try again later.');
         setUpcomingEvents([]);
         setCarouselImages(sampleCarouselImages);
-      } finally {
-        // Always use hardcoded programs regardless of API success/failure
+        // On error, use hardcoded programs as fallback
         setFeaturedPrograms(hardcodedPrograms);
+      } finally {
         setIsLoading(false);
       }
     };

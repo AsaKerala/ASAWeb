@@ -13,7 +13,10 @@ import {
   CheckCircle, 
   ExternalLink, 
   Download,
-  ChevronRight
+  ChevronRight,
+  Share2,
+  Mail,
+  Phone
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,7 +24,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { SafeImage } from '@/components/common';
+import { SafeImage, RichTextRenderer } from '@/components/common';
 import { Program } from '@/lib/api/types';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth';
@@ -104,6 +107,21 @@ type ExtendedProgram = Program & {
   eligibility?: string;
   programDetails?: string;
   certification?: string | boolean;
+  resources?: Array<{
+    title: string;
+    file: {
+      url: string;
+      filename?: string;
+      mimeType?: string;
+    } | string;
+    description?: string;
+  }>;
+  coordinator?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+  };
+  memberOnly?: boolean;
 };
 
 export default function ProgramDetailComponent({ initialProgram, slug }: ProgramDetailComponentProps) {
@@ -142,81 +160,70 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
     return false;
   };
 
+  // Handle enrollment logic based on member status
   const handleEnrollClick = () => {
-    if (isAuthenticated) {
-      console.log('User is authenticated, processing enrollment');
-      // Here you would handle the registration API call
-      alert('Enrollment request submitted! You will receive confirmation details via email.');
+    // If the program is member-only, redirect to member login/dashboard
+    if (program.memberOnly) {
+      if (isAuthenticated) {
+        // Redirect to enrollment logic or contact form
+        router.push('/contact'); // For now, redirect to contact
+      } else {
+        loginWithRedirect();
+      }
     } else {
-      console.log('User is not authenticated, redirecting to login');
-      loginWithRedirect(`/programs/${program.slug}`);
+      // For non-member programs, scroll to "How to Apply" tab or contact section
+      setActiveTab('application');
+      // Scroll to the application tab
+      const applicationTab = document.querySelector('[data-tab="application"]');
+      if (applicationTab) {
+        applicationTab.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
-  // Function to get the first upcoming batch that's available for enrollment
-  const getAvailableBatch = () => {
-    if (!program.upcomingBatches || !Array.isArray(program.upcomingBatches) || program.upcomingBatches.length === 0) {
-      return null;
+  // Handle contact functionality
+  const handleContactClick = () => {
+    if (program.coordinator?.email) {
+      window.location.href = `mailto:${program.coordinator.email}?subject=Inquiry about ${program.title}`;
+    } else {
+      // Fallback to general contact page
+      router.push('/contact');
     }
-    
-    return program.upcomingBatches.find(batch => {
-      if (typeof batch === 'string') return false;
-      return !batch.isFull && batch.registrationsOpen !== false;
-    });
   };
 
-  // Get the first available batch
-  const availableBatch = getAvailableBatch();
+  // Handle share functionality
+  const handleShareClick = async () => {
+    const shareData = {
+      title: program.title,
+      text: program.summary || `Check out this program: ${program.title}`,
+      url: window.location.href,
+    };
 
-  // Helper function to render content that might be in different formats
-  const renderFormattedContent = (content: any) => {
-    if (!content) return null;
-    
-    // If it's a string (possibly HTML)
-    if (typeof content === 'string') {
-      // Check if it appears to be HTML
-      if (content.includes('<') && content.includes('>')) {
-        return <div dangerouslySetInnerHTML={{ __html: content }} />;
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log('Error sharing:', err);
+        fallbackShare();
       }
-      // Plain text
-      return <p>{content}</p>;
+    } else {
+      fallbackShare();
     }
-    
-    // If it's a Payload CMS richtext object or array
-    if (typeof content === 'object') {
-      // It may be an array of richtext nodes
-      if (Array.isArray(content)) {
-        return content.map((block: RichTextBlock, index: number) => {
-          // Each block might have children array with text
-          if (block.children && Array.isArray(block.children)) {
-            return (
-              <p key={index} className="mb-4">
-                {block.children.map((child: RichTextChild, childIndex: number) => {
-                  if (typeof child === 'string') return child;
-                  return child.text || '';
-                }).join(' ')}
-              </p>
-            );
-          }
-          return null;
-        });
-      }
-      
-      // It may be a single richtext object with a children array
-      if (content.children && Array.isArray(content.children)) {
-        return (
-          <p className="mb-4">
-            {content.children.map((child: RichTextChild, index: number) => {
-              if (typeof child === 'string') return child;
-              return child.text || '';
-            }).join(' ')}
-          </p>
-        );
-      }
+  };
+
+  // Fallback share function for browsers that don't support Web Share API
+  const fallbackShare = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('Link copied to clipboard!');
+      }).catch(() => {
+        // Final fallback - just show the URL in an alert
+        alert(`Share this program: ${window.location.href}`);
+      });
+    } else {
+      // Final fallback - just show the URL in an alert
+      alert(`Share this program: ${window.location.href}`);
     }
-    
-    // Fallback: render as JSON string only in development
-    return <p>{process.env.NODE_ENV === 'development' ? JSON.stringify(content) : 'Content not available in proper format.'}</p>;
   };
 
   // Implement getEventDateDisplay function
@@ -263,6 +270,13 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
     
     return 'Dates to be announced';
   };
+
+  // Check if there are any available batches for enrollment
+  const availableBatch = program.upcomingBatches && program.upcomingBatches.length > 0 
+    ? program.upcomingBatches.find(batch => 
+        typeof batch === 'object' && !batch.isFull && (batch.registrationsOpen !== false)
+      )
+    : null;
 
   return (
     <div className="min-h-screen bg-zinc-50">
@@ -312,6 +326,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
             <button 
               onClick={() => setActiveTab('overview')}
               className={`px-4 py-2 font-medium transition-colors ${activeTab === 'overview' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
+              data-tab="overview"
             >
               Overview
             </button>
@@ -319,6 +334,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
               <button 
                 onClick={() => setActiveTab('curriculum')}
                 className={`px-4 py-2 font-medium transition-colors ${activeTab === 'curriculum' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
+                data-tab="curriculum"
               >
                 Curriculum
               </button>
@@ -327,6 +343,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
               <button 
                 onClick={() => setActiveTab('application')}
                 className={`px-4 py-2 font-medium transition-colors ${activeTab === 'application' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
+                data-tab="application"
               >
                 How to Apply
               </button>
@@ -335,6 +352,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
               <button 
                 onClick={() => setActiveTab('testimonials')}
                 className={`px-4 py-2 font-medium transition-colors ${activeTab === 'testimonials' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
+                data-tab="testimonials"
               >
                 Testimonials
               </button>
@@ -343,6 +361,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
               <button 
                 onClick={() => setActiveTab('faqs')}
                 className={`px-4 py-2 font-medium transition-colors ${activeTab === 'faqs' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
+                data-tab="faqs"
               >
                 FAQs
               </button>
@@ -363,20 +382,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                     <h2 className="section-title mb-6">About This Program</h2>
                     
                     {program.content ? (
-                      typeof program.content === 'string' && program.content.trim() ? (
-                        <div 
-                          className="prose prose-zinc max-w-none"
-                          dangerouslySetInnerHTML={{ __html: program.content }}
-                        />
-                      ) : (
-                        typeof program.content === 'object' && program.content !== null ? (
-                          <div className="prose prose-zinc max-w-none">
-                            <p>{JSON.stringify(program.content)}</p>
-                          </div>
-                        ) : (
-                          <p className="text-zinc-700">{program.summary || 'No detailed description available'}</p>
-                        )
-                      )
+                      <RichTextRenderer content={program.content} />
                     ) : (
                       <p className="text-zinc-700">{program.summary || 'No description available'}</p>
                     )}
@@ -390,7 +396,11 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                         <div className="bg-white p-6 rounded-lg shadow-md">
                           <h3 className="text-xl font-bold mb-4 text-hinomaru-red">Eligibility</h3>
                           <div className="prose prose-zinc max-w-none">
-                            {program.eligibility ? renderFormattedContent(program.eligibility) : <p>Contact us for eligibility details.</p>}
+                            {program.eligibility ? (
+                              <RichTextRenderer content={program.eligibility} />
+                            ) : (
+                              <p>Contact us for eligibility details.</p>
+                            )}
                           </div>
                         </div>
 
@@ -398,18 +408,13 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                         <div className="bg-white p-6 rounded-lg shadow-md">
                           <h3 className="text-xl font-bold mb-4 text-hinomaru-red">Program Details</h3>
                           <div className="prose prose-zinc max-w-none">
-                            {program.programDetails ? renderFormattedContent(program.programDetails) : <p>Contact us for program details.</p>}
+                            {program.programDetails ? (
+                              <RichTextRenderer content={program.programDetails} />
+                            ) : (
+                              <p>Contact us for program details.</p>
+                            )}
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {program.eligibility && (
-                    <div className="japan-card mb-8">
-                      <h2 className="text-2xl font-bold mb-4 text-zinc-900">Eligibility</h2>
-                      <div className="bg-gray-50 p-6 rounded-md border border-gray-100">
-                        <p className="text-zinc-700">{program.eligibility}</p>
                       </div>
                     </div>
                   )}
@@ -444,6 +449,37 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                       </div>
                     </div>
                   )}
+
+                  {/* Resources Section */}
+                  {program.resources && program.resources.length > 0 && (
+                    <div className="japan-card mb-8">
+                      <h2 className="text-2xl font-bold mb-6 text-zinc-900">Resources & Downloads</h2>
+                      <div className="grid gap-4">
+                        {program.resources.map((resource, index) => (
+                          <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div className="flex items-center space-x-3">
+                              <Download className="h-5 w-5 text-hinomaru-red" />
+                              <div>
+                                <h4 className="font-medium text-zinc-900">{resource.title}</h4>
+                                {resource.description && (
+                                  <p className="text-sm text-zinc-600">{resource.description}</p>
+                                )}
+                              </div>
+                            </div>
+                            <a
+                              href={typeof resource.file === 'object' ? resource.file.url : resource.file}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center text-hinomaru-red hover:text-sakura-700 font-medium"
+                            >
+                              Download
+                              <ExternalLink className="h-4 w-4 ml-1" />
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="curriculum" className="mt-0">
@@ -451,11 +487,19 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                     <h2 className="section-title mb-6">Program Curriculum</h2>
                     
                     {program.curriculum && (
-                      <div className="mt-12">
-                        <h2 className="text-2xl font-bold mb-6 text-zinc-900">Curriculum</h2>
-                        <div className="prose prose-zinc max-w-none">
-                          {renderFormattedContent(program.curriculum)}
-                        </div>
+                      <div className="space-y-6">
+                        {Array.isArray(program.curriculum) ? program.curriculum.map((item, index) => (
+                          <div key={index} className="border-l-4 border-hinomaru-red pl-6 py-4">
+                            <h3 className="text-lg font-bold text-zinc-900 mb-2">
+                              {typeof item === 'string' ? item : item.module}
+                            </h3>
+                            {typeof item !== 'string' && item.description && (
+                              <p className="text-zinc-700">{item.description}</p>
+                            )}
+                          </div>
+                        )) : (
+                          <RichTextRenderer content={program.curriculum} />
+                        )}
                       </div>
                     )}
                   </div>
@@ -489,15 +533,11 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                         ))}
                       </div>
                     ) : (
-                      <div className="space-y-4">
-                        <p className="text-zinc-700">To apply for this program, please follow these general steps:</p>
-                        <ol className="list-decimal pl-5 space-y-2">
-                          <li className="text-zinc-700">Fill out the enrollment form by clicking the "Enroll Now" button</li>
-                          <li className="text-zinc-700">Provide necessary documentation as required</li>
-                          <li className="text-zinc-700">Complete payment of applicable fees</li>
-                          <li className="text-zinc-700">Receive confirmation of your enrollment</li>
-                        </ol>
-                        <p className="text-zinc-700 mt-4">For more detailed information about the application process, please contact our office.</p>
+                      <div className="text-center py-8">
+                        <p className="text-zinc-600 mb-4">Application process details will be updated soon.</p>
+                        <Button onClick={handleContactClick} className="btn-primary">
+                          Contact Us for Details
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -508,41 +548,41 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                     <h2 className="section-title mb-6">What Our Participants Say</h2>
                     
                     {program.testimonials && Array.isArray(program.testimonials) && program.testimonials.length > 0 ? (
-                      <div className="grid md:grid-cols-2 gap-8">
+                      <div className="grid gap-8">
                         {program.testimonials.map((testimonial, index) => {
                           if (typeof testimonial === 'string') {
                             return (
-                              <div key={index} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                                <p className="text-zinc-700 italic mb-4">{testimonial}</p>
+                              <div key={index} className="bg-gray-50 p-6 rounded-lg">
+                                <p className="text-zinc-700 italic">"{testimonial}"</p>
                               </div>
                             );
                           }
                           
                           return (
-                            <div key={index} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                              <p className="text-zinc-700 italic mb-4">{testimonial.quote || testimonial.text}</p>
+                            <div key={index} className="bg-gray-50 p-6 rounded-lg">
+                              <p className="text-zinc-700 italic mb-4">
+                                "{testimonial.quote || testimonial.text}"
+                              </p>
                               <div className="flex items-center">
-                                {(testimonial.avatar || testimonial.image) && (
-                                  <div className="w-12 h-12 rounded-full overflow-hidden mr-3">
+                                {testimonial.avatar && (
+                                  <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
                                     <SafeImage
-                                      src={
-                                        typeof testimonial.avatar === 'object' ? testimonial.avatar.url :
-                                        typeof testimonial.image === 'object' ? testimonial.image.url :
-                                        typeof testimonial.image === 'string' ? testimonial.image :
-                                        '/assets/placeholder-user.jpg'
-                                      }
+                                      src={typeof testimonial.avatar === 'object' ? testimonial.avatar.url : testimonial.avatar}
+                                      alt={testimonial.name || testimonial.author}
                                       width={48}
                                       height={48}
-                                      alt={testimonial.name || testimonial.author || 'Testimonial author'}
-                                      className="object-cover w-full h-full"
-                                      fallbackSrc="/assets/placeholder-user.jpg"
+                                      className="object-cover"
                                     />
                                   </div>
                                 )}
                                 <div>
-                                  <p className="font-bold text-zinc-900">{testimonial.name}</p>
+                                  <p className="font-medium text-zinc-900">
+                                    {testimonial.name || testimonial.author}
+                                  </p>
                                   {(testimonial.title || testimonial.position) && (
-                                    <p className="text-sm text-zinc-500">{testimonial.title || testimonial.position}</p>
+                                    <p className="text-sm text-zinc-600">
+                                      {testimonial.title || testimonial.position}
+                                    </p>
                                   )}
                                 </div>
                               </div>
@@ -620,24 +660,33 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                               <p className="text-sm mt-1 text-green-700">{program.programFees.scholarshipDetails}</p>
                             )}
                           </div>
+                        ) : program.isFree ? (
+                          <p className="text-green-700 font-medium">Free</p>
                         ) : (
-                          <p className="text-zinc-700">Please contact us for fee details</p>
+                          <p className="text-zinc-700">Contact us for fee details</p>
                         )}
                       </div>
                     </div>
                     
-                    {/* Duration */}
+                    {/* Program Schedule */}
+                    <div className="flex items-start">
+                      <Calendar className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
+                      <div>
+                        <h3 className="font-medium text-zinc-900">Schedule</h3>
+                        <p className="text-zinc-700">{getEventDateDisplay(program)}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Upcoming Batches */}
                     {program.upcomingBatches && program.upcomingBatches.length > 0 && (
                       <div className="flex items-start">
-                        <Clock className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
+                        <Calendar className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
                         <div>
                           <h3 className="font-medium text-zinc-900">Upcoming Batches</h3>
                           <div className="space-y-3 mt-2">
                             {program.upcomingBatches.map((batch, index) => {
                               if (typeof batch === 'string') {
-                                return (
-                                  <p key={index} className="text-zinc-700">{batch}</p>
-                                );
+                                return <p key={index} className="text-zinc-700">{batch}</p>;
                               }
                               
                               return (
@@ -698,6 +747,27 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                         </div>
                       </div>
                     )}
+
+                    {/* Program Coordinator */}
+                    {program.coordinator && (program.coordinator.name || program.coordinator.email) && (
+                      <div className="flex items-start">
+                        <User className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
+                        <div>
+                          <h3 className="font-medium text-zinc-900">Program Coordinator</h3>
+                          {program.coordinator.name && (
+                            <p className="text-zinc-700">{program.coordinator.name}</p>
+                          )}
+                          {program.coordinator.email && (
+                            <a href={`mailto:${program.coordinator.email}`} className="text-hinomaru-red hover:underline text-sm">
+                              {program.coordinator.email}
+                            </a>
+                          )}
+                          {program.coordinator.phone && (
+                            <p className="text-zinc-700 text-sm">{program.coordinator.phone}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="mt-8 pt-6 border-t border-gray-200">
@@ -732,10 +802,20 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                     )}
                     
                     <div className="flex justify-between mt-4">
-                      <Button variant="outline" className="flex-1 mr-2">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 mr-2"
+                        onClick={handleContactClick}
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
                         Contact Us
                       </Button>
-                      <Button variant="outline" className="flex-1 ml-2">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 ml-2"
+                        onClick={handleShareClick}
+                      >
+                        <Share2 className="h-4 w-4 mr-2" />
                         Share
                       </Button>
                     </div>
