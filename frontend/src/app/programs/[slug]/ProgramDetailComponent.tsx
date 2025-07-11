@@ -282,7 +282,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
     <div className="min-h-screen bg-zinc-50">
       {/* Hero Section with Program Image */}
       <section className="relative h-[40vh] min-h-[300px] bg-gray-900 overflow-hidden">
-        <div className="absolute inset-0 opacity-60">
+        <div className="absolute inset-0 opacity-60 bg-gray-100">
           <SafeImage
             src={
               typeof program.featuredImage === 'object' && program.featuredImage?.url 
@@ -293,7 +293,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
             }
             alt={program.title || 'Program image'}
             fill
-            className="object-cover"
+            className="object-contain"
             fallbackSrc="/assets/placeholder-image.jpg"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-80"></div>
@@ -571,7 +571,7 @@ export default function ProgramDetailComponent({ initialProgram, slug }: Program
                                       alt={testimonial.name || testimonial.author}
                                       width={48}
                                       height={48}
-                                      className="object-cover"
+                                      className="object-contain"
                                     />
                                   </div>
                                 )}

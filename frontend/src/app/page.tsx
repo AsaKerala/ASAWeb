@@ -47,6 +47,7 @@ interface Program {
     url: string;
     alt?: string;
   } | string;
+  filterCategory?: string;
 }
 
 interface GalleryImage {
@@ -68,42 +69,48 @@ const hardcodedPrograms = [
     title: 'Training Programs in Japan',
     summary: 'Learn about the latest industrial and management techniques from top Japanese experts.',
     category: 'Training',
-    slug: 'training-japan'
+    slug: 'training-japan',
+    filterCategory: 'training-japan'
   },
   {
     id: '2',
     title: 'Internships & Employment',
     summary: 'Access internship opportunities and job placements in Japanese companies in India and abroad.',
     category: 'Internship',
-    slug: 'internships'
+    slug: 'internships',
+    filterCategory: 'internships'
   },
   {
     id: '3',
     title: 'Japanese Language Training',
     summary: 'Learn Japanese language with our certified instructors and enhance your career prospects.',
     category: 'Language',
-    slug: 'language-training'
+    slug: 'language-training',
+    filterCategory: 'language-training'
   },
   {
     id: '4',
     title: 'Skill Development',
     summary: 'Upgrade your skills with specialized courses focused on Japanese management and technical expertise.',
     category: 'Networking',
-    slug: 'skill-development'
+    slug: 'skill-development',
+    filterCategory: 'skill-development'
   },
   {
     id: '5',
     title: 'Business Networking',
     summary: 'Connect with Japanese businesses and professionals through our extensive network and events.',
     category: 'Networking',
-    slug: 'training-japan'
+    slug: 'training-japan',
+    filterCategory: 'training-japan'
   },
   {
     id: '6',
     title: 'Cultural Exchange',
     summary: 'Participate in cultural exchange activities to deepen understanding between India and Japan.',
     category: 'Networking',
-    slug: 'training-japan'
+    slug: 'training-japan',
+    filterCategory: 'training-japan'
   }
 ];
 
@@ -531,10 +538,10 @@ export default function Home() {
                     
                     {/* Call to action */}
                     <Link 
-                      href={`/programs/${program.slug}`} 
+                      href={program.filterCategory ? `/programs?category=${program.filterCategory}` : '/programs'}
                       className="group-hover:bg-hinomaru-red group-hover:text-white text-hinomaru-red border border-hinomaru-red font-medium rounded-washi py-2 px-4 inline-flex items-center transition-all duration-300"
                     >
-                      Learn more 
+                      Explore Programs
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                       </svg>
@@ -643,7 +650,7 @@ export default function Home() {
 
                   {/* Image Side */}
                   <div className="flex-1 max-w-lg">
-                    <div className="relative h-80 rounded-washi overflow-hidden shadow-xl">
+                    <div className="relative h-80 rounded-washi overflow-hidden shadow-xl bg-gray-100">
                       <SafeImage
                         src={
                           typeof program.featuredImage === 'object' && program.featuredImage?.url 
@@ -654,7 +661,7 @@ export default function Home() {
                         }
                         alt={program.title}
                         fill
-                        className="object-cover"
+                        className="object-contain"
                         fallbackSrc="/assets/placeholder-image.jpg"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
