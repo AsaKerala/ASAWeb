@@ -9,8 +9,8 @@ import { useRouter, usePathname } from 'next/navigation';
 // Menu structure as per requirements
 const menuItems = [
   { label: 'Home', link: '/' },
-  { 
-    label: 'About Us', 
+  {
+    label: 'About Us',
     link: '/about',
     submenu: [
       { label: 'Overview', link: '/about?tab=overview' },
@@ -20,8 +20,8 @@ const menuItems = [
       { label: 'Sister Organizations & Affiliations', link: '/about?tab=affiliations' }
     ]
   },
-  { 
-    label: 'Programs', 
+  {
+    label: 'Programs',
     link: '/programs',
     submenu: [
       { label: 'Training in Japan', link: '/programs#training-japan' },
@@ -32,8 +32,8 @@ const menuItems = [
       { label: 'WNF Programs', link: '/programs#wnf-programs' }
     ]
   },
-  { 
-    label: 'Events', 
+  {
+    label: 'Events',
     link: '/events',
     submenu: [
       { label: 'Upcoming Events', link: '/events#all' },
@@ -44,32 +44,36 @@ const menuItems = [
       { label: 'Webinars', link: '/events#webinars' }
     ]
   },
-  { 
-    label: 'Facilities', 
+  {
+    label: 'Facilities',
     link: '/facilities',
     submenu: [
       { label: 'Nippon Kerala Centre', link: '/facilities' },
       { label: 'Book an Event', link: '/facilities/book-event' }
     ]
   },
-  { 
-    label: 'Gallery', 
-    link: '/gallery',
+  {
+    label: 'Media',
+    link: '#',
+    submenu: [
+      { label: 'Gallery', link: '/gallery' },
+      { label: 'News & Updates', link: '/news' }
+    ]
   },
-  { 
-    label: 'News & Updates', 
-    link: '/news',
-  },
-  { 
-    label: 'Membership', 
+  {
+    label: 'Membership',
     link: '/membership',
   },
-  { 
-    label: 'Contact Us', 
+  {
+    label: 'Payments',
+    link: '/payments',
+  },
+  {
+    label: 'Contact Us',
     link: '/contact'
   },
-  { 
-    label: 'Members Section', 
+  {
+    label: 'Members Section',
     link: '/members',
     submenu: [
       { label: 'Member Login', link: '/auth/login' },
@@ -86,7 +90,7 @@ export default function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  
+
   // Check if current page is an auth page
   const isAuthPage = pathname?.startsWith('/auth/');
 
@@ -97,7 +101,7 @@ export default function Header() {
 
     // Add scroll event listener
     window.addEventListener('scroll', handleScroll);
-    
+
     // Clean up event listener
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -143,10 +147,10 @@ export default function Header() {
   // Function to get user initials for avatar fallback
   const getUserInitials = () => {
     if (!user || !user.name) return 'U';
-    
+
     const nameParts = user.name.split(' ');
     if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
-    
+
     return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
   };
 
@@ -220,12 +224,12 @@ export default function Header() {
                             if (item.label === 'Members Section' && subItem.label === 'Member Login' && isAuthenticated) {
                               return null;
                             }
-                            
+
                             // Skip rendering Member Directory for non-authenticated users
                             if (item.label === 'Members Section' && subItem.label === 'Member Directory' && !isAuthenticated) {
                               return null;
                             }
-                            
+
                             return (
                               <Link
                                 key={subIndex}
@@ -236,7 +240,7 @@ export default function Header() {
                               </Link>
                             );
                           })}
-                          
+
                           {/* Add Dashboard link for authenticated users */}
                           {item.label === 'Members Section' && isAuthenticated && (
                             <Link
@@ -264,7 +268,7 @@ export default function Header() {
             {/* User Profile Section when logged in */}
             {isAuthenticated && user && (
               <div className="relative user-menu-container">
-                <button 
+                <button
                   className="flex items-center space-x-2 text-zinc-800 hover:text-hinomaru-red focus:outline-none"
                   onClick={toggleUserMenu}
                 >
@@ -346,7 +350,7 @@ export default function Header() {
           <div className="md:hidden flex items-center space-x-2">
             {/* User Profile Button when logged in (Mobile) */}
             {isAuthenticated && user && (
-              <button 
+              <button
                 className="flex items-center text-zinc-800 focus:outline-none mr-2"
                 onClick={toggleUserMenu}
               >
@@ -436,9 +440,8 @@ export default function Header() {
 
       {/* Mobile Menu */}
       <div
-        className={`${
-          isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        } fixed inset-y-0 right-0 w-full bg-hinomaru-red transform transition-transform ease-in-out duration-300 z-30 md:hidden`}
+        className={`${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          } fixed inset-y-0 right-0 w-full bg-hinomaru-red transform transition-transform ease-in-out duration-300 z-30 md:hidden`}
       >
         <div className="h-full flex flex-col p-8 text-white overflow-y-auto">
           <div className="flex justify-between items-center mb-8">
@@ -462,7 +465,7 @@ export default function Header() {
               </svg>
             </button>
           </div>
-          
+
           {/* User Info in Mobile Menu when logged in */}
           {isAuthenticated && user && (
             <div className="mb-6 flex items-center">
@@ -484,14 +487,14 @@ export default function Header() {
               </div>
             </div>
           )}
-          
+
           <nav className="mb-8">
             <ul className="space-y-4">
               {menuItems.map((item, index) => (
                 <li key={index}>
                   {item.submenu ? (
                     <details className="text-white">
-                      <summary 
+                      <summary
                         className="list-none flex justify-between items-center cursor-pointer mb-2"
                         onClick={(e) => {
                           // Don't prevent default to allow the details to toggle
@@ -525,12 +528,12 @@ export default function Header() {
                           if (item.label === 'Members Section' && subItem.label === 'Member Login' && isAuthenticated) {
                             return null;
                           }
-                          
+
                           // Skip rendering Member Directory for non-authenticated users
                           if (item.label === 'Members Section' && subItem.label === 'Member Directory' && !isAuthenticated) {
                             return null;
                           }
-                          
+
                           return (
                             <li key={subIndex}>
                               <Link
@@ -543,7 +546,7 @@ export default function Header() {
                             </li>
                           );
                         })}
-                        
+
                         {/* Add Dashboard link for authenticated users */}
                         {item.label === 'Members Section' && isAuthenticated && (
                           <li>
