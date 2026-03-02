@@ -183,22 +183,25 @@ export default function Home() {
         // Get current date for filtering
         const today = new Date().toISOString();
 
-        // Fetch upcoming events - using the eventDate field under keyFeatures
+        // Fetch published events - we will filter for upcoming client-side to handle all possible date fields
         const eventsResponse = await eventsApi.getAll({
-          limit: 10, // Get more than needed so we can filter and use for scrolling banner
+          limit: 30, // Get enough events so we can filter them client-side
           where: {
             status: {
               equals: 'published'
-            },
-            // Use keyFeatures.eventDate for filtering
-            'keyFeatures.eventDate': {
-              greater_than_equal: today
             }
           }
         });
 
         let fetchedEvents = eventsResponse.data.docs || [];
 
+        // Filter events client-side to find upcoming ones across all date fields
+        fetchedEvents = fetchedEvents.filter((event: Event) => {
+          const dateStr = event.keyFeatures?.eventDate || event.keyFeatures?.startDate || event.eventDate || event.startDate;
+          if (!dateStr) return false; // Exclude events with no date
+          // Keep events that happen today or in the future
+          return new Date(dateStr).getTime() >= new Date(today.substring(0, 10)).getTime();
+        });
 
         // Sort events by date using all available date fields
         fetchedEvents.sort((a: Event, b: Event) => {

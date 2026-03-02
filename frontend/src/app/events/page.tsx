@@ -136,15 +136,21 @@ export default function EventsPage() {
 
           // Sort upcoming events by date (closest first)
           upcoming.sort((a, b) => {
-            const dateA = a.eventDate || a.startDate || '';
-            const dateB = b.eventDate || b.startDate || '';
+            const dateAa = a.keyFeatures && typeof a.keyFeatures === 'object' && !Array.isArray(a.keyFeatures) ? (a.keyFeatures.eventDate || a.keyFeatures.startDate) : null;
+            const dateA = dateAa || a.eventDate || a.startDate || '';
+
+            const dateBb = b.keyFeatures && typeof b.keyFeatures === 'object' && !Array.isArray(b.keyFeatures) ? (b.keyFeatures.eventDate || b.keyFeatures.startDate) : null;
+            const dateB = dateBb || b.eventDate || b.startDate || '';
             return new Date(dateA).getTime() - new Date(dateB).getTime();
           });
 
           // Sort past events by date (most recent first)
           past.sort((a, b) => {
-            const dateA = a.eventDate || a.startDate || '';
-            const dateB = b.eventDate || b.startDate || '';
+            const dateAa = a.keyFeatures && typeof a.keyFeatures === 'object' && !Array.isArray(a.keyFeatures) ? (a.keyFeatures.eventDate || a.keyFeatures.startDate) : null;
+            const dateA = dateAa || a.eventDate || a.startDate || '';
+
+            const dateBb = b.keyFeatures && typeof b.keyFeatures === 'object' && !Array.isArray(b.keyFeatures) ? (b.keyFeatures.eventDate || b.keyFeatures.startDate) : null;
+            const dateB = dateBb || b.eventDate || b.startDate || '';
             return new Date(dateB).getTime() - new Date(dateA).getTime();
           });
 
