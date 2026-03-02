@@ -447,7 +447,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                     </div>
                   )}
 
-                  {(event.materials || event.downloads) && (
+                  {(event.materials || event.downloads || (event.resources && event.resources.length > 0)) && (
                     <div className="japan-card mb-8">
                       <h2 className="text-2xl font-bold mb-6 text-zinc-900">Event Materials</h2>
                       <div className="space-y-4">

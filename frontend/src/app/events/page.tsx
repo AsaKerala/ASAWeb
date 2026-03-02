@@ -408,6 +408,7 @@ export default function EventsPage() {
                         <button
                           onClick={(e) => {
                             e.preventDefault();
+                            e.stopPropagation();
                             if (event.promoBanner?.link) {
                               window.open(event.promoBanner.link, '_blank');
                             }
