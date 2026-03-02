@@ -72,6 +72,11 @@ export interface Event {
   programCategory?: string;
   featuredImage?: Media;
   summary?: string;
+  externalLink?: string;
+  promoBanner?: {
+    text?: string;
+    link?: string;
+  };
   content?: any; // Rich text content
   capacity?: number;
   ticketPrice?: number;
@@ -83,7 +88,7 @@ export interface Event {
   relatedFiles?: string[] | Media[];
   createdAt: string;
   updatedAt: string;
-  
+
   // Fields for program structure
   keyFeatures?: {
     duration?: string;
@@ -133,7 +138,7 @@ export interface Event {
     phone?: string;
     brochureFile?: Media;
   };
-  
+
   // Legacy fields for backward compatibility - these will be phased out
   startDate?: string;
   endDate?: string;

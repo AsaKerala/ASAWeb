@@ -13,6 +13,11 @@ interface Event {
   title: string;
   slug: string;
   summary: string;
+  externalLink?: string;
+  promoBanner?: {
+    text?: string;
+    link?: string;
+  };
   keyFeatures?: {
     customLocation?: string;
     mode?: 'online' | 'offline' | 'hybrid';
@@ -177,9 +182,9 @@ export default function Home() {
       try {
         // Get current date for filtering
         const today = new Date().toISOString();
-        
+
         // Fetch upcoming events - using the eventDate field under keyFeatures
-        const eventsResponse = await eventsApi.getAll({ 
+        const eventsResponse = await eventsApi.getAll({
           limit: 10, // Get more than needed so we can filter and use for scrolling banner
           where: {
             status: {
@@ -191,20 +196,20 @@ export default function Home() {
             }
           }
         });
-        
+
         let fetchedEvents = eventsResponse.data.docs || [];
-        
-        
+
+
         // Sort events by date using all available date fields
         fetchedEvents.sort((a: Event, b: Event) => {
           const dateA = a.keyFeatures?.eventDate || a.keyFeatures?.startDate || a.startDate || today;
           const dateB = b.keyFeatures?.eventDate || b.keyFeatures?.startDate || b.startDate || today;
           return new Date(dateA).getTime() - new Date(dateB).getTime();
         });
-        
+
         // Take just the first 3 events after sorting for the main display
         setUpcomingEvents(fetchedEvents.slice(0, 3));
-        
+
         // Use up to 5 events for the scrolling banner
         setScrollEvents(fetchedEvents.slice(0, 5));
 
@@ -217,9 +222,9 @@ export default function Home() {
           limit: 6,
           sort: '-createdAt'
         });
-        
+
         let fetchedPrograms = programsResponse.data.docs || [];
-        
+
         // Set featured programs (these will be displayed in the new featured section)
         if (fetchedPrograms.length > 0) {
           console.log('Using real featured programs:', fetchedPrograms.length);
@@ -232,10 +237,10 @@ export default function Home() {
         // Fetch hero carousel images
         const carouselResponse = await galleryApi.getHeroImages(4);
         const carouselDocs = carouselResponse.data?.docs || [];
-        
+
         if (carouselDocs.length > 0) {
           console.log('Hero carousel images:', carouselDocs);
-          
+
           // Map API response to the expected format
           const mappedImages = carouselDocs.map((doc: any) => ({
             id: doc.id,
@@ -248,7 +253,7 @@ export default function Home() {
             category: doc.category,
             featured: doc.featured || false
           }));
-          
+
           setCarouselImages(mappedImages);
         } else {
           console.warn('No hero carousel images found, using fallback images');
@@ -273,23 +278,23 @@ export default function Home() {
   // Auto-rotate carousel
   useEffect(() => {
     if (carouselImages.length === 0) return;
-    
+
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev === carouselImages.length - 1 ? 0 : prev + 1));
     }, 4000); // Change slide every 4 seconds
-    
+
     return () => clearInterval(interval);
   }, [carouselImages.length]);
 
   // Format date for display
   const formatEventDate = (dateString?: string) => {
     if (!dateString) return { day: 'TBD', month: '', time: '' };
-    
+
     const date = new Date(dateString);
     const day = date.getDate();
     const month = date.toLocaleString('default', { month: 'short' });
     const time = date.toLocaleString('default', { hour: '2-digit', minute: '2-digit' });
-    
+
     return { day, month, time };
   };
 
@@ -297,17 +302,17 @@ export default function Home() {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       const scrollBar = document.getElementById('progress-bar');
-      
+
       if (scrollBar) {
         const maxScroll = document.body.scrollHeight - window.innerHeight;
         const scrollPercent = (scrollTop / maxScroll) * 100;
         scrollBar.style.width = `${scrollPercent}%`;
-        
+
         // Increase the scroll animation speed by reducing the transition duration
         scrollBar.style.transition = 'width 0.2s ease-out'; // Was likely 0.3s or higher
       }
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -320,14 +325,17 @@ export default function Home() {
           <div className="flex whitespace-nowrap relative">
             <div className="animate-marquee inline-flex gap-8 whitespace-nowrap">
               {scrollEvents.map((event, index) => {
-                const eventDateString = event.keyFeatures?.eventDate || 
-                                        event.keyFeatures?.startDate || 
-                                        event.eventDate || 
-                                        event.startDate;
+                const eventDateString = event.keyFeatures?.eventDate ||
+                  event.keyFeatures?.startDate ||
+                  event.eventDate ||
+                  event.startDate;
                 const date = eventDateString ? new Date(eventDateString).toLocaleDateString() : 'TBD';
-                
+
+                const href = event.externalLink || `/events/${event.slug}`;
+                const targetProps = event.externalLink ? { target: "_blank", rel: "noopener noreferrer" } : {};
+
                 return (
-                  <Link key={index} href={`/events/${event.slug}`} className="inline-flex items-center hover:underline">
+                  <Link key={index} href={href} className="inline-flex items-center hover:underline" {...targetProps}>
                     <span className="font-bold mr-2">NEW EVENT:</span>
                     <span>{event.title}</span>
                     <span className="mx-2">•</span>
@@ -339,14 +347,17 @@ export default function Home() {
             {/* Duplicate banner content for seamless scrolling */}
             <div className="animate-marquee inline-flex gap-8 whitespace-nowrap absolute left-full">
               {scrollEvents.map((event, index) => {
-                const eventDateString = event.keyFeatures?.eventDate || 
-                                        event.keyFeatures?.startDate || 
-                                        event.eventDate || 
-                                        event.startDate;
+                const eventDateString = event.keyFeatures?.eventDate ||
+                  event.keyFeatures?.startDate ||
+                  event.eventDate ||
+                  event.startDate;
                 const date = eventDateString ? new Date(eventDateString).toLocaleDateString() : 'TBD';
-                
+
+                const href = event.externalLink || `/events/${event.slug}`;
+                const targetProps = event.externalLink ? { target: "_blank", rel: "noopener noreferrer" } : {};
+
                 return (
-                  <Link key={`dup-${index}`} href={`/events/${event.slug}`} className="inline-flex items-center hover:underline">
+                  <Link key={`dup-${index}`} href={href} className="inline-flex items-center hover:underline" {...targetProps}>
                     <span className="font-bold mr-2">NEW EVENT:</span>
                     <span>{event.title}</span>
                     <span className="mx-2">•</span>
@@ -363,7 +374,7 @@ export default function Home() {
       <section id="banner" className="relative h-[450px] md:h-[500px] lg:h-[550px] overflow-hidden">
         {/* Carousel Images */}
         {carouselImages.map((image, index) => (
-          <div 
+          <div
             key={image.id}
             className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
           >
@@ -384,7 +395,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/40"></div>
           </div>
         ))}
-        
+
         {/* Text overlay */}
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="container-custom text-center text-white max-w-3xl px-4">
@@ -392,7 +403,7 @@ export default function Home() {
               Welcome to ASA Kerala
             </h1>
             <p className="text-xl mb-10 drop-shadow-md">
-              Explore training opportunities in Japan, business networking, and cultural exchange programs. 
+              Explore training opportunities in Japan, business networking, and cultural exchange programs.
               Be part of an esteemed alumni association fostering Indo-Japanese relations.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -411,15 +422,14 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
+
         {/* Carousel Indicators */}
         <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
           {carouselImages.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full transition-colors ${
-                index === currentSlide ? 'bg-white' : 'bg-white/40'
-              }`}
+              className={`w-3 h-3 rounded-full transition-colors ${index === currentSlide ? 'bg-white' : 'bg-white/40'
+                }`}
               onClick={() => setCurrentSlide(index)}
             />
           ))}
@@ -431,11 +441,11 @@ export default function Home() {
         <div className="container-custom">
           <div className="flex flex-col md:flex-row items-center gap-8 max-w-3xl mx-auto">
             <div className="md:w-1/3 flex justify-center">
-              <SafeImage 
-                src="/assets/ASA-logo.png" 
-                alt="ASA Kerala Logo" 
-                width={200} 
-                height={200} 
+              <SafeImage
+                src="/assets/ASA-logo.png"
+                alt="ASA Kerala Logo"
+                width={200}
+                height={200}
                 className="object-contain"
                 fallbackSrc="/assets/ASA-logo.png"
               />
@@ -476,11 +486,11 @@ export default function Home() {
               <li className="flex items-start">
                 <span className="text-hinomaru-red mr-2">•</span>
                 <span>Strengthen Indo-Japanese relationships through cultural and business collaborations.</span>
-          </li>
+              </li>
               <li className="flex items-start">
                 <span className="text-hinomaru-red mr-2">•</span>
                 <span>Transfer learnings and best practices from Japan and India to the rest of the world, particularly other developing countries.</span>
-          </li>
+              </li>
             </ul>
           </div>
         </div>
@@ -502,42 +512,42 @@ export default function Home() {
           {/* Grid display for the general program types */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {hardcodedPrograms.map((program) => (
-              <div 
+              <div
                 key={program.id}
                 className="featured-program-item group relative mb-8 transition-all duration-500 hover:scale-105"
               >
                 {/* Mobile decorative element - left accent */}
                 <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-hinomaru-red to-sakura-300 rounded-full"></div>
-                
+
                 <div className="bg-white rounded-washi shadow-lg p-6 pl-8 overflow-hidden border-t-4 border-hinomaru-red hover:shadow-xl transition-all duration-300">
                   <div className="relative z-10">
                     {/* Program category tag */}
                     <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-sakura-100 text-hinomaru-red mb-3">
                       {program.category || 'Program'}
                     </span>
-                    
+
                     {/* Icon background - decorative */}
                     <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 w-24 h-24 rounded-full bg-sakura-50 opacity-20"></div>
-                    
+
                     {/* Program icon */}
                     <div className="mb-4 text-hinomaru-red relative z-10">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
                     </div>
-                    
+
                     {/* Program title */}
                     <h3 className="text-xl font-bold mb-3 text-zen-900 group-hover:text-hinomaru-red transition-colors duration-300">
                       {program.title}
                     </h3>
-                    
+
                     {/* Program summary */}
                     <p className="text-zen-700 mb-4">
                       {program.summary}
                     </p>
-                    
+
                     {/* Call to action */}
-                    <Link 
+                    <Link
                       href={program.filterCategory ? `/programs?category=${program.filterCategory}` : '/programs'}
                       className="group-hover:bg-hinomaru-red group-hover:text-white text-hinomaru-red border border-hinomaru-red font-medium rounded-washi py-2 px-4 inline-flex items-center transition-all duration-300"
                     >
@@ -547,7 +557,7 @@ export default function Home() {
                       </svg>
                     </Link>
                   </div>
-                  
+
                   {/* Decorative shape */}
                   <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-sakura-50 rounded-tl-xl transform rotate-45 opacity-50"></div>
                 </div>
@@ -556,8 +566,8 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-12">
-            <Link 
-              href="/programs" 
+            <Link
+              href="/programs"
               className="btn-primary"
             >
               View All Programs
@@ -582,7 +592,7 @@ export default function Home() {
 
             <div className="space-y-12">
               {featuredPrograms.map((program, index) => (
-                <div 
+                <div
                   key={program.id}
                   className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-8 lg:gap-12 items-center`}
                 >
@@ -653,9 +663,9 @@ export default function Home() {
                     <div className="relative h-80 rounded-washi overflow-hidden shadow-xl bg-gray-100">
                       <SafeImage
                         src={
-                          typeof program.featuredImage === 'object' && program.featuredImage?.url 
-                            ? program.featuredImage.url 
-                            : typeof program.featuredImage === 'string' 
+                          typeof program.featuredImage === 'object' && program.featuredImage?.url
+                            ? program.featuredImage.url
+                            : typeof program.featuredImage === 'string'
                               ? program.featuredImage
                               : '/assets/placeholder-image.jpg'
                         }
@@ -672,8 +682,8 @@ export default function Home() {
             </div>
 
             <div className="text-center mt-16">
-              <Link 
-                href="/programs" 
+              <Link
+                href="/programs"
                 className="btn-secondary"
               >
                 Explore All Featured Programs
@@ -705,8 +715,8 @@ export default function Home() {
             // Error state - only for events section
             <div className="text-center py-8">
               <p className="text-red-600">{error}</p>
-              <button 
-                onClick={() => window.location.reload()} 
+              <button
+                onClick={() => window.location.reload()}
                 className="mt-4 px-4 py-2 bg-hinomaru-red text-white rounded-washi hover:bg-sakura-700 transition duration-300"
               >
                 Try Again
@@ -717,12 +727,12 @@ export default function Home() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {upcomingEvents.length > 0 ? upcomingEvents.map((event, index) => {
                 // Get the event date from either keyFeatures or legacy fields
-                const eventDateString = event.keyFeatures?.eventDate || 
-                                        event.keyFeatures?.startDate || 
-                                        event.eventDate || 
-                                        event.startDate;
+                const eventDateString = event.keyFeatures?.eventDate ||
+                  event.keyFeatures?.startDate ||
+                  event.eventDate ||
+                  event.startDate;
                 const startDate = formatEventDate(eventDateString);
-                
+
                 return (
                   <div key={index} className="japan-card p-6">
                     <div className="flex items-center gap-4 mb-4">
@@ -744,16 +754,39 @@ export default function Home() {
                         </svg>
                         {event.keyFeatures?.customLocation ? event.keyFeatures.customLocation :
                           event.keyFeatures?.isVirtual || event.keyFeatures?.mode === 'online' ? 'Online' :
-                          event.location?.isVirtual ? 'Online' :
-                          event.location?.city || event.location?.name || 'TBD'}
+                            event.location?.isVirtual ? 'Online' :
+                              event.location?.city || event.location?.name || 'TBD'}
                       </span>
-                      <Link href={`/events/${event.slug}`} className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center">
-                        Details
+                      <Link
+                        href={event.externalLink || `/events/${event.slug}`}
+                        className="text-hinomaru-red font-medium hover:text-sakura-700 inline-flex items-center"
+                        {...(event.externalLink ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      >
+                        {event.externalLink ? 'View Brochure' : 'Details'}
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
                       </Link>
                     </div>
+                    {/* Promotional Banner */}
+                    {event.promoBanner?.text && event.promoBanner?.link && (
+                      <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-lg shadow-sm group hover:border-red-300 transition-colors">
+                        <Link
+                          href={event.promoBanner.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-hinomaru-red hover:text-red-700 font-medium text-sm"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          <span className="flex-1">{event.promoBanner.text}</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 );
               }) : (
@@ -774,8 +807,8 @@ export default function Home() {
           )}
 
           <div className="text-center mt-12">
-            <Link 
-              href="/events" 
+            <Link
+              href="/events"
               className="btn-primary"
             >
               View All Events

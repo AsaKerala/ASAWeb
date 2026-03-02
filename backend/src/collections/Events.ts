@@ -231,6 +231,34 @@ const Events: CollectionConfig = {
       }
     },
     {
+      name: 'externalLink',
+      label: 'External Link (Optional)',
+      type: 'text',
+      admin: {
+        description: 'If provided, clicking the event will open this URL instead of the event details page (e.g. for a PDF brochure).',
+      }
+    },
+    {
+      name: 'promoBanner',
+      type: 'group',
+      label: 'Promotional Banner (Optional)',
+      admin: {
+        description: 'An eye-catching banner displayed alongside the event.',
+      },
+      fields: [
+        {
+          name: 'text',
+          type: 'text',
+          label: 'Catchy Phrase or Text',
+        },
+        {
+          name: 'link',
+          type: 'text',
+          label: 'Banner Link URL',
+        }
+      ]
+    },
+    {
       name: 'content',
       label: 'Detailed Content',
       type: 'richText',

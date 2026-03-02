@@ -5,14 +5,14 @@ import { events as eventsApi } from '@/lib/api';
 import { Event } from '@/lib/api/types';
 import Link from 'next/link';
 import { SafeImage } from '@/components/common';
-import { 
-  Search, 
+import {
+  Search,
   Filter,
-  Calendar, 
-  MapPin, 
-  Clock, 
-  Users, 
-  Tag, 
+  Calendar,
+  MapPin,
+  Clock,
+  Users,
+  Tag,
   ChevronRight,
   Video,
   X,
@@ -21,13 +21,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { 
-  Select, 
-  SelectContent, 
-  SelectGroup, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
 import { formatDate, formatTime } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -75,7 +75,7 @@ export default function EventsPage() {
   const [filteredEvents, setFilteredEvents] = useState<ExtendedEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Filters and tabs
   const [activeTab, setActiveTab] = useState('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,7 +86,7 @@ export default function EventsPage() {
     async function fetchEvents() {
       setIsLoading(true);
       setError(null);
-      
+
       try {
         const response = await eventsApi.getAll({
           limit: 100, // Higher limit to get most events
@@ -97,16 +97,16 @@ export default function EventsPage() {
             }
           }
         });
-        
+
         if (response && response.data && response.data.docs) {
           const events = response.data.docs;
           setAllEvents(events);
-          
+
           // Separate upcoming and past events
           const now = new Date();
           const upcoming: ExtendedEvent[] = [];
           const past: ExtendedEvent[] = [];
-          
+
           events.forEach((event: ExtendedEvent) => {
             let eventDate = event.eventDate
               ? new Date(event.eventDate)
@@ -119,38 +119,38 @@ export default function EventsPage() {
                       ? new Date(event.keyFeatures.startDate)
                       : now
                   : now;
-            
+
             // For past events, use end date if available for more accuracy
-            const endDate = event.endDate 
+            const endDate = event.endDate
               ? new Date(event.endDate)
               : event.keyFeatures && typeof event.keyFeatures === 'object' && !Array.isArray(event.keyFeatures) && event.keyFeatures.endDate
                 ? new Date(event.keyFeatures.endDate)
                 : eventDate;
-            
+
             if (endDate >= now) {
               upcoming.push(event);
             } else {
               past.push(event);
             }
           });
-          
+
           // Sort upcoming events by date (closest first)
           upcoming.sort((a, b) => {
             const dateA = a.eventDate || a.startDate || '';
             const dateB = b.eventDate || b.startDate || '';
             return new Date(dateA).getTime() - new Date(dateB).getTime();
           });
-          
+
           // Sort past events by date (most recent first)
           past.sort((a, b) => {
             const dateA = a.eventDate || a.startDate || '';
             const dateB = b.eventDate || b.startDate || '';
             return new Date(dateB).getTime() - new Date(dateA).getTime();
           });
-          
+
           setUpcomingEvents(upcoming);
           setPastEvents(past);
-          
+
           // Initialize filtered events to upcoming events
           setFilteredEvents(upcoming);
         } else {
@@ -163,7 +163,7 @@ export default function EventsPage() {
         setIsLoading(false);
       }
     }
-    
+
     fetchEvents();
   }, []);
 
@@ -171,22 +171,22 @@ export default function EventsPage() {
   useEffect(() => {
     // Select base list based on active tab
     const baseEvents = activeTab === 'upcoming' ? upcomingEvents : pastEvents;
-    
+
     // Apply event type filter
     let filtered = baseEvents;
     if (selectedType !== 'all') {
       filtered = filtered.filter(event => event.eventType === selectedType);
     }
-    
+
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(event => 
-        event.title.toLowerCase().includes(query) || 
+      filtered = filtered.filter(event =>
+        event.title.toLowerCase().includes(query) ||
         (event.summary && event.summary.toLowerCase().includes(query))
       );
     }
-    
+
     setFilteredEvents(filtered);
   }, [activeTab, selectedType, searchQuery, upcomingEvents, pastEvents]);
 
@@ -209,13 +209,13 @@ export default function EventsPage() {
       <section className="bg-white border-b border-gray-200 sticky top-16 z-20">
         <div className="container-custom">
           <div className="flex justify-center overflow-x-auto py-4 gap-8">
-            <button 
+            <button
               onClick={() => setActiveTab('upcoming')}
               className={`px-4 py-2 font-medium transition-colors ${activeTab === 'upcoming' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
             >
               Upcoming Events
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('past')}
               className={`px-4 py-2 font-medium transition-colors ${activeTab === 'past' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
             >
@@ -231,15 +231,15 @@ export default function EventsPage() {
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <Input 
-                type="text" 
-                placeholder="Search events..." 
+              <Input
+                type="text"
+                placeholder="Search events..."
                 className="pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            
+
             <div className="flex items-center gap-2 w-full md:w-auto">
               <Filter size={18} className="text-gray-600" />
               <p className="text-sm text-gray-600 whitespace-nowrap">Filter by:</p>
@@ -261,7 +261,7 @@ export default function EventsPage() {
           </div>
         </div>
       </section>
-      
+
       {/* Events List Section */}
       <section className="py-12 bg-zinc-50">
         <div className="container-custom">
@@ -273,7 +273,7 @@ export default function EventsPage() {
             <div className="text-center py-20">
               <h3 className="text-xl font-bold text-red-600 mb-4">Error</h3>
               <p className="text-zinc-700 mb-6">{error}</p>
-              <Button 
+              <Button
                 onClick={() => window.location.reload()}
                 className="btn-primary"
               >
@@ -284,13 +284,13 @@ export default function EventsPage() {
             <div className="text-center py-20">
               <h3 className="text-xl font-bold text-zinc-800 mb-4">No Events Found</h3>
               <p className="text-zinc-700 mb-6">
-                {activeTab === 'upcoming' 
+                {activeTab === 'upcoming'
                   ? "No upcoming events match your current filters. Try adjusting your search criteria or check past events."
                   : "No past events match your current filters. Try adjusting your search criteria or check upcoming events."
                 }
               </p>
               <div className="flex flex-wrap gap-4 justify-center">
-                <Button 
+                <Button
                   onClick={() => {
                     setSearchQuery('');
                     setSelectedType('all');
@@ -299,7 +299,7 @@ export default function EventsPage() {
                 >
                   Clear Filters
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setActiveTab(activeTab === 'upcoming' ? 'past' : 'upcoming')}
                   className="btn-primary"
                 >
@@ -310,14 +310,19 @@ export default function EventsPage() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredEvents.map((event) => (
-                <Link href={`/events/${event.slug}`} key={event.id} className="group">
+                <Link
+                  href={event.externalLink || `/events/${event.slug}`}
+                  key={event.id}
+                  className="group"
+                  {...(event.externalLink ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                >
                   <div className="japan-card h-full overflow-hidden flex flex-col transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                     <div className="relative h-48 w-full overflow-hidden bg-gray-100">
                       <SafeImage
                         src={
-                          typeof event.featuredImage === 'object' && event.featuredImage?.url 
-                            ? event.featuredImage.url 
-                            : typeof event.featuredImage === 'string' 
+                          typeof event.featuredImage === 'object' && event.featuredImage?.url
+                            ? event.featuredImage.url
+                            : typeof event.featuredImage === 'string'
                               ? event.featuredImage
                               : '/assets/placeholder-image.jpg'
                         }
@@ -333,28 +338,28 @@ export default function EventsPage() {
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="p-6 flex-grow flex flex-col">
                       <h3 className="text-xl font-bold text-zinc-900 mb-2 group-hover:text-hinomaru-red transition-colors">
                         {event.title}
                       </h3>
-                      
+
                       {event.eventType && (
                         <Badge variant="outline" className="mb-4 w-fit">
                           {event.eventType}
                         </Badge>
                       )}
-                      
+
                       <p className="text-zinc-700 mb-4 flex-grow line-clamp-3">
                         {event.summary || 'Join us for this exciting event organized by ASA Kerala.'}
                       </p>
-                      
+
                       <div className="space-y-2 mb-4 text-sm">
                         {(event.eventDate || event.startDate) && (
                           <div className="flex items-center gap-2">
                             <Calendar size={16} className="text-hinomaru-red flex-shrink-0" />
                             <span className="text-zinc-700">
-                              {event.eventDate 
+                              {event.eventDate
                                 ? formatDate(new Date(event.eventDate))
                                 : event.startDate
                                   ? formatDate(new Date(event.startDate))
@@ -363,7 +368,7 @@ export default function EventsPage() {
                             </span>
                           </div>
                         )}
-                        
+
                         {event.startTime && (
                           <div className="flex items-center gap-2">
                             <Clock size={16} className="text-hinomaru-red flex-shrink-0" />
@@ -373,7 +378,7 @@ export default function EventsPage() {
                             </span>
                           </div>
                         )}
-                        
+
                         <div className="flex items-center gap-2">
                           {event.isVirtual ? (
                             <>
@@ -390,12 +395,35 @@ export default function EventsPage() {
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center text-hinomaru-red font-medium group-hover:translate-x-1 transition-transform">
-                        <span>View Details</span>
+                        <span>{event.externalLink ? 'View Brochure' : 'View Details'}</span>
                         <ChevronRight size={16} className="ml-1" />
                       </div>
                     </div>
+
+                    {/* Promotional Banner */}
+                    {event.promoBanner?.text && event.promoBanner?.link && (
+                      <div className="px-6 pb-6 pt-0">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (event.promoBanner?.link) {
+                              window.open(event.promoBanner.link, '_blank');
+                            }
+                          }}
+                          className="w-full text-left p-3 bg-red-50 border border-red-100 rounded-lg shadow-sm group-hover:border-red-300 transition-colors flex items-center gap-2 text-hinomaru-red hover:text-red-700 font-medium text-sm"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          <span className="flex-1">{event.promoBanner.text}</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </Link>
               ))}
