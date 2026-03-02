@@ -40,23 +40,23 @@ const Events: CollectionConfig = {
     afterChange: [
       async ({ req, doc, previousDoc }) => {
         if (!req.payload) return doc;
-        
+
         try {
           // Determine what significant changes were made
           const changes: string[] = [];
-          
+
           if (doc.status !== previousDoc.status) {
             changes.push(`Status changed from ${previousDoc.status} to ${doc.status}`);
           }
-          
+
           if (doc.title !== previousDoc.title) {
             changes.push(`Title changed from "${previousDoc.title}" to "${doc.title}"`);
           }
-          
+
           if (doc.isFeatured !== previousDoc.isFeatured) {
             changes.push(`Featured status changed to ${doc.isFeatured ? 'featured' : 'not featured'}`);
           }
-          
+
           // Log the event update
           await logActivity(req.payload, {
             action: 'update',
@@ -74,7 +74,7 @@ const Events: CollectionConfig = {
               }
             }
           });
-          
+
           // If this is a create operation (no previous doc status)
           if (!previousDoc.status && doc.status) {
             // Log the event creation
@@ -98,7 +98,7 @@ const Events: CollectionConfig = {
         } catch (error) {
           console.error('Error logging event activity:', error);
         }
-        
+
         return doc;
       }
     ],
@@ -111,7 +111,7 @@ const Events: CollectionConfig = {
               collection: 'events',
               id: id as string,
             });
-            
+
             // Log the event deletion
             await logActivity(req.payload, {
               action: 'delete',
@@ -127,7 +127,7 @@ const Events: CollectionConfig = {
             console.error('Error logging event deletion:', error);
           }
         }
-        
+
         return id;
       }
     ],
@@ -454,19 +454,19 @@ const Events: CollectionConfig = {
       type: 'relationship',
       relationTo: 'events',
       hasMany: true,
-          admin: {
+      admin: {
         description: 'Other events related to this one'
-          }
-        },
+      }
+    },
     // Related Programs
-        {
+    {
       name: 'relatedPrograms',
       type: 'relationship',
       relationTo: 'programs',
       hasMany: true,
-          admin: {
+      admin: {
         description: 'Programs related to this event'
-        }
+      }
     },
     // Event Resources
     {
@@ -525,6 +525,35 @@ const Events: CollectionConfig = {
         description: 'If checked, only members can view details of this event',
         position: 'sidebar'
       },
+    },
+    {
+      name: 'uiConfig',
+      type: 'group',
+      label: 'UI Configuration',
+      admin: {
+        position: 'sidebar',
+        description: 'Toggle visibility of various UI elements on the event page',
+      },
+      fields: [
+        {
+          name: 'showRegisterButton',
+          type: 'checkbox',
+          label: 'Show Register Button',
+          defaultValue: true,
+        },
+        {
+          name: 'showContactButton',
+          type: 'checkbox',
+          label: 'Show Contact Us Button',
+          defaultValue: true,
+        },
+        {
+          name: 'showShareButton',
+          type: 'checkbox',
+          label: 'Show Share Button',
+          defaultValue: true,
+        },
+      ]
     },
   ],
 };

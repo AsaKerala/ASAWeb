@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
-  User, 
-  GraduationCap, 
-  Tag, 
-  CheckCircle, 
-  ExternalLink, 
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  User,
+  GraduationCap,
+  Tag,
+  CheckCircle,
+  ExternalLink,
   Download,
   ChevronRight
 } from 'lucide-react';
@@ -113,7 +113,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
     if (!data) return false;
     if (!Array.isArray(data)) return false;
     if (data.length === 0) return false;
-    
+
     // Check if the array has at least one non-empty value
     return data.some(item => {
       if (typeof item === 'string') return item.trim().length > 0;
@@ -131,33 +131,33 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
   // Check if the event date has passed
   const isEventPassed = (): boolean => {
     const now = new Date();
-    
+
     // Check keyFeatures.eventDate if available
     if (event.keyFeatures && typeof event.keyFeatures === 'object' && !Array.isArray(event.keyFeatures)) {
       const keyFeaturesObj = event.keyFeatures as KeyFeaturesObject;
-      
+
       if (keyFeaturesObj.eventDate) {
         return new Date(keyFeaturesObj.eventDate) < now;
       }
-      
+
       if (keyFeaturesObj.endDate) {
         return new Date(keyFeaturesObj.endDate) < now;
       }
-      
+
       if (keyFeaturesObj.startDate) {
         return new Date(keyFeaturesObj.startDate) < now;
       }
     }
-    
+
     // Check legacy fields
     if (event.endDate) {
       return new Date(event.endDate) < now;
     }
-    
+
     if (event.startDate) {
       return new Date(event.startDate) < now;
     }
-    
+
     // If no date is found, return false (consider event as upcoming)
     return false;
   };
@@ -177,21 +177,21 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
   const canRegister = (): boolean => {
     // First check if the event has passed
     if (isEventPassed()) return false;
-    
+
     // Registration may be closed in multiple ways:
     // 1. Direct registration closed flag
     if ('registrationClosed' in event && event.registrationClosed === true) return false;
-    
+
     // 2. Registration deadline passed
     if (event.registrationDeadline) {
       const deadlineDate = new Date(event.registrationDeadline);
       const now = new Date();
       if (deadlineDate < now) return false;
     }
-    
+
     // 3. Registration required but not open
     if (event.registrationRequired === false) return false;
-    
+
     // 4. Event is full - check capacity and attendees
     if (event.capacity && event.attendees) {
       // If we have a capacity limit and it's been reached
@@ -199,7 +199,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
         return false;
       }
     }
-    
+
     // If none of the conditions above are met, registration is possible
     return true;
   };
@@ -207,12 +207,12 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
   // Helper function to render Payload CMS richtext content
   const renderRichText = (content: any): React.ReactNode => {
     if (!content) return null;
-    
+
     // If it's already an HTML string, render it directly
     if (typeof content === 'string') {
       return <div dangerouslySetInnerHTML={{ __html: content }} />;
     }
-    
+
     // If it's a Payload CMS richtext object or array
     if (typeof content === 'object') {
       // It may be an array of richtext nodes
@@ -232,7 +232,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
           return null;
         });
       }
-      
+
       // It may be a single richtext object with a children array
       if (content.children && Array.isArray(content.children)) {
         return (
@@ -245,7 +245,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
         );
       }
     }
-    
+
     // Fallback: render as JSON string but only in development
     return <p>{process.env.NODE_ENV === 'development' ? JSON.stringify(content) : 'Content not available in proper format.'}</p>;
   };
@@ -257,11 +257,11 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
       // Check if keyFeatures is an object (not an array)
       if (typeof event.keyFeatures === 'object' && !Array.isArray(event.keyFeatures)) {
         const keyFeaturesObj = event.keyFeatures as KeyFeaturesObject;
-        
+
         if (keyFeaturesObj.eventDate) {
           return `${formatDate(new Date(keyFeaturesObj.eventDate))}`;
         }
-        
+
         // For multi-day events, show start and end date
         if (keyFeaturesObj.startDate) {
           const startDateFormatted = formatDate(new Date(keyFeaturesObj.startDate));
@@ -273,12 +273,12 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
         }
       }
     }
-    
+
     // Check direct fields
     if (event.eventDate) {
       return `${formatDate(new Date(event.eventDate))}`;
     }
-    
+
     // For legacy multi-day events
     if (event.startDate) {
       const startDateFormatted = formatDate(new Date(event.startDate));
@@ -288,7 +288,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
       }
       return startDateFormatted;
     }
-    
+
     return 'Date to be announced';
   };
 
@@ -299,9 +299,9 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
         <div className="absolute inset-0 opacity-60">
           <SafeImage
             src={
-              typeof event.featuredImage === 'object' && event.featuredImage?.url 
-                ? event.featuredImage.url 
-                : typeof event.featuredImage === 'string' 
+              typeof event.featuredImage === 'object' && event.featuredImage?.url
+                ? event.featuredImage.url
+                : typeof event.featuredImage === 'string'
                   ? event.featuredImage
                   : '/assets/placeholder-image.jpg'
             }
@@ -312,11 +312,11 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
           />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-80"></div>
         </div>
-        
+
         <div className="container-custom relative z-10 h-full flex flex-col justify-end pb-12">
           <div className="max-w-3xl">
             {event.eventType && (
-              <Badge 
+              <Badge
                 className="mb-4 bg-hinomaru-red text-white"
                 variant="default"
               >
@@ -349,10 +349,10 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 mr-2 text-hinomaru-red" />
                   <span>
-                    {event.location.name || 
-                     (event.location.address && event.location.city 
-                       ? `${event.location.address}, ${event.location.city}` 
-                       : event.location.city || event.location.address || 'Location details available')}
+                    {event.location.name ||
+                      (event.location.address && event.location.city
+                        ? `${event.location.address}, ${event.location.city}`
+                        : event.location.city || event.location.address || 'Location details available')}
                   </span>
                 </div>
               ) : null}
@@ -370,14 +370,14 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
       <section className="bg-white border-b border-gray-200 sticky top-16 z-20">
         <div className="container-custom">
           <div className="flex overflow-x-auto py-4 gap-8">
-            <button 
+            <button
               onClick={() => setActiveTab('overview')}
               className={`px-4 py-2 font-medium transition-colors ${activeTab === 'overview' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
             >
               Overview
             </button>
             {hasTabContent(event.schedule) && (
-              <button 
+              <button
                 onClick={() => setActiveTab('schedule')}
                 className={`px-4 py-2 font-medium transition-colors ${activeTab === 'schedule' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
               >
@@ -385,7 +385,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
               </button>
             )}
             {hasTabContent(event.speakers) && (
-              <button 
+              <button
                 onClick={() => setActiveTab('speakers')}
                 className={`px-4 py-2 font-medium transition-colors ${activeTab === 'speakers' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
               >
@@ -393,7 +393,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
               </button>
             )}
             {hasTabContent(event.faqs) && (
-              <button 
+              <button
                 onClick={() => setActiveTab('faqs')}
                 className={`px-4 py-2 font-medium transition-colors ${activeTab === 'faqs' ? 'text-hinomaru-red border-b-2 border-hinomaru-red' : 'text-zinc-700 hover:text-hinomaru-red'}`}
               >
@@ -414,10 +414,10 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                 <TabsContent value="overview" className="mt-0">
                   <div className="japan-card mb-8">
                     <h2 className="section-title mb-6">About This Event</h2>
-                    
+
                     {event.content ? (
                       typeof event.content === 'string' && event.content.trim() ? (
-                        <div 
+                        <div
                           className="prose prose-zinc max-w-none"
                           dangerouslySetInnerHTML={{ __html: event.content }}
                         />
@@ -465,9 +465,9 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                             )}
                           </div>
                         ))}
-                        
+
                         {event.downloads && Array.isArray(event.downloads) && event.downloads.map((download, index) => (
-                          <div key={index} className="flex items-center gap-3 p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                          <div key={`download-${index}`} className="flex items-center gap-3 p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
                             <Download className="h-5 w-5 text-hinomaru-red" />
                             {typeof download === 'string' ? (
                               <a href={download} target="_blank" rel="noopener noreferrer" className="text-zinc-800 hover:text-hinomaru-red">
@@ -480,6 +480,26 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                             )}
                           </div>
                         ))}
+
+                        {event.resources && Array.isArray(event.resources) && event.resources.map((resource, index) => (
+                          <div key={`resource-${index}`} className="flex items-center gap-3 p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                            <Download className="h-5 w-5 text-hinomaru-red" />
+                            <div className="flex flex-col">
+                              {typeof resource.file === 'string' ? (
+                                <a href={resource.file} target="_blank" rel="noopener noreferrer" className="text-zinc-800 font-medium hover:text-hinomaru-red">
+                                  {resource.title}
+                                </a>
+                              ) : (
+                                <a href={resource.file.url} target="_blank" rel="noopener noreferrer" className="text-zinc-800 font-medium hover:text-hinomaru-red">
+                                  {resource.title}
+                                </a>
+                              )}
+                              {resource.description && (
+                                <span className="text-sm text-zinc-500">{resource.description}</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -488,7 +508,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                 <TabsContent value="schedule" className="mt-0">
                   <div className="japan-card mb-8">
                     <h2 className="section-title mb-6">Event Schedule</h2>
-                    
+
                     {event.schedule && Array.isArray(event.schedule) && event.schedule.length > 0 ? (
                       <div className="space-y-8">
                         {event.schedule.map((item, index) => {
@@ -499,7 +519,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                               </div>
                             );
                           }
-                          
+
                           return (
                             <div key={index} className="flex border-b border-gray-100 pb-6 last:border-0 last:pb-0">
                               <div className="mr-4 min-w-[100px]">
@@ -542,7 +562,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                 <TabsContent value="speakers" className="mt-0">
                   <div className="japan-card mb-8">
                     <h2 className="section-title mb-6">Speakers & Presenters</h2>
-                    
+
                     {event.speakers && Array.isArray(event.speakers) && event.speakers.length > 0 ? (
                       <div className="grid gap-6 md:grid-cols-2">
                         {event.speakers.map((speaker, index) => {
@@ -553,7 +573,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                               </div>
                             );
                           }
-                          
+
                           return (
                             <div key={index} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                               <div className="flex items-center mb-4">
@@ -561,12 +581,12 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                                   <SafeImage
                                     src={
                                       typeof speaker.image === 'object' ? speaker.image.url :
-                                      typeof speaker.avatar === 'object' ? speaker.avatar.url :
-                                      typeof speaker.photo === 'object' ? speaker.photo.url :
-                                      typeof speaker.image === 'string' ? speaker.image :
-                                      typeof speaker.avatar === 'string' ? speaker.avatar :
-                                      typeof speaker.photo === 'string' ? speaker.photo :
-                                      '/assets/placeholder-user.jpg'
+                                        typeof speaker.avatar === 'object' ? speaker.avatar.url :
+                                          typeof speaker.photo === 'object' ? speaker.photo.url :
+                                            typeof speaker.image === 'string' ? speaker.image :
+                                              typeof speaker.avatar === 'string' ? speaker.avatar :
+                                                typeof speaker.photo === 'string' ? speaker.photo :
+                                                  '/assets/placeholder-user.jpg'
                                     }
                                     width={64}
                                     height={64}
@@ -624,14 +644,14 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                 <TabsContent value="faqs" className="mt-0">
                   <div className="japan-card mb-8">
                     <h2 className="section-title mb-6">Frequently Asked Questions</h2>
-                    
+
                     {event.faqs && Array.isArray(event.faqs) && event.faqs.length > 0 ? (
                       <Accordion type="single" collapsible className="w-full">
                         {event.faqs.map((faq, index) => {
                           if (typeof faq === 'string') {
                             return null; // Skip string FAQs as they don't have the required format
                           }
-                          
+
                           return (
                             <AccordionItem key={index} value={`faq-${index}`}>
                               <AccordionTrigger className="text-left font-medium text-zinc-900">
@@ -651,32 +671,28 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                 </TabsContent>
               </Tabs>
             </div>
-            
+
             {/* Sidebar */}
             <div className="lg:w-1/3">
               <div className="sticky top-36">
                 <div className="japan-card mb-6">
                   <h2 className="text-xl font-bold mb-6 text-zinc-900">Event Details</h2>
-                  
+
                   <div className="space-y-6">
                     {/* Event Date and Time */}
                     <div className="flex items-start">
                       <Calendar className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
                       <div>
                         <h3 className="font-medium text-zinc-900">Date & Time</h3>
-                        {event.eventDate ? (
-                          <p className="text-zinc-700">
-                            {formatDate(new Date(event.eventDate))}
-                            {event.startTime && (
-                              <span>
-                                , {formatTime(event.startTime)} 
-                                {event.endTime && ` - ${formatTime(event.endTime)}`}
-                              </span>
-                            )}
-                          </p>
-                        ) : (
-                          <p className="text-zinc-700">Date to be announced</p>
-                        )}
+                        <p className="text-zinc-700">
+                          {getEventDateDisplay(event)}
+                          {event.startTime && (
+                            <span>
+                              , {formatTime(event.startTime)}
+                              {event.endTime && ` - ${formatTime(event.endTime)}`}
+                            </span>
+                          )}
+                        </p>
                       </div>
                     </div>
 
@@ -685,40 +701,56 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                       <MapPin className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
                       <div>
                         <h3 className="font-medium text-zinc-900">Location</h3>
-                        {typeof event.location === 'string' ? (
-                          <p className="text-zinc-700">{event.location}</p>
-                        ) : event.location && typeof event.location === 'object' ? (
+                        {event.keyFeatures?.isVirtual || event.keyFeatures?.mode === 'online' ? (
                           <>
-                            <p className="text-zinc-700">{event.location.name || 'Event Venue'}</p>
-                            {event.location.address && (
-                              <p className="text-sm text-zinc-500">{event.location.address}</p>
-                            )}
-                            {event.location.city && (
-                              <p className="text-sm text-zinc-500">
-                                {[event.location.city, event.location.state, event.location.zipCode]
-                                  .filter(Boolean)
-                                  .join(', ')}
-                              </p>
+                            <p className="text-zinc-700">Online Event</p>
+                            {event.keyFeatures.virtualLink && (
+                              <a href={event.keyFeatures.virtualLink} target="_blank" rel="noopener noreferrer" className="text-sm text-hinomaru-red hover:underline">
+                                Join Link
+                              </a>
                             )}
                           </>
                         ) : (
-                          <p className="text-zinc-700">Location details unavailable</p>
-                        )}
-                        {event.address && (
-                          <p className="text-sm text-zinc-500">{event.address}</p>
-                        )}
-                        {event.mapLink && (
-                          <Link
-                            href={event.mapLink}
-                            target="_blank"
-                            className="mt-2 text-sm text-hinomaru-red hover:underline flex items-center"
-                          >
-                            View on map <ChevronRight className="h-3 w-3 ml-1" />
-                          </Link>
+                          <>
+                            {event.keyFeatures?.customLocation ? (
+                              <p className="text-zinc-700">{event.keyFeatures.customLocation}</p>
+                            ) : typeof event.location === 'string' ? (
+                              <p className="text-zinc-700">{event.location}</p>
+                            ) : event.location && typeof event.location === 'object' ? (
+                              <>
+                                <p className="text-zinc-700">{event.location.name || 'Event Venue'}</p>
+                                {event.location.address && (
+                                  <p className="text-sm text-zinc-500">{event.location.address}</p>
+                                )}
+                                {event.location.city && (
+                                  <p className="text-sm text-zinc-500">
+                                    {[event.location.city, event.location.state, event.location.zipCode]
+                                      .filter(Boolean)
+                                      .join(', ')}
+                                  </p>
+                                )}
+                              </>
+                            ) : (
+                              <p className="text-zinc-700">Location details unavailable</p>
+                            )}
+
+                            {(event.keyFeatures?.address || event.address) && (
+                              <p className="text-sm text-zinc-500">{event.keyFeatures?.address || event.address}</p>
+                            )}
+                            {(event.keyFeatures?.mapLink || event.mapLink) && (
+                              <Link
+                                href={event.keyFeatures?.mapLink || event.mapLink || '#'}
+                                target="_blank"
+                                className="mt-2 text-sm text-hinomaru-red hover:underline flex items-center"
+                              >
+                                View on map <ChevronRight className="h-3 w-3 ml-1" />
+                              </Link>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Registration Fees */}
                     <div className="flex items-start">
                       <Tag className="h-5 w-5 mr-3 text-hinomaru-red mt-0.5" />
@@ -752,7 +784,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Attendees */}
                     {(event.maxAttendees || event.currentAttendees) && (
                       <div className="flex items-start">
@@ -772,7 +804,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                         </div>
                       </div>
                     )}
-                    
+
                     {/* Organizer */}
                     {event.organizer && (
                       <div className="flex items-start">
@@ -791,7 +823,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="mt-8 pt-6 border-t border-gray-200">
                     {isEventPassed() ? (
                       <div>
@@ -799,7 +831,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                           Event Completed
                         </Badge>
                         {(event.recordings || event.materials) && (
-                          <Button 
+                          <Button
                             className="w-full"
                             variant="outline"
                             onClick={() => setActiveTab('overview')}
@@ -809,7 +841,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                         )}
                       </div>
                     ) : event.registrationClosed ? (
-                      <Button 
+                      <Button
                         className="w-full btn-secondary"
                         disabled
                       >
@@ -817,7 +849,7 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                       </Button>
                     ) : event.maxAttendees && event.currentAttendees && event.maxAttendees <= event.currentAttendees ? (
                       <div>
-                        <Button 
+                        <Button
                           className="w-full btn-secondary"
                           disabled
                         >
@@ -827,26 +859,32 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                           All spots have been filled
                         </p>
                       </div>
-                    ) : (
-                      <Button 
+                    ) : event.uiConfig?.showRegisterButton !== false ? (
+                      <Button
                         className="w-full btn-primary"
                         onClick={handleRegisterClick}
                       >
                         Register Now
                       </Button>
+                    ) : null}
+
+                    {(event.uiConfig?.showContactButton !== false || event.uiConfig?.showShareButton !== false) && (
+                      <div className="flex justify-between mt-4">
+                        {event.uiConfig?.showContactButton !== false && (
+                          <Button variant="outline" className={`flex-1 ${event.uiConfig?.showShareButton !== false ? 'mr-2' : ''}`}>
+                            Contact Us
+                          </Button>
+                        )}
+                        {event.uiConfig?.showShareButton !== false && (
+                          <Button variant="outline" className={`flex-1 ${event.uiConfig?.showContactButton !== false ? 'ml-2' : ''}`}>
+                            Share
+                          </Button>
+                        )}
+                      </div>
                     )}
-                    
-                    <div className="flex justify-between mt-4">
-                      <Button variant="outline" className="flex-1 mr-2">
-                        Contact Us
-                      </Button>
-                      <Button variant="outline" className="flex-1 ml-2">
-                        Share
-                      </Button>
-                    </div>
                   </div>
                 </div>
-                
+
                 {/* Related Events */}
                 <div className="japan-card">
                   <h3 className="text-lg font-bold mb-4 text-zinc-900">Related Events</h3>
@@ -856,8 +894,8 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                       <ChevronRight size={16} className="ml-1" />
                     </Link>
                     {event.eventType && (
-                      <Link 
-                        href={`/events?type=${event.eventType}`} 
+                      <Link
+                        href={`/events?type=${event.eventType}`}
                         className="flex items-center text-hinomaru-red font-medium hover:underline"
                       >
                         <span>More {event.eventType} Events</span>

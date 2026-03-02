@@ -86,6 +86,16 @@ export interface Event {
   attendees?: string[] | User[];
   categories?: string[] | { id: string; name: string }[];
   relatedFiles?: string[] | Media[];
+  resources?: Array<{
+    title: string;
+    file: Media | string;
+    description?: string;
+  }>;
+  uiConfig?: {
+    showRegisterButton?: boolean;
+    showContactButton?: boolean;
+    showShareButton?: boolean;
+  };
   createdAt: string;
   updatedAt: string;
 
@@ -94,6 +104,8 @@ export interface Event {
     duration?: string;
     mode?: 'online' | 'offline' | 'hybrid';
     customLocation?: string;
+    address?: string;
+    mapLink?: string;
     isVirtual?: boolean;
     virtualLink?: string;
     eventDate?: string;  // For single-day events
