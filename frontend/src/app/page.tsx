@@ -202,8 +202,8 @@ export default function Home() {
 
         // Sort events by date using all available date fields
         fetchedEvents.sort((a: Event, b: Event) => {
-          const dateA = a.keyFeatures?.eventDate || a.keyFeatures?.startDate || a.startDate || today;
-          const dateB = b.keyFeatures?.eventDate || b.keyFeatures?.startDate || b.startDate || today;
+          const dateA = a.keyFeatures?.eventDate || a.keyFeatures?.startDate || a.eventDate || a.startDate || today;
+          const dateB = b.keyFeatures?.eventDate || b.keyFeatures?.startDate || b.eventDate || b.startDate || today;
           return new Date(dateA).getTime() - new Date(dateB).getTime();
         });
 
@@ -414,7 +414,7 @@ export default function Home() {
                 Learn More
               </Link>
               <Link
-                href="/programs#training-programs"
+                href="/events"
                 className="btn-secondary"
               >
                 Upcoming Events

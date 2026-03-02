@@ -355,29 +355,36 @@ export default function EventsPage() {
                       </p>
 
                       <div className="space-y-2 mb-4 text-sm">
-                        {(event.eventDate || event.startDate) && (
-                          <div className="flex items-center gap-2">
-                            <Calendar size={16} className="text-hinomaru-red flex-shrink-0" />
-                            <span className="text-zinc-700">
-                              {event.eventDate
-                                ? formatDate(new Date(event.eventDate))
-                                : event.startDate
-                                  ? formatDate(new Date(event.startDate))
-                                  : 'Date to be announced'
-                              }
-                            </span>
-                          </div>
-                        )}
+                        {(() => {
+                          const eventDateStr = event.keyFeatures?.eventDate || event.keyFeatures?.startDate || event.eventDate || event.startDate;
+                          return eventDateStr ? (
+                            <div className="flex items-center gap-2">
+                              <Calendar size={16} className="text-hinomaru-red flex-shrink-0" />
+                              <span className="text-zinc-700">
+                                {formatDate(new Date(eventDateStr))}
+                              </span>
+                            </div>
+                          ) : null;
+                        })()}
 
-                        {event.startTime && (
-                          <div className="flex items-center gap-2">
-                            <Clock size={16} className="text-hinomaru-red flex-shrink-0" />
-                            <span className="text-zinc-700">
-                              {event.startTime}
-                              {event.endTime && ` - ${event.endTime}`}
-                            </span>
-                          </div>
-                        )}
+                        {(() => {
+                          let timeStr = null;
+                          if (event.startTime) {
+                            timeStr = `${formatTime(event.startTime)}${event.endTime ? ` - ${formatTime(event.endTime)}` : ''}`;
+                          } else {
+                            const dateStr = event.keyFeatures?.eventDate || event.keyFeatures?.startDate || event.eventDate || event.startDate;
+                            if (dateStr) {
+                              timeStr = formatTime(new Date(dateStr));
+                            }
+                          }
+
+                          return timeStr ? (
+                            <div className="flex items-center gap-2">
+                              <Clock size={16} className="text-hinomaru-red flex-shrink-0" />
+                              <span className="text-zinc-700">{timeStr}</span>
+                            </div>
+                          ) : null;
+                        })()}
 
                         <div className="flex items-center gap-2">
                           {event.isVirtual ? (

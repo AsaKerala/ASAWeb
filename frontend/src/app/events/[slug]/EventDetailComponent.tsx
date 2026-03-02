@@ -292,6 +292,26 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
     return 'Date to be announced';
   };
 
+  const getEventTimeDisplayString = (event: ExtendedEvent): string | null => {
+    // Legacy specific fields
+    if (event.startTime) {
+      return `${formatTime(event.startTime)}${event.endTime ? ` - ${formatTime(event.endTime)}` : ''}`;
+    }
+
+    // Check combined keyFeatures dates
+    if (event.keyFeatures && typeof event.keyFeatures === 'object' && !Array.isArray(event.keyFeatures)) {
+      const kf = event.keyFeatures as KeyFeaturesObject;
+      if (kf.eventDate) return formatTime(new Date(kf.eventDate));
+      if (kf.startDate) return `${formatTime(new Date(kf.startDate))}${kf.endDate ? ` - ${formatTime(new Date(kf.endDate))}` : ''}`;
+    }
+
+    // Check combined eventDate legacy
+    if (event.eventDate) return formatTime(new Date(event.eventDate));
+    if (event.startDate) return `${formatTime(new Date(event.startDate))}${event.endDate ? ` - ${formatTime(new Date(event.endDate))}` : ''}`;
+
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50">
       {/* Hero Section with Event Image */}
@@ -331,12 +351,11 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                 <Calendar className="h-5 w-5 mr-2 text-hinomaru-red" />
                 <span>{getEventDateDisplay(event)}</span>
               </div>
-              {event.startTime && (
+              {getEventTimeDisplayString(event) && (
                 <div className="flex items-center">
                   <Clock className="h-5 w-5 mr-2 text-hinomaru-red" />
                   <span>
-                    {formatTime(event.startTime)}
-                    {event.endTime && ` - ${formatTime(event.endTime)}`}
+                    {getEventTimeDisplayString(event)}
                   </span>
                 </div>
               )}
@@ -686,10 +705,9 @@ export default function EventDetailComponent({ initialEvent, slug }: EventDetail
                         <h3 className="font-medium text-zinc-900">Date & Time</h3>
                         <p className="text-zinc-700">
                           {getEventDateDisplay(event)}
-                          {event.startTime && (
+                          {getEventTimeDisplayString(event) && (
                             <span>
-                              , {formatTime(event.startTime)}
-                              {event.endTime && ` - ${formatTime(event.endTime)}`}
+                              , {getEventTimeDisplayString(event)}
                             </span>
                           )}
                         </p>
